@@ -1,18 +1,13 @@
 package com.sunilson.pro4.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 
@@ -21,8 +16,6 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-
-import static java.security.AccessController.getContext;
 
 /**
  * Created by linus_000 on 15.03.2017.
@@ -64,14 +57,6 @@ public class FeedFragment extends BaseFragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerViewAdapter = new FeedRecyclerViewAdapter(list);
         recyclerView.setAdapter(recyclerViewAdapter);
-
-        final DatabaseReference ref = mReference.child("test").push();
-        ref.setValue("Hallo").addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Toast.makeText(getContext(), "Added " + ref.getKey(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Nullable
