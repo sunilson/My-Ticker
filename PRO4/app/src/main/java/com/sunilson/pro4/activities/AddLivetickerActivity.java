@@ -1,5 +1,7 @@
 package com.sunilson.pro4.activities;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -8,8 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,6 +29,7 @@ import com.sunilson.pro4.R;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,12 +37,20 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddLivetickerActivity extends AppCompatActivity {
+public class AddLivetickerActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ValueEventListener queueListener;
     private DatabaseReference mReference;
     private boolean finished;
+    private int mYear, mMonth, mDay, mHour, mMinute;
+    private Calendar calendar;
     private ArrayList<DatabaseReference> references = new ArrayList<>();
+
+    @BindView(R.id.add_liveticker_date)
+    TextView dateTextView;
+
+    @BindView(R.id.add_liveticker_time)
+    TextView timeTextView;
 
     @BindView(R.id.add_liveticker_title_edittext)
     EditText titleEditText;
@@ -56,6 +70,7 @@ public class AddLivetickerActivity extends AppCompatActivity {
         data.put("title", titleEditText.getText().toString());
         data.put("description", descriptionEditText.getText().toString());
         data.put("authorID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        data.put("start", Long.toString(calendar.getTimeInMillis()));
         data.put("privacy", "public");
 
         final DatabaseReference ref = mReference.child("queue").child("livetickerQueue").child("tasks").push();
@@ -90,6 +105,12 @@ public class AddLivetickerActivity extends AppCompatActivity {
 
         mReference = FirebaseDatabase.getInstance().getReference();
         initializeQueueListener();
+
+        calendar = Calendar.getInstance();
+        updateDateTime();
+
+        dateTextView.setOnClickListener(this);
+        timeTextView.setOnClickListener(this);
     }
 
     @Override
@@ -128,7 +149,7 @@ public class AddLivetickerActivity extends AppCompatActivity {
         };
     }
 
-    private void loading(boolean loading){
+    private void loading(boolean loading) {
         if (loading) {
             progressBar.setVisibility(View.VISIBLE);
             descriptionEditText.setVisibility(View.GONE);
@@ -138,5 +159,54 @@ public class AddLivetickerActivity extends AppCompatActivity {
             descriptionEditText.setVisibility(View.VISIBLE);
             titleEditText.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.add_liveticker_date:
+                showDateDialog();
+                break;
+            case R.id.add_liveticker_time:
+                showTimeDialog();
+                break;
+        }
+    }
+
+    private void showDateDialog() {
+        DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateDateTime();
+            }
+        };
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, onDateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() + 432000000);
+        datePickerDialog.show();
+    }
+
+    private void showTimeDialog() {
+        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                updateDateTime();
+            }
+        };
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+        timePickerDialog.show();
+
+    }
+
+    private void updateDateTime() {
+        dateTextView.setText(calendar.get(Calendar.DAY_OF_MONTH) + "." + calendar.get(Calendar.MONTH) + "." + calendar.get(Calendar.YEAR));
+        timeTextView.setText(calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
     }
 }
