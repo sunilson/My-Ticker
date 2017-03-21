@@ -12,17 +12,21 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-
-import static java.security.AccessController.getContext;
 
 /**
  * Created by linus_000 on 15.03.2017.
@@ -33,6 +37,7 @@ public class FeedFragment extends BaseFragment {
     private Unbinder unbinder;
     private RecyclerView.LayoutManager layoutManager;
     private FeedRecyclerViewAdapter recyclerViewAdapter;
+    private ValueEventListener queueListener;
 
     @BindView(R.id.feedRecyclerView)
     RecyclerView recyclerView;
@@ -65,11 +70,18 @@ public class FeedFragment extends BaseFragment {
         recyclerViewAdapter = new FeedRecyclerViewAdapter(list);
         recyclerView.setAdapter(recyclerViewAdapter);
 
-        final DatabaseReference ref = mReference.child("test").push();
-        ref.setValue("Hallo").addOnCompleteListener(new OnCompleteListener<Void>() {
+        initializeQueueListener();
+
+        Map<String, String> data = new HashMap<>();
+
+        data.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        final DatabaseReference ref = mReference.child("queue").child("requestLivetickerQueue").child("tasks").push();
+        ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Toast.makeText(getContext(), "Added " + ref.getKey(), Toast.LENGTH_SHORT).show();
+                DatabaseReference taskRef = mReference.child("queue").child("requestLivetickerQueue").child("tasks").child(ref.getKey());
+                taskRef.addValueEventListener(queueListener);
             }
         });
     }
@@ -86,5 +98,25 @@ public class FeedFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    private void initializeQueueListener() {
+        queueListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.child("_state").getValue() != null) {
+                    if (dataSnapshot.child("_state").getValue().toString().equals("success")) {
+                        Toast.makeText(getActivity(), "success", Toast.LENGTH_SHORT).show();
+                    } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
+                        Toast.makeText(getActivity(), dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 }

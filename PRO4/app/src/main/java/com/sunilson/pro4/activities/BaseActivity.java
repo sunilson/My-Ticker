@@ -46,18 +46,20 @@ public class BaseActivity extends AppCompatActivity{
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
 
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(Constants.LOGGING_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
-                        if (!task.isSuccessful()) {
-                            Log.w(Constants.LOGGING_TAG, "signInAnonymously", task.getException());
-                            Toast.makeText(BaseActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+        if (mAuth.getCurrentUser() == null) {
+            mAuth.signInAnonymously()
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            Log.d(Constants.LOGGING_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+                            if (!task.isSuccessful()) {
+                                Log.w(Constants.LOGGING_TAG, "signInAnonymously", task.getException());
+                                Toast.makeText(BaseActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
+        }
     }
 
     @Override
