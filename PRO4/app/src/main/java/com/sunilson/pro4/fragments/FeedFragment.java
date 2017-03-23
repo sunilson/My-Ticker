@@ -26,7 +26,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 /**
  * Created by linus_000 on 15.03.2017.
@@ -34,7 +33,6 @@ import butterknife.Unbinder;
 
 public class FeedFragment extends BaseFragment {
 
-    private Unbinder unbinder;
     private RecyclerView.LayoutManager layoutManager;
     private FeedRecyclerViewAdapter recyclerViewAdapter;
     private ValueEventListener queueListener;
@@ -92,12 +90,6 @@ public class FeedFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
     private void initializeQueueListener() {

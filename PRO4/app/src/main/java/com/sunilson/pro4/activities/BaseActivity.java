@@ -17,35 +17,23 @@ import com.sunilson.pro4.utilities.Constants;
  * Created by linus_000 on 17.03.2017.
  */
 
-public class BaseActivity extends AppCompatActivity{
+public abstract class BaseActivity extends AppCompatActivity{
 
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    protected FirebaseAuth mAuth;
+    protected FirebaseAuth.AuthStateListener mAuthListener;
+    protected FirebaseUser user;
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    Log.i(Constants.LOGGING_TAG, "Logged in!");
-                } else {
-                    Log.i(Constants.LOGGING_TAG, "Logged out!");
-                }
-            }
-        };
+
+        //Listener for handling Firebase authentication
+        initializeAuthListener();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-
+    protected void signInAnonymously() {
         if (mAuth.getCurrentUser() == null) {
             mAuth.signInAnonymously()
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -62,11 +50,5 @@ public class BaseActivity extends AppCompatActivity{
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
+    abstract void initializeAuthListener();
 }

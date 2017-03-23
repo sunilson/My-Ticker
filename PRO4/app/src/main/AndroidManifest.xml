@@ -27,6 +27,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sunilson.pro4.activities.BaseActivity" />
         </activity>
+        <activity
+            android:name=".activities.AuthenticationActivity"
+            android:label="@string/title_activity_authentication"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

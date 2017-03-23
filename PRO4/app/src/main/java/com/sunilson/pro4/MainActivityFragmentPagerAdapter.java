@@ -10,7 +10,7 @@ import com.sunilson.pro4.fragments.ProfileFragment;
 import com.sunilson.pro4.fragments.SearchFragment;
 
 /**
- * Created by linus_000 on 17.03.2017.
+ * @author Linus Weiss
  */
 
 public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
