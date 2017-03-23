@@ -5,4 +5,10 @@ package com.sunilson.pro4.activities;
  */
 
 public class LivetickerActivity extends BaseActivity {
+
+
+    @Override
+    void initializeAuthListener() {
+
+    }
 }

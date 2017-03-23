@@ -4,41 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.sunilson.pro4.activities.MainActivity">
+    android:fitsSystemWindows="true"
+    tools:context="com.sunilson.pro4.activities.AuthenticationActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-        <android.support.design.widget.TabLayout
-            android:id="@+id/mainActivityTabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="bottom" />
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
     </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:text="Login"
-        android:visibility="gone"
-        android:id="@+id/mainActivity_loginButton"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
-
-    <android.support.v4.view.ViewPager
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/mainActivityViewPager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+    <include layout="@layout/content_authentication" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -47,4 +30,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
+
 </android.support.design.widget.CoordinatorLayout>

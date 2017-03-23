@@ -1,7 +1,5 @@
 package com.sunilson.pro4.baseClasses;
 
-import android.support.v7.widget.RecyclerView;
-
 import com.google.firebase.database.DatabaseReference;
 
 /**
@@ -13,9 +11,6 @@ import com.google.firebase.database.DatabaseReference;
  */
 public class Liveticker {
 
-    private RecyclerView.Adapter eventAdapter, commentAdapter;
-    private RecyclerView eventList, commentList;
-    private DatabaseReference mReference;
     private String livetickerID;
 
     /**
@@ -23,9 +18,8 @@ public class Liveticker {
      * @param livetickerID
      * @param mReference
      */
-    public Liveticker(String livetickerID, DatabaseReference mReference) {
+    public Liveticker(String livetickerID) {
         this.livetickerID = livetickerID;
-        this.mReference = mReference;
     }
 
 }
