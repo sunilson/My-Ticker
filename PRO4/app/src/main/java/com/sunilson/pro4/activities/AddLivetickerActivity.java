@@ -8,11 +8,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -26,25 +28,27 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddLivetickerActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddLivetickerActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private ValueEventListener queueListener;
     private DatabaseReference mReference;
-    private boolean finished;
-    private int mYear, mMonth, mDay, mHour, mMinute;
+    private boolean finished, startNow;
+    private String privacy = "public";
     private Calendar calendar;
+    private DatabaseReference currentQueueReference;
     private ArrayList<DatabaseReference> references = new ArrayList<>();
+    private CompoundButton.OnCheckedChangeListener switchListener;
 
     @BindView(R.id.add_liveticker_date)
     TextView dateTextView;
@@ -61,25 +65,47 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
     @BindView(R.id.add_liveticker_loading_spinner)
     ProgressBar progressBar;
 
+    @BindView(R.id.add_liveticker_start_switch)
+    Switch dateSwitch;
+
+    @BindView(R.id.add_liveticker_privacy_switch)
+    Switch privacySwitch;
+
+    @BindView(R.id.add_liveticker_date_layout)
+    LinearLayout dateLayout;
+
     @OnClick(R.id.add_liveticker_submit_button)
     public void submit(View view) {
+        Liveticker liveticker = new Liveticker();
+
+        try {
+            liveticker.setTitle(titleEditText.getText().toString());
+            liveticker.setDescription(descriptionEditText.getText().toString());
+            liveticker.setAuthor(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            liveticker.setAuthorID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            liveticker.setStartDate(calendar.getTimeInMillis());
+            liveticker.setPrivacy(privacy);
+        } catch (LivetickerSetException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         loading(true);
 
-        Map<String, String> data = new HashMap<>();
-
-        data.put("title", titleEditText.getText().toString());
-        data.put("description", descriptionEditText.getText().toString());
-        data.put("authorID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        data.put("start", Long.toString(calendar.getTimeInMillis()));
-        data.put("privacy", "public");
-
-        final DatabaseReference ref = mReference.child("queue").child("livetickerQueue").child("tasks").push();
-        ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+        final DatabaseReference ref = mReference.child("queue").child(Constants.LIVETICKER_ADD_QUEUE_PATH).child("tasks").push();
+        ref.setValue(liveticker).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                DatabaseReference taskRef = mReference.child("queue").child("livetickerQueue").child("tasks").child(ref.getKey());
-                references.add(taskRef);
+                //Remove Event Listener from Queue, if it has been started
+                if (currentQueueReference != null && queueListener != null) {
+                    currentQueueReference.removeEventListener(queueListener);
+                }
+                //Listen for results from Queue
+                DatabaseReference taskRef = mReference.child("queue").child(Constants.LIVETICKER_ADD_QUEUE_PATH).child("tasks").child(ref.getKey());
+
+                //Add Listener to Reference and store Reference so we can later detach Listener
                 taskRef.addValueEventListener(queueListener);
+                currentQueueReference = taskRef;
             }
         });
     }
@@ -104,6 +130,7 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mReference = FirebaseDatabase.getInstance().getReference();
+
         initializeQueueListener();
 
         calendar = Calendar.getInstance();
@@ -111,17 +138,17 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
 
         dateTextView.setOnClickListener(this);
         timeTextView.setOnClickListener(this);
+        dateSwitch.setOnCheckedChangeListener(this);
+        privacySwitch.setOnCheckedChangeListener(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        for (DatabaseReference ref : references) {
-            if (queueListener != null) {
-                ref.removeEventListener(queueListener);
-                Log.i(Constants.LOGGING_TAG, "Removed Listener!");
-            }
+        //Remove Event Listener from Queue, if it has been started
+        if (currentQueueReference != null && queueListener != null) {
+            currentQueueReference.removeEventListener(queueListener);
         }
     }
 
@@ -136,7 +163,7 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
                             finish();
                         } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
                             loading(false);
-                            Toast.makeText(AddLivetickerActivity.this, dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddLivetickerActivity.this, dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_LONG).show();
                         }
                     }
                 }
@@ -154,10 +181,20 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
             progressBar.setVisibility(View.VISIBLE);
             descriptionEditText.setVisibility(View.GONE);
             titleEditText.setVisibility(View.GONE);
+            dateSwitch.setVisibility(View.GONE);
+            privacySwitch.setVisibility(View.GONE);
+            if (!startNow) {
+                dateLayout.setVisibility(View.GONE);
+            }
         } else {
             progressBar.setVisibility(View.GONE);
             descriptionEditText.setVisibility(View.VISIBLE);
             titleEditText.setVisibility(View.VISIBLE);
+            dateSwitch.setVisibility(View.VISIBLE);
+            privacySwitch.setVisibility(View.VISIBLE);
+            if (!startNow) {
+                dateLayout.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -208,5 +245,35 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
     private void updateDateTime() {
         dateTextView.setText(calendar.get(Calendar.DAY_OF_MONTH) + "." + calendar.get(Calendar.MONTH) + "." + calendar.get(Calendar.YEAR));
         timeTextView.setText(calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        switch (compoundButton.getId()) {
+            case R.id.add_liveticker_start_switch:
+                startNow = !startNow;
+                if (b) {
+                    dateLayout.setVisibility(View.GONE);
+                } else {
+                    dateLayout.setVisibility(View.VISIBLE);
+                }
+                break;
+            case R.id.add_liveticker_privacy_switch:
+                if (b) {
+                    privacy = "public";
+                } else {
+                    privacy = "private";
+                }
+                break;
+        }
+    }
+
+    private void initializeSwitchListener() {
+        switchListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        };
     }
 }

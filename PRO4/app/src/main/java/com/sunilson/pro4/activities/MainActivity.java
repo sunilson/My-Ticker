@@ -21,13 +21,18 @@ import com.sunilson.pro4.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.view.View.GONE;
+
 public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     @BindView(R.id.mainActivity_loginButton)
     Button loginButton;
 
-    ViewPager viewPager;
-    TabLayout tabLayout;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,11 +53,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         //Setup onClick Listeners
         loginButton.setOnClickListener(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
+                startActivity(new Intent(MainActivity.this, AddLivetickerActivity.class));
             }
         });
     }
@@ -90,9 +94,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 } else {
                     if (user.isAnonymous()) {
                         loginButton.setVisibility(View.VISIBLE);
+                        fab.setVisibility(GONE);
                         Toast.makeText(MainActivity.this, "ANONYNMOUS", Toast.LENGTH_SHORT).show();
                     } else {
-                        loginButton.setVisibility(View.GONE);
+                        loginButton.setVisibility(GONE);
+                        fab.setVisibility(View.VISIBLE);
                     }
                 }
             }

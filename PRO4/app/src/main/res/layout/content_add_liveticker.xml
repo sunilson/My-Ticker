@@ -7,7 +7,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.sunilson.pro4.activities.AddLivetickerActivity"
-    tools:showIn="@layout/activity_add_liveticker">
+    tools:showIn="@layout/activity_add_liveticker"
+    android:animateLayoutChanges="true"
+    >
 
     <EditText
         android:id="@+id/add_liveticker_title_edittext"
@@ -20,9 +22,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Beschreibung" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Public?"
+        />
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:id="@+id/add_liveticker_privacy_switch"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sofort starten?"
+        />
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:id="@+id/add_liveticker_start_switch"
+        />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:id="@+id/add_liveticker_date_layout"
+        >
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
