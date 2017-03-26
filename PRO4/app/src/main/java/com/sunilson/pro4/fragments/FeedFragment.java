@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,6 +20,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
+import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +39,10 @@ public class FeedFragment extends BaseFragment {
     private RecyclerView.LayoutManager layoutManager;
     private FeedRecyclerViewAdapter recyclerViewAdapter;
     private ValueEventListener queueListener;
+    private DatabaseReference currentQueueReference;
+
+    @BindView(R.id.feed_fragment_progress)
+    ProgressBar progressBar;
 
     @BindView(R.id.feedRecyclerView)
     RecyclerView recyclerView;
@@ -54,14 +61,6 @@ public class FeedFragment extends BaseFragment {
         super.onStart();
 
         ArrayList<String> list = new ArrayList<>();
-        list.add("yo");
-        list.add("yo");
-        list.add("yo");
-        list.add("yo");
-        list.add("yo");
-        list.add("yo");
-        list.add("yo");
-        list.add("yo");
 
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
@@ -70,16 +69,20 @@ public class FeedFragment extends BaseFragment {
 
         initializeQueueListener();
 
+        //Request Feed from Database
+        loading(true);
         Map<String, String> data = new HashMap<>();
-
         data.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-        final DatabaseReference ref = mReference.child("queue").child("requestLivetickerQueue").child("tasks").push();
+        final DatabaseReference ref = mReference.child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").push();
         ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                DatabaseReference taskRef = mReference.child("queue").child("requestLivetickerQueue").child("tasks").child(ref.getKey());
+                if (currentQueueReference != null && queueListener != null) {
+                    currentQueueReference.removeEventListener(queueListener);
+                }
+                DatabaseReference taskRef = mReference.child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").child(ref.getKey());
                 taskRef.addValueEventListener(queueListener);
+                currentQueueReference = taskRef;
             }
         });
     }
@@ -98,9 +101,19 @@ public class FeedFragment extends BaseFragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("_state").getValue() != null) {
                     if (dataSnapshot.child("_state").getValue().toString().equals("success")) {
-                        Toast.makeText(getActivity(), "success", Toast.LENGTH_SHORT).show();
+                        ArrayList<String> ownLivetickers = new ArrayList<>();
+
+                        //Get Own Livetickers
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("ownLivetickers").getChildren()) {
+                            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
+                            ownLivetickers.add(tempLiveticker.getTitle());
+                        }
+
+                        recyclerViewAdapter.setData(ownLivetickers);
+                        loading(false);
                     } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
                         Toast.makeText(getActivity(), dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_SHORT).show();
+                        loading(false);
                     }
                 }
             }
@@ -110,5 +123,21 @@ public class FeedFragment extends BaseFragment {
 
             }
         };
+    }
+
+    private void loading(boolean loading) {
+        if (loading) {
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (currentQueueReference != null && queueListener != null) {
+            currentQueueReference.removeEventListener(queueListener);
+        }
     }
 }

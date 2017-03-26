@@ -42,11 +42,21 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolder vh = (ViewHolder) holder;
-        vh.string.setText("yoyoyo");
+        vh.string.setText(data.get(position));
     }
 
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public void setData(ArrayList<String> list) {
+        this.data = list;
+        notifyDataSetChanged();
+    }
+
+    public void add(String string) {
+        data.add(string);
+        notifyDataSetChanged();
     }
 }
