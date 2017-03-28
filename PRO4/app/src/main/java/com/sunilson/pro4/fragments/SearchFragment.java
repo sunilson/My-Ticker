@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import com.sunilson.pro4.R;
 
+import butterknife.ButterKnife;
+
 /**
  * Created by linus_000 on 17.03.2017.
  */
@@ -21,7 +23,15 @@ public class SearchFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
 }

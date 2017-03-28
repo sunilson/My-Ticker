@@ -80,7 +80,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.registerFragment_login:
-                ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance());
+                ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
                 break;
             case R.id.registerFragment_submit:
                 createUser(emailEditText.getText().toString(), usernameEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText.getText().toString());

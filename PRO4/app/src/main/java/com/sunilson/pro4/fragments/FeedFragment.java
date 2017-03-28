@@ -36,16 +36,19 @@ import butterknife.ButterKnife;
 
 public class FeedFragment extends BaseFragment {
 
-    private RecyclerView.LayoutManager layoutManager;
-    private FeedRecyclerViewAdapter recyclerViewAdapter;
+    private FeedRecyclerViewAdapter ownLivetickersAdapter, recentlyVisitedAdapter, subscriptionLivetickersAdapter;
     private ValueEventListener queueListener;
     private DatabaseReference currentQueueReference;
 
     @BindView(R.id.feed_fragment_progress)
     ProgressBar progressBar;
 
-    @BindView(R.id.feedRecyclerView)
-    RecyclerView recyclerView;
+    @BindView(R.id.feed_fragment_ownLivetickers_recyclerView)
+    RecyclerView ownLivetickers;
+    @BindView(R.id.feed_fragment_recentlyVisited_recyclerView)
+    RecyclerView recentlyVisited;
+    @BindView(R.id.feed_fragment_subscriptionLivetickers_recyclerView)
+    RecyclerView subscriptionLivetickers;
 
     public static FeedFragment newInstance() {
         return new FeedFragment();
@@ -60,12 +63,14 @@ public class FeedFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
 
-        ArrayList<String> list = new ArrayList<>();
+        //Set Up Liveticker RecyclerViews
+        ownLivetickers.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recentlyVisited.setLayoutManager(new LinearLayoutManager(getActivity()));
+        subscriptionLivetickers.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerViewAdapter = new FeedRecyclerViewAdapter(list);
-        recyclerView.setAdapter(recyclerViewAdapter);
+        ownLivetickers.setAdapter(ownLivetickersAdapter = new FeedRecyclerViewAdapter(ownLivetickers, getContext()));
+        recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
+        subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
 
         initializeQueueListener();
 
@@ -101,15 +106,23 @@ public class FeedFragment extends BaseFragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("_state").getValue() != null) {
                     if (dataSnapshot.child("_state").getValue().toString().equals("success")) {
-                        ArrayList<String> ownLivetickers = new ArrayList<>();
+                        ArrayList<String> ownLivetickersData = new ArrayList<>();
+                        ArrayList<String> recentLivetickersData = new ArrayList<>();
 
                         //Get Own Livetickers
                         for (DataSnapshot postSnapshot : dataSnapshot.child("ownLivetickers").getChildren()) {
                             Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
-                            ownLivetickers.add(tempLiveticker.getTitle());
+                            ownLivetickersData.add(tempLiveticker.getTitle());
                         }
 
-                        recyclerViewAdapter.setData(ownLivetickers);
+                        //Get Recent Livetickers
+                        for (DataSnapshot postSnapshot : dataSnapshot.child("recentLivetickers").getChildren()) {
+                            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
+                            recentLivetickersData.add(tempLiveticker.getTitle());
+                        }
+
+                        recentlyVisitedAdapter.setData(recentLivetickersData);
+                        ownLivetickersAdapter.setData(ownLivetickersData);
                         loading(false);
                     } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
                         Toast.makeText(getActivity(), dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_SHORT).show();
@@ -139,5 +152,11 @@ public class FeedFragment extends BaseFragment {
         if (currentQueueReference != null && queueListener != null) {
             currentQueueReference.removeEventListener(queueListener);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

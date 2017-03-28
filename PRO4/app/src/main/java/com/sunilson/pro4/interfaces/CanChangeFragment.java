@@ -7,5 +7,5 @@ import android.support.v4.app.Fragment;
  */
 
 public interface CanChangeFragment {
-    public void replaceFragment (Fragment fragment);
+    public void replaceFragment (Fragment fragment, String tag);
 }
