@@ -3,7 +3,6 @@ package com.sunilson.pro4.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.activities.LivetickerActivity;
-import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.baseClasses.Liveticker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
 
 public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
 
-    private List<String> data = new ArrayList<>();
+    private List<Liveticker> data = new ArrayList<>();
     private Context ctx;
     private final View.OnClickListener mOnclickListener = new FeedClickListener();
     private final Gson gson = new Gson();
@@ -54,7 +53,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolder vh = (ViewHolder) holder;
-        vh.string.setText(data.get(position));
+        vh.string.setText(data.get(position).getTitle());
     }
 
     @Override
@@ -62,13 +61,8 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
         return data.size();
     }
 
-    public void setData(ArrayList<String> list) {
+    public void setData(ArrayList<Liveticker> list) {
         this.data = list;
-        notifyDataSetChanged();
-    }
-
-    public void add(String string) {
-        data.add(string);
         notifyDataSetChanged();
     }
 
@@ -77,8 +71,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
         @Override
         public void onClick(View view) {
             int pos = recyclerView.getChildLayoutPosition(view);
-            String element = data.get(pos);
-            Log.i(Constants.LOGGING_TAG, element);
+            Liveticker element = data.get(pos);
             Intent i = new Intent(ctx, LivetickerActivity.class);
             i.putExtra("liveticker", gson.toJson(element));
             ctx.startActivity(i);

@@ -2,7 +2,6 @@ package com.sunilson.pro4.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.MainActivityFragmentPagerAdapter;
 import com.sunilson.pro4.R;
@@ -84,39 +82,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         return super.onOptionsItemSelected(item);
     }
 
-    void initializeAuthListener() {
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null) {
-                    signInAnonymously();
-                } else {
-                    if (user.isAnonymous()) {
-                        loginButton.setVisibility(View.VISIBLE);
-                        fab.setVisibility(GONE);
-                        Toast.makeText(MainActivity.this, "ANONYNMOUS", Toast.LENGTH_SHORT).show();
-                    } else {
-                        loginButton.setVisibility(GONE);
-                        fab.setVisibility(View.VISIBLE);
-                    }
-                }
+    @Override
+    protected void authChanged(FirebaseUser user) {
+        if (user == null) {
+            signInAnonymously();
+        } else {
+            if (user.isAnonymous()) {
+                loginButton.setVisibility(View.VISIBLE);
+                fab.setVisibility(GONE);
+                Toast.makeText(MainActivity.this, "ANONYNMOUS", Toast.LENGTH_SHORT).show();
+            } else {
+                loginButton.setVisibility(GONE);
+                fab.setVisibility(View.VISIBLE);
             }
-        };
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override

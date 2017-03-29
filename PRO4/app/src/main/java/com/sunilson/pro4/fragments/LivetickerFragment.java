@@ -10,11 +10,8 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
-import com.sunilson.pro4.utilities.Constants;
 
 import butterknife.ButterKnife;
 
@@ -24,35 +21,23 @@ import butterknife.ButterKnife;
 
 public class LivetickerFragment extends BaseFragment {
 
-    private DatabaseReference livetickerReference, livetickerContentReference;
+    private DatabaseReference  livetickerContentReference;
     private Liveticker liveticker;
-    private ValueEventListener livetickerListener;
     private ChildEventListener livetickerContentListener;
-    private final Gson gson = new Gson();
 
-    public static LivetickerFragment newInstance(String livetickerString) {
+    public static LivetickerFragment newInstance() {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
-
-        Bundle args = new Bundle();
-        args.putString("liveticker", livetickerString);
-        livetickerFragment.setArguments(args);
-
         return livetickerFragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.liveticker = gson.fromJson(getArguments().getString("liveticker"), Liveticker.class);
+
+        //livetickerContentReference = ((BaseActivity)getActivity()).getReference().child(Constants.LIVETICKER_CONTENT_PATH).child(liveticker.getLivetickerID());
+        //initializeContentListener();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        livetickerReference = mReference.child(Constants.LIVETICKER_PATH).child(liveticker.getPrivacy()).child(liveticker.getLivetickerID());
-        livetickerContentReference = mReference.child(Constants.LIVETICKER_CONTENT_PATH).child(liveticker.getLivetickerID());
-    }
 
     @Nullable
     @Override
@@ -81,20 +66,6 @@ public class LivetickerFragment extends BaseFragment {
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-    }
-
-    private void initializeLivetickerListener() {
-        livetickerListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
 
             }
 

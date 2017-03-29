@@ -19,8 +19,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.activities.BaseActivity;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
@@ -78,14 +80,14 @@ public class FeedFragment extends BaseFragment {
         loading(true);
         Map<String, String> data = new HashMap<>();
         data.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        final DatabaseReference ref = mReference.child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").push();
+        final DatabaseReference ref = ((BaseActivity) getActivity()).getReference().child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").push();
         ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (currentQueueReference != null && queueListener != null) {
                     currentQueueReference.removeEventListener(queueListener);
                 }
-                DatabaseReference taskRef = mReference.child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").child(ref.getKey());
+                DatabaseReference taskRef = ((BaseActivity) getActivity()).getReference().child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").child(ref.getKey());
                 taskRef.addValueEventListener(queueListener);
                 currentQueueReference = taskRef;
             }
@@ -106,20 +108,14 @@ public class FeedFragment extends BaseFragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("_state").getValue() != null) {
                     if (dataSnapshot.child("_state").getValue().toString().equals("success")) {
-                        ArrayList<String> ownLivetickersData = new ArrayList<>();
-                        ArrayList<String> recentLivetickersData = new ArrayList<>();
+                        ArrayList<Liveticker> ownLivetickersData = new ArrayList<>();
+                        ArrayList<Liveticker> recentLivetickersData = new ArrayList<>();
 
                         //Get Own Livetickers
-                        for (DataSnapshot postSnapshot : dataSnapshot.child("ownLivetickers").getChildren()) {
-                            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
-                            ownLivetickersData.add(tempLiveticker.getTitle());
-                        }
+                        ownLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_OWN);
 
                         //Get Recent Livetickers
-                        for (DataSnapshot postSnapshot : dataSnapshot.child("recentLivetickers").getChildren()) {
-                            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
-                            recentLivetickersData.add(tempLiveticker.getTitle());
-                        }
+                        recentLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_RECENT);
 
                         recentlyVisitedAdapter.setData(recentLivetickersData);
                         ownLivetickersAdapter.setData(ownLivetickersData);
@@ -136,6 +132,22 @@ public class FeedFragment extends BaseFragment {
 
             }
         };
+    }
+
+    private ArrayList<Liveticker> retrieveLivetickers(DataSnapshot snapshot, String child) {
+        ArrayList<Liveticker> result = new ArrayList<>();
+
+        for (DataSnapshot postSnapshot : snapshot.child(child).getChildren()) {
+            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
+            try {
+                tempLiveticker.setLivetickerID(postSnapshot.getKey());
+            } catch (LivetickerSetException e) {
+                e.printStackTrace();
+            }
+            result.add(tempLiveticker);
+        }
+
+        return result;
     }
 
     private void loading(boolean loading) {
