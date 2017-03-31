@@ -77,9 +77,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         if (id == R.id.main_menu_logOut) {
             mAuth.signOut();
             return true;
+        } else if (id == R.id.feed_menu_refresh) {
+            return false;
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override

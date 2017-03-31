@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sunilson.pro4.MainActivity">
     <item
+        android:id="@+id/feed_menu_refresh"
+        android:orderInCategory="100"
+        android:title="Refresh"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/main_menu_logOut"
         android:orderInCategory="100"
         android:title="Log out"

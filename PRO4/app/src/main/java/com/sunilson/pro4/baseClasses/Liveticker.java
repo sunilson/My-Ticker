@@ -15,6 +15,7 @@ public class Liveticker {
     private String title;
     private String description;
     private String author;
+    private String state;
     private String status;
     private String authorID;
     private int commentCount;
@@ -93,15 +94,15 @@ public class Liveticker {
         this.author = author;
     }
 
-    public String getStatus() {
-        return status;
+    public String getState() {
+        return state;
     }
 
-    public void setStatus(String status) throws LivetickerSetException {
-        if (status.isEmpty()) {
+    public void setState(String state) throws LivetickerSetException {
+        if (state.isEmpty()) {
             throw new LivetickerSetException("Status is not valid");
         }
-        this.status = status;
+        this.state = state;
     }
 
     public int getCommentCount() {
@@ -124,5 +125,16 @@ public class Liveticker {
             throw new LivetickerSetException("Start Date not valid");
         }
         this.startDate = startDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) throws LivetickerSetException {
+        if (status.isEmpty()) {
+            throw new LivetickerSetException("Status is not valid");
+        }
+        this.status = status;
     }
 }

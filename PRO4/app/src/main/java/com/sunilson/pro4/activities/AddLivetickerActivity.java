@@ -62,6 +62,9 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
     @BindView(R.id.add_liveticker_description_edittext)
     EditText descriptionEditText;
 
+    @BindView(R.id.add_liveticker_status_edittext)
+    EditText statusEditText;
+
     @BindView(R.id.add_liveticker_loading_spinner)
     ProgressBar progressBar;
 
@@ -85,6 +88,7 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
             liveticker.setAuthorID(FirebaseAuth.getInstance().getCurrentUser().getUid());
             liveticker.setStartDate(calendar.getTimeInMillis());
             liveticker.setPrivacy(privacy);
+            liveticker.setStatus(statusEditText.getText().toString());
         } catch (LivetickerSetException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             return;

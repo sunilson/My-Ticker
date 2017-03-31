@@ -6,6 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -59,6 +62,7 @@ public class FeedFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -75,6 +79,13 @@ public class FeedFragment extends BaseFragment {
         subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
 
         initializeQueueListener();
+        requestFeed();
+
+    }
+
+    private void requestFeed() {
+        //First clear all adapters
+        clearFeeds();
 
         //Request Feed from Database
         loading(true);
@@ -92,6 +103,12 @@ public class FeedFragment extends BaseFragment {
                 currentQueueReference = taskRef;
             }
         });
+    }
+
+    private void clearFeeds() {
+        ownLivetickersAdapter.clear();
+        recentlyVisitedAdapter.clear();
+        subscriptionLivetickersAdapter.clear();
     }
 
     @Nullable
@@ -164,6 +181,22 @@ public class FeedFragment extends BaseFragment {
         if (currentQueueReference != null && queueListener != null) {
             currentQueueReference.removeEventListener(queueListener);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.feed_menu_refresh:
+                requestFeed();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

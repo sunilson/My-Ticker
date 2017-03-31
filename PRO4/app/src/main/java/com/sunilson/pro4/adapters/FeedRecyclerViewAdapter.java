@@ -77,4 +77,9 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             ctx.startActivity(i);
         }
     }
+
+    public void clear() {
+        data.clear();
+        notifyDataSetChanged();
+    }
 }

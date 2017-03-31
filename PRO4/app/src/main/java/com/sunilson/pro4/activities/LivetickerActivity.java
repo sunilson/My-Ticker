@@ -16,7 +16,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
-import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.fragments.LivetickerFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
@@ -30,6 +29,8 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     private DatabaseReference livetickerReference;
     private final Gson gson = new Gson();
     private Liveticker liveticker;
+    private boolean owner;
+    private boolean started;
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
@@ -47,29 +48,36 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
             Intent i = getIntent();
             String livetickerString = i.getStringExtra("liveticker");
             this.liveticker = gson.fromJson(livetickerString, Liveticker.class);
-
-            try {
-                this.liveticker.setPrivacy("public");
-            } catch (LivetickerSetException e) {
-                e.printStackTrace();
-            }
-
             getSupportFragmentManager().beginTransaction().add(R.id.content_liveticker, LivetickerFragment.newInstance(), Constants.FRAGMENT_LIVETICKER_TAG).commit();
+            updateViews();
         }
 
         initializeLivetickerListener();
-        livetickerReference = mReference.child(Constants.LIVETICKER_PATH).child(liveticker.getPrivacy()).child(liveticker.getLivetickerID());
+        livetickerReference = mReference.child(Constants.LIVETICKER_PATH).child(liveticker.getLivetickerID());
     }
 
     @Override
     protected void authChanged(FirebaseUser user) {
-
+        if (user != null) {
+            if (!started) {
+                addToRecentlyVisited(liveticker.getLivetickerID(), user.getUid());
+                started = true;
+            }
+            if (!user.isAnonymous()) {
+                if (user.getUid().equals(liveticker.getAuthorID())) {
+                    owner = true;
+                    updateViews();
+                } else {
+                    owner = false;
+                    updateViews();
+                }
+            }
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
         livetickerReference.addValueEventListener(livetickerListener);
     }
 
@@ -109,7 +117,13 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         };
     }
 
-    private void updateViews() {
+    private void addToRecentlyVisited(String livetickerID, String userID) {
+        DatabaseReference dRef = mReference.child("queue").child("recentlyVisitedQueue").child("tasks").push();
+        dRef.child("livetickerID").setValue(livetickerID);
+        dRef.child("userID").setValue(userID);
+    }
 
+    private void updateViews() {
+        setTitle(liveticker.getTitle());
     }
 }
