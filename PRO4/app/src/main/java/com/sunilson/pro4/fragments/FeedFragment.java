@@ -50,8 +50,10 @@ public class FeedFragment extends BaseFragment {
 
     @BindView(R.id.feed_fragment_ownLivetickers_recyclerView)
     RecyclerView ownLivetickers;
+
     @BindView(R.id.feed_fragment_recentlyVisited_recyclerView)
     RecyclerView recentlyVisited;
+
     @BindView(R.id.feed_fragment_subscriptionLivetickers_recyclerView)
     RecyclerView subscriptionLivetickers;
 

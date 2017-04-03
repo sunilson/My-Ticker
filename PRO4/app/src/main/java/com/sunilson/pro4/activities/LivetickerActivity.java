@@ -2,11 +2,9 @@ package com.sunilson.pro4.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -20,7 +18,9 @@ import com.sunilson.pro4.fragments.LivetickerFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
 
-import butterknife.BindView;
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.ButterKnife;
 
 public class LivetickerActivity extends BaseActivity implements CanChangeFragment {
@@ -32,8 +32,10 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     private boolean owner;
     private boolean started;
 
+    /*
     @BindView(R.id.fab)
     FloatingActionButton fab;
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,9 +97,9 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).commit();
 
         if (tag.equals(Constants.FRAGMENT_LIVETICKER_TAG)) {
-            fab.setVisibility(View.VISIBLE);
+            //fab.setVisibility(View.VISIBLE);
         } else {
-            fab.setVisibility(View.GONE);
+            //fab.setVisibility(View.GONE);
         }
     }
 
@@ -118,9 +120,11 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     }
 
     private void addToRecentlyVisited(String livetickerID, String userID) {
-        DatabaseReference dRef = mReference.child("queue").child("recentlyVisitedQueue").child("tasks").push();
-        dRef.child("livetickerID").setValue(livetickerID);
-        dRef.child("userID").setValue(userID);
+        DatabaseReference dRef = mReference.child("recentlyVisited").push();
+        Map<String, String> map = new HashMap<>();
+        map.put("livetickerID", livetickerID);
+        map.put("userID", userID);
+        dRef.setValue(map);
     }
 
     private void updateViews() {
