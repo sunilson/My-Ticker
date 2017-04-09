@@ -14,6 +14,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.fragments.LivetickerFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
@@ -109,6 +110,11 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.i(Constants.LOGGING_TAG, dataSnapshot.getValue().toString());
                 liveticker = dataSnapshot.getValue(Liveticker.class);
+                try {
+                    liveticker.setLivetickerID(dataSnapshot.getKey());
+                } catch (LivetickerSetException e) {
+                    e.printStackTrace();
+                }
                 updateViews();
             }
 
@@ -120,14 +126,17 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     }
 
     private void addToRecentlyVisited(String livetickerID, String userID) {
-        DatabaseReference dRef = mReference.child("recentlyVisited").push();
+        DatabaseReference dRef = mReference.child("recentlyVisited").child(userID).push();
         Map<String, String> map = new HashMap<>();
         map.put("livetickerID", livetickerID);
-        map.put("userID", userID);
         dRef.setValue(map);
     }
 
     private void updateViews() {
         setTitle(liveticker.getTitle());
+    }
+
+    public Liveticker getLiveticker() {
+        return this.liveticker;
     }
 }

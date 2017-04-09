@@ -2,30 +2,45 @@ package com.sunilson.pro4.fragments;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.activities.BaseActivity;
+import com.sunilson.pro4.activities.LivetickerActivity;
+import com.sunilson.pro4.adapters.LivetickerRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.baseClasses.LivetickerEvent;
+import com.sunilson.pro4.exceptions.LivetickerEventSetException;
+import com.sunilson.pro4.utilities.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,11 +60,18 @@ import butterknife.ButterKnife;
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    private DatabaseReference livetickerContentReference;
-    private Liveticker liveticker;
+    private DatabaseReference livetickerContentReference, currentResultReference;
+    private ValueEventListener resultListener;
     private ChildEventListener livetickerContentListener;
     private FirebaseStorage storage;
     private Uri imageURI;
+    private LivetickerRecyclerViewAdapter livetickerAdapter;
+
+    @BindView(R.id.fragment_liveticker_recyclerView)
+    RecyclerView livetickerContents;
+
+    @BindView(R.id.fragment_liveticker_progressBar)
+    ProgressBar progressBar;
 
     @BindView(R.id.fragment_liveticker_camera_button)
     Button cameraButton;
@@ -59,6 +81,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @BindView(R.id.fragment_liveticker_input)
     EditText textInput;
+
+    @BindView(R.id.fragment_liveticker_progressBar_image_upload)
+    ProgressBar progressBarImageUpload;
 
     public static LivetickerFragment newInstance() {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
@@ -71,8 +96,33 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
         storage = FirebaseStorage.getInstance();
 
-        //livetickerContentReference = ((BaseActivity)getActivity()).getReference().child(Constants.LIVETICKER_CONTENT_PATH).child(liveticker.getLivetickerID());
-        //initializeContentListener();
+        livetickerContentReference = ((BaseActivity) getActivity()).getReference().child(Constants.LIVETICKER_CONTENT_PATH).child(((LivetickerActivity) getActivity()).getLiveticker().getLivetickerID());
+        initializeContentListener();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        livetickerContents.setLayoutManager(new LinearLayoutManager(getActivity()));
+        livetickerContents.setAdapter(livetickerAdapter = new LivetickerRecyclerViewAdapter(livetickerContents, getContext()));
+        initializeResultListener();
+
+        livetickerContentReference.addChildEventListener(livetickerContentListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        //Remove Event Listener from Queue, if it has been started
+        if (currentResultReference != null && resultListener != null) {
+            currentResultReference.removeEventListener(resultListener);
+        }
+
+        if (livetickerContentReference != null && livetickerContentListener != null) {
+            livetickerContentReference.removeEventListener(livetickerContentListener);
+        }
     }
 
     @Nullable
@@ -89,7 +139,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         livetickerContentListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
+                livetickerAdapter.addEvent(dataSnapshot.getValue(LivetickerEvent.class));
             }
 
             @Override
@@ -157,6 +207,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
+            //Result from Camera Activity with the captured picture
             case REQUEST_IMAGE_CAPTURE:
                 try {
                     if (imageURI != null) {
@@ -176,21 +227,51 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      * @param bitmap Image captured from camera
      */
     private void storeImageToDatabase(Bitmap bitmap) {
+        progressBarImageUpload.setVisibility(View.VISIBLE);
+
         String uniqueId = UUID.randomUUID().toString();
-        StorageReference imageRef = storage.getReference().child("livetickerImages/" + uniqueId + ".jpg");
+
+        //Create references to Storage
+        final StorageReference imageRef = storage.getReference().child("livetickerImages/" + uniqueId + ".jpg");
+        final StorageReference thumbRef = storage.getReference().child("livetickerImages/" + uniqueId + "_thumb.jpg");
+
+        //Get Full Image
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream);
-        byte[] data = byteArrayOutputStream.toByteArray();
+        final byte[] data = byteArrayOutputStream.toByteArray();
 
-        UploadTask uploadTask = imageRef.putBytes(data);
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                pushImageOnQueue(taskSnapshot.getDownloadUrl().toString());
-                getActivity().getContentResolver().delete(imageURI, null, null);
-                imageURI = null;
-            }
-        });
+        //Generate Thumbnail of Image
+        Bitmap thumbMap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200);
+        ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream();
+        thumbMap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream2);
+        final byte[] thumbnail = byteArrayOutputStream2.toByteArray();
+
+        progressBarImageUpload.setProgress(10);
+
+       thumbRef.putBytes(thumbnail).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+           @Override
+           public void onSuccess(final UploadTask.TaskSnapshot thumbSnapshot) {
+               progressBarImageUpload.setProgress(30);
+               imageRef.putBytes(data).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                   @Override
+                   public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                       Double d = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                       progressBarImageUpload.setProgress(d.intValue() + 30);
+                   }
+               }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                   @Override
+                   public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
+                       pushImageOnQueue(fullSnapshot.getDownloadUrl().toString(), thumbSnapshot.getDownloadUrl().toString());
+                       getActivity().getContentResolver().delete(imageURI, null, null);
+                       imageURI = null;
+                       progressBarImageUpload.setVisibility(View.GONE);
+                       progressBarImageUpload.setProgress(0);
+                   }
+               });
+           }
+       });
+
+
     }
 
     /**
@@ -198,17 +279,20 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      *
      * @param downloadURL URL of captured image in Firebase Storage
      */
-    private void pushImageOnQueue(String downloadURL) {
+    private void pushImageOnQueue(String downloadURL, String thumbURL) {
         //TODO Image Caption
         //TODO Image important?
 
         LivetickerEvent event = new LivetickerEvent();
         event.setType("image");
-        event.setContent(downloadURL);
-        event.setTimestamp(Calendar.getInstance().getTimeInMillis());
+        try {
+            event.setContent(downloadURL);
+        } catch (LivetickerEventSetException e) {
+            e.printStackTrace();
+        }
 
-        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("queue").child("addLivetickerEventQueue").child("tasks").push();
-        dRef.setValue(event);
+        event.setThumbnail(thumbURL);
+        pushEventToQueue(event);
     }
 
     private void pushTextOnQueue() {
@@ -216,11 +300,82 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
         LivetickerEvent event = new LivetickerEvent();
         event.setType("text");
-        event.setContent(textInput.getText().toString());
-        event.setTimestamp(Calendar.getInstance().getTimeInMillis());
+        try {
+            event.setContent(textInput.getText().toString());
+        } catch (LivetickerEventSetException e) {
+            e.printStackTrace();
+        }
+        pushEventToQueue(event);
+    }
 
-        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("queue").child("addLivetickerEventQueue").child("tasks").push();
-        dRef.setValue(event);
+    /**
+     * Pushes given event to Firebase Server
+     *
+     * @param event Finished Event
+     */
+    private void pushEventToQueue(LivetickerEvent event) {
+        loadingAddingNewEvent(true);
+
+        Liveticker liveticker = ((LivetickerActivity) getActivity()).getLiveticker();
+
+        event.setAuthorID(liveticker.getAuthorID());
+        event.setLivetickerID(liveticker.getLivetickerID());
+        try {
+            event.setTimestamp(Calendar.getInstance().getTimeInMillis());
+        } catch (LivetickerEventSetException e) {
+            e.printStackTrace();
+        }
+
+        final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("request").child(Constants.LIVETICKER_ADD_EVENT_PATH).push();
+        dRef.setValue(event).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                //Remove Event Listener from Queue, if it has been started
+                if (currentResultReference != null && resultListener != null) {
+                    currentResultReference.removeEventListener(resultListener);
+                }
+                //Listen for results from Queue
+                DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference().child("result").child(Constants.LIVETICKER_ADD_EVENT_PATH).child(dRef.getKey());
+
+                //Add Listener to Reference and store Reference so we can later detach Listener
+                taskRef.addValueEventListener(resultListener);
+                currentResultReference = taskRef;
+            }
+        });
+    }
+
+    private void initializeResultListener() {
+        resultListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.child("state").getValue() != null) {
+                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
+                        Toast.makeText(getActivity(), "Added", Toast.LENGTH_LONG).show();
+                    } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
+                        loadingAddingNewEvent(false);
+                        Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();
+                    }
+                    loadingAddingNewEvent(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
+    private void loadingAddingNewEvent(boolean loading) {
+        if (loading) {
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void finishAddingNewEvent() {
+
     }
 
     /**

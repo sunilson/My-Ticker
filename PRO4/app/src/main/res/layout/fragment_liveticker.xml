@@ -9,6 +9,21 @@
         android:layout_weight="1"
         android:id="@+id/fragment_liveticker_recyclerView"
         />
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_liveticker_progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:visibility="gone"
+        />
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_liveticker_progressBar_image_upload"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:visibility="gone"
+        android:progress="0"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

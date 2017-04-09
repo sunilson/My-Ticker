@@ -50,7 +50,7 @@ public class Liveticker {
     }
 
     public String getLivetickerID() {
-        return livetickerID;
+        return this.livetickerID;
     }
 
     public void setLivetickerID(String livetickerID) throws LivetickerSetException {

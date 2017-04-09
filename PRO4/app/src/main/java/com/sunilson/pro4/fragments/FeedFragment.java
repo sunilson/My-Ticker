@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,14 +37,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by linus_000 on 15.03.2017.
+ * @author Linus Weiss
  */
 
 public class FeedFragment extends BaseFragment {
 
     private FeedRecyclerViewAdapter ownLivetickersAdapter, recentlyVisitedAdapter, subscriptionLivetickersAdapter;
-    private ValueEventListener queueListener;
-    private DatabaseReference currentQueueReference;
+    private ValueEventListener resultListener;
+    private DatabaseReference currentResultReference;
 
     @BindView(R.id.feed_fragment_progress)
     ProgressBar progressBar;
@@ -80,7 +81,7 @@ public class FeedFragment extends BaseFragment {
         recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
         subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
 
-        initializeQueueListener();
+        initializeResultListener();
         requestFeed();
 
     }
@@ -93,16 +94,16 @@ public class FeedFragment extends BaseFragment {
         loading(true);
         Map<String, String> data = new HashMap<>();
         data.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        final DatabaseReference ref = ((BaseActivity) getActivity()).getReference().child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").push();
+        final DatabaseReference ref = ((BaseActivity) getActivity()).getReference().child("request").child(Constants.LIVETICKER_REQUEST_FEED_PATH).push();
         ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (currentQueueReference != null && queueListener != null) {
-                    currentQueueReference.removeEventListener(queueListener);
+                if (currentResultReference != null && resultListener != null) {
+                    currentResultReference.removeEventListener(resultListener);
                 }
-                DatabaseReference taskRef = ((BaseActivity) getActivity()).getReference().child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").child(ref.getKey());
-                taskRef.addValueEventListener(queueListener);
-                currentQueueReference = taskRef;
+                DatabaseReference taskRef = ((BaseActivity) getActivity()).getReference().child("result").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child(ref.getKey());
+                taskRef.addValueEventListener(resultListener);
+                currentResultReference = taskRef;
             }
         });
     }
@@ -121,12 +122,13 @@ public class FeedFragment extends BaseFragment {
         return view;
     }
 
-    private void initializeQueueListener() {
-        queueListener = new ValueEventListener() {
+    private void initializeResultListener() {
+        resultListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("_state").getValue() != null) {
-                    if (dataSnapshot.child("_state").getValue().toString().equals("success")) {
+                if (dataSnapshot.child("state").getValue() != null) {
+                    Log.i(Constants.LOGGING_TAG, dataSnapshot.getValue().toString());
+                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                         ArrayList<Liveticker> ownLivetickersData = new ArrayList<>();
                         ArrayList<Liveticker> recentLivetickersData = new ArrayList<>();
 
@@ -139,8 +141,8 @@ public class FeedFragment extends BaseFragment {
                         recentlyVisitedAdapter.setData(recentLivetickersData);
                         ownLivetickersAdapter.setData(ownLivetickersData);
                         loading(false);
-                    } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
-                        Toast.makeText(getActivity(), dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_SHORT).show();
+                    } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
+                        Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_SHORT).show();
                         loading(false);
                     }
                 }
@@ -180,8 +182,8 @@ public class FeedFragment extends BaseFragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (currentQueueReference != null && queueListener != null) {
-            currentQueueReference.removeEventListener(queueListener);
+        if (currentResultReference != null && resultListener != null) {
+            currentResultReference.removeEventListener(resultListener);
         }
     }
 
