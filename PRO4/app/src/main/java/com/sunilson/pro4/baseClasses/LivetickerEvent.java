@@ -13,6 +13,7 @@ public class LivetickerEvent {
     private String authorID;
     private String livetickerID;
     private String thumbnail;
+    private String caption;
     private Long timestamp;
     private Boolean important;
 
@@ -76,5 +77,13 @@ public class LivetickerEvent {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
 }

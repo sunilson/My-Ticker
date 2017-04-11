@@ -1,6 +1,8 @@
 package com.sunilson.pro4.adapters;
 
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +10,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.LivetickerEvent;
+import com.sunilson.pro4.dialogFragments.LivetickerPictureViewDialog;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,13 +31,16 @@ import java.util.TimeZone;
 public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
 
     private ArrayList<LivetickerEvent> data = new ArrayList<>();
+    private RecyclerView liveticker;
     private DateFormat dateFormat;
+    private View.OnClickListener onImageClickListener = new LivetickerClickListener();
     private Context ctx;
 
     public LivetickerRecyclerViewAdapter(RecyclerView recyclerView, Context ctx) {
         this.ctx = ctx;
         this.dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getDefault());
+        this.liveticker = recyclerView;
     }
 
     private class ViewHolderText extends RecyclerView.ViewHolder {
@@ -67,6 +76,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             return new ViewHolderText(v);
         } else {
             v = LayoutInflater.from(parent.getContext()).inflate(R.layout.liveticker_recyclerview_image_element, parent, false);
+            v.setOnClickListener(onImageClickListener);
             return new ViewHolderImage(v);
         }
     }
@@ -81,8 +91,16 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             viewHolderText.date.setText(dateFormat.format(event.getTimestamp()));
         } else if (event.getType().equals("image")) {
             ViewHolderImage viewHolderImage = (ViewHolderImage) holder;
-            Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);
+            if (event.getThumbnail() != null) {
+                StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(event.getThumbnail());
+                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).into(viewHolderImage.image);
+                //viewHolderImage.image.setOnClickListener(onImageClickListener);
+            }
+            //Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);
             viewHolderImage.date.setText(dateFormat.format(event.getTimestamp()));
+            if (event.getCaption() != null) {
+                viewHolderImage.caption.setText(event.getCaption());
+            }
         }
     }
 
@@ -104,5 +122,15 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    private class LivetickerClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            int pos = liveticker.getChildLayoutPosition(view);
+            LivetickerEvent element = data.get(pos);
+            DialogFragment dialogFragment = LivetickerPictureViewDialog.newInstance(element.getContent());
+            dialogFragment.show(((AppCompatActivity)ctx).getSupportFragmentManager(), "dialog");
+        }
     }
 }

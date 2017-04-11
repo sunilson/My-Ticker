@@ -7,7 +7,7 @@ import android.support.v4.app.Fragment;
 import butterknife.Unbinder;
 
 /**
- * Created by linus_000 on 15.03.2017.
+ * @author Linus Weiss
  */
 
 public class BaseFragment extends Fragment {

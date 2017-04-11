@@ -16,4 +16,9 @@ public class Constants {
     public static final String LIVETICKER_RESULT_OWN = "ownLivetickers";
     public static final String LIVETICKER_RESULT_RECENT = "recentLivetickers";
     public static final String USERS_PATH = "users";
+    public static final int PICTURE_DIALOG_REQUEST_CODE = 5;
+    public static final int PICTURE_DIALOG_RESULT_CODE_SUCCESS = 6;
+    public static final int PICTURE_DIALOG_RESULT_CODE_FAILURE = 7;
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
+    public static final int REQUEST_CAMERA_PERMISSION = 20;
 }
