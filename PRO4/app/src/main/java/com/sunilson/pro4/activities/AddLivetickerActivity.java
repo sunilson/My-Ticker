@@ -41,12 +41,11 @@ import butterknife.OnClick;
 
 public class AddLivetickerActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
-    private ValueEventListener queueListener;
-    private DatabaseReference mReference;
+    private ValueEventListener resultListener;
+    private DatabaseReference mReference, currentResultReference;
     private boolean finished, startNow;
     private String privacy = "public";
     private Calendar calendar;
-    private DatabaseReference currentQueueReference;
     private ArrayList<DatabaseReference> references = new ArrayList<>();
     private CompoundButton.OnCheckedChangeListener switchListener;
 
@@ -61,6 +60,9 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
 
     @BindView(R.id.add_liveticker_description_edittext)
     EditText descriptionEditText;
+
+    @BindView(R.id.add_liveticker_status_edittext)
+    EditText statusEditText;
 
     @BindView(R.id.add_liveticker_loading_spinner)
     ProgressBar progressBar;
@@ -85,6 +87,7 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
             liveticker.setAuthorID(FirebaseAuth.getInstance().getCurrentUser().getUid());
             liveticker.setStartDate(calendar.getTimeInMillis());
             liveticker.setPrivacy(privacy);
+            liveticker.setStatus(statusEditText.getText().toString());
         } catch (LivetickerSetException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             return;
@@ -92,20 +95,20 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
 
         loading(true);
 
-        final DatabaseReference ref = mReference.child("queue").child(Constants.LIVETICKER_ADD_QUEUE_PATH).child("tasks").push();
+        final DatabaseReference ref = mReference.child("request").child(Constants.LIVETICKER_ADD_QUEUE_PATH).push();
         ref.setValue(liveticker).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 //Remove Event Listener from Queue, if it has been started
-                if (currentQueueReference != null && queueListener != null) {
-                    currentQueueReference.removeEventListener(queueListener);
+                if (currentResultReference != null && resultListener != null) {
+                    currentResultReference.removeEventListener(resultListener);
                 }
                 //Listen for results from Queue
-                DatabaseReference taskRef = mReference.child("queue").child(Constants.LIVETICKER_ADD_QUEUE_PATH).child("tasks").child(ref.getKey());
+                DatabaseReference taskRef = mReference.child("result").child(Constants.LIVETICKER_ADD_QUEUE_PATH).child(ref.getKey());
 
                 //Add Listener to Reference and store Reference so we can later detach Listener
-                taskRef.addValueEventListener(queueListener);
-                currentQueueReference = taskRef;
+                taskRef.addValueEventListener(resultListener);
+                currentResultReference = taskRef;
             }
         });
     }
@@ -147,23 +150,23 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
         super.onStop();
 
         //Remove Event Listener from Queue, if it has been started
-        if (currentQueueReference != null && queueListener != null) {
-            currentQueueReference.removeEventListener(queueListener);
+        if (currentResultReference != null && resultListener != null) {
+            currentResultReference.removeEventListener(resultListener);
         }
     }
 
     private void initializeQueueListener() {
-        queueListener = new ValueEventListener() {
+        resultListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!finished) {
-                    if (dataSnapshot.child("_state").getValue() != null) {
-                        if (dataSnapshot.child("_state").getValue().toString().equals("livetickerAdded")) {
+                    if (dataSnapshot.child("state").getValue() != null) {
+                        if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                             finished = true;
                             finish();
-                        } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
+                        } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
                             loading(false);
-                            Toast.makeText(AddLivetickerActivity.this, dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(AddLivetickerActivity.this, dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();
                         }
                     }
                 }

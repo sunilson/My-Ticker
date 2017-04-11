@@ -2,9 +2,56 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:id="@+id/fragment_liveticker_recyclerView"
+        />
+    <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Liveticker"
+        android:id="@+id/fragment_liveticker_progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:visibility="gone"
         />
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_liveticker_progressBar_image_upload"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:visibility="gone"
+        android:progress="0"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <EditText
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:background="@color/colorAccent"
+            android:id="@+id/fragment_liveticker_input"
+            android:textColor="@color/cardview_light_background"
+            />
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:text="Kamera"
+            android:id="@+id/fragment_liveticker_camera_button"
+            android:background="@color/colorPrimary"
+            />
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:text="Senden"
+            android:background="@color/colorPrimary"
+            android:id="@+id/fragment_liveticker_send_button"
+            />
+    </LinearLayout>
+
 </LinearLayout>

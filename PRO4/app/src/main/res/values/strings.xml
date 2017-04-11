@@ -4,4 +4,6 @@
     <string name="title_activity_add_liveticker">AddLivetickerActivity</string>
     <string name="title_activity_authentication">AuthenticationActivity</string>
     <string name="title_activity_liveticker">LivetickerActivity</string>
+    <string name="title_activity_image_view">ImageViewActivity</string>
+    <string name="no_access_permission">No permission to access this page!</string>
 </resources>

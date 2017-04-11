@@ -22,6 +22,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Beschreibung" />
+    <EditText
+        android:id="@+id/add_liveticker_status_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Status" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

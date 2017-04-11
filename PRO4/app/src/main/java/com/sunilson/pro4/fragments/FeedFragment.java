@@ -5,7 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -19,8 +23,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.activities.BaseActivity;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
@@ -31,22 +37,24 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by linus_000 on 15.03.2017.
+ * @author Linus Weiss
  */
 
 public class FeedFragment extends BaseFragment {
 
     private FeedRecyclerViewAdapter ownLivetickersAdapter, recentlyVisitedAdapter, subscriptionLivetickersAdapter;
-    private ValueEventListener queueListener;
-    private DatabaseReference currentQueueReference;
+    private ValueEventListener resultListener;
+    private DatabaseReference currentResultReference;
 
     @BindView(R.id.feed_fragment_progress)
     ProgressBar progressBar;
 
     @BindView(R.id.feed_fragment_ownLivetickers_recyclerView)
     RecyclerView ownLivetickers;
+
     @BindView(R.id.feed_fragment_recentlyVisited_recyclerView)
     RecyclerView recentlyVisited;
+
     @BindView(R.id.feed_fragment_subscriptionLivetickers_recyclerView)
     RecyclerView subscriptionLivetickers;
 
@@ -57,6 +65,7 @@ public class FeedFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -72,24 +81,37 @@ public class FeedFragment extends BaseFragment {
         recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
         subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
 
-        initializeQueueListener();
+        initializeResultListener();
+        requestFeed();
+
+    }
+
+    private void requestFeed() {
+        //First clear all adapters
+        clearFeeds();
 
         //Request Feed from Database
         loading(true);
         Map<String, String> data = new HashMap<>();
         data.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        final DatabaseReference ref = mReference.child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").push();
+        final DatabaseReference ref = ((BaseActivity) getActivity()).getReference().child("request").child(Constants.LIVETICKER_REQUEST_FEED_PATH).push();
         ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (currentQueueReference != null && queueListener != null) {
-                    currentQueueReference.removeEventListener(queueListener);
+                if (currentResultReference != null && resultListener != null) {
+                    currentResultReference.removeEventListener(resultListener);
                 }
-                DatabaseReference taskRef = mReference.child("queue").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child("tasks").child(ref.getKey());
-                taskRef.addValueEventListener(queueListener);
-                currentQueueReference = taskRef;
+                DatabaseReference taskRef = ((BaseActivity) getActivity()).getReference().child("result").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child(ref.getKey());
+                taskRef.addValueEventListener(resultListener);
+                currentResultReference = taskRef;
             }
         });
+    }
+
+    private void clearFeeds() {
+        ownLivetickersAdapter.clear();
+        recentlyVisitedAdapter.clear();
+        subscriptionLivetickersAdapter.clear();
     }
 
     @Nullable
@@ -100,32 +122,27 @@ public class FeedFragment extends BaseFragment {
         return view;
     }
 
-    private void initializeQueueListener() {
-        queueListener = new ValueEventListener() {
+    private void initializeResultListener() {
+        resultListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("_state").getValue() != null) {
-                    if (dataSnapshot.child("_state").getValue().toString().equals("success")) {
-                        ArrayList<String> ownLivetickersData = new ArrayList<>();
-                        ArrayList<String> recentLivetickersData = new ArrayList<>();
+                if (dataSnapshot.child("state").getValue() != null) {
+                    Log.i(Constants.LOGGING_TAG, dataSnapshot.getValue().toString());
+                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
+                        ArrayList<Liveticker> ownLivetickersData = new ArrayList<>();
+                        ArrayList<Liveticker> recentLivetickersData = new ArrayList<>();
 
                         //Get Own Livetickers
-                        for (DataSnapshot postSnapshot : dataSnapshot.child("ownLivetickers").getChildren()) {
-                            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
-                            ownLivetickersData.add(tempLiveticker.getTitle());
-                        }
+                        ownLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_OWN);
 
                         //Get Recent Livetickers
-                        for (DataSnapshot postSnapshot : dataSnapshot.child("recentLivetickers").getChildren()) {
-                            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
-                            recentLivetickersData.add(tempLiveticker.getTitle());
-                        }
+                        recentLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_RECENT);
 
                         recentlyVisitedAdapter.setData(recentLivetickersData);
                         ownLivetickersAdapter.setData(ownLivetickersData);
                         loading(false);
-                    } else if (dataSnapshot.child("_state").getValue().toString().equals("error")) {
-                        Toast.makeText(getActivity(), dataSnapshot.child("_error_details").child("error").getValue().toString(), Toast.LENGTH_SHORT).show();
+                    } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
+                        Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_SHORT).show();
                         loading(false);
                     }
                 }
@@ -136,6 +153,22 @@ public class FeedFragment extends BaseFragment {
 
             }
         };
+    }
+
+    private ArrayList<Liveticker> retrieveLivetickers(DataSnapshot snapshot, String child) {
+        ArrayList<Liveticker> result = new ArrayList<>();
+
+        for (DataSnapshot postSnapshot : snapshot.child(child).getChildren()) {
+            Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
+            try {
+                tempLiveticker.setLivetickerID(postSnapshot.getKey());
+            } catch (LivetickerSetException e) {
+                e.printStackTrace();
+            }
+            result.add(tempLiveticker);
+        }
+
+        return result;
     }
 
     private void loading(boolean loading) {
@@ -149,9 +182,25 @@ public class FeedFragment extends BaseFragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (currentQueueReference != null && queueListener != null) {
-            currentQueueReference.removeEventListener(queueListener);
+        if (currentResultReference != null && resultListener != null) {
+            currentResultReference.removeEventListener(resultListener);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.feed_menu_refresh:
+                requestFeed();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

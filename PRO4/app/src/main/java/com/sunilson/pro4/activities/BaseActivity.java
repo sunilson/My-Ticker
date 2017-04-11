@@ -11,6 +11,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.sunilson.pro4.utilities.Constants;
 
 /**
@@ -22,12 +24,14 @@ public abstract class BaseActivity extends AppCompatActivity{
     protected FirebaseAuth mAuth;
     protected FirebaseAuth.AuthStateListener mAuthListener;
     protected FirebaseUser user;
-
+    protected DatabaseReference mReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+
+        mReference = FirebaseDatabase.getInstance().getReference();
 
         //Listener for handling Firebase authentication
         initializeAuthListener();
@@ -50,5 +54,33 @@ public abstract class BaseActivity extends AppCompatActivity{
         }
     }
 
-    abstract void initializeAuthListener();
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    private void initializeAuthListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                authChanged(user);
+            }
+        };
+    }
+
+    public DatabaseReference getReference() {
+        return mReference;
+    }
+
+    abstract protected void authChanged(FirebaseUser user);
 }

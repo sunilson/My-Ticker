@@ -18,8 +18,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.FirebaseDatabase;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
@@ -136,22 +134,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     if (!user.isAnonymous()) {
-                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(registerUsername).build();
-                        user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).child("username").setValue(registerUsername).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            getActivity().finish();
-                                        }
-                                    });
-                                } else {
-                                    Toast.makeText(getActivity(), task.getResult().toString(), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
+                        ((CanChangeFragment)getActivity()).replaceFragment(UpdateChannelFragment.newInstance(), "egal");
                     }
                 }
             }
