@@ -83,7 +83,6 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
         try {
             liveticker.setTitle(titleEditText.getText().toString());
             liveticker.setDescription(descriptionEditText.getText().toString());
-            liveticker.setAuthor(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
             liveticker.setAuthorID(FirebaseAuth.getInstance().getCurrentUser().getUid());
             liveticker.setStartDate(calendar.getTimeInMillis());
             liveticker.setPrivacy(privacy);

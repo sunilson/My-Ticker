@@ -16,7 +16,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.sunilson.pro4.utilities.Constants;
 
 /**
- * Created by linus_000 on 17.03.2017.
+ * @author Linus Weiss
  */
 
 public abstract class BaseActivity extends AppCompatActivity{

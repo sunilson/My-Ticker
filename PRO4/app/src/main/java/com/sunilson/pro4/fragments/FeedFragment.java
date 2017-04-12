@@ -65,6 +65,7 @@ public class FeedFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initializeResultListener();
         setHasOptionsMenu(true);
     }
 
@@ -80,11 +81,20 @@ public class FeedFragment extends BaseFragment {
         ownLivetickers.setAdapter(ownLivetickersAdapter = new FeedRecyclerViewAdapter(ownLivetickers, getContext()));
         recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
         subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
-
-        initializeResultListener();
+        Toast.makeText(getContext(), "started", Toast.LENGTH_SHORT).show();
         requestFeed();
-
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (currentResultReference != null && resultListener != null) {
+            Toast.makeText(getContext(), "Removed", Toast.LENGTH_SHORT).show();
+            currentResultReference.removeEventListener(resultListener);
+        }
+    }
+
 
     private void requestFeed() {
         //First clear all adapters
@@ -172,18 +182,12 @@ public class FeedFragment extends BaseFragment {
     }
 
     private void loading(boolean loading) {
-        if (loading) {
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (currentResultReference != null && resultListener != null) {
-            currentResultReference.removeEventListener(resultListener);
+        if (progressBar != null) {
+            if (loading) {
+                progressBar.setVisibility(View.VISIBLE);
+            } else {
+                progressBar.setVisibility(View.GONE);
+            }
         }
     }
 

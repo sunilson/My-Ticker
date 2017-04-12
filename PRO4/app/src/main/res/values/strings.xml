@@ -6,4 +6,20 @@
     <string name="title_activity_liveticker">LivetickerActivity</string>
     <string name="title_activity_image_view">ImageViewActivity</string>
     <string name="no_access_permission">No permission to access this page!</string>
+    <string name="register_email_hint">Enter your email addres</string>
+    <string name="register_password_hint">Enter your password</string>
+    <string name="register_password2_hint">Enter your password again</string>
+    <string name="register_button">Register</string>
+    <string name="login_button">Login</string>
+    <string name="verification_email_sent">Verification email sent! Please check your emails.</string>
+    <string name="channel_username">Enter username</string>
+    <string name="channel_status">Enter channel status message</string>
+    <string name="channel_info">Enter channel info/description</string>
+    <string name="channel_edit_save">Save</string>
+    <string name="channel_edit_pick_profile">Choose Image for Profile Picture</string>
+    <string name="channel_edit_pick_title">Choose Image for Title Picture</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="title_activity_channel">ChannelActivity</string>
+    <string name="edit_user_channel">Edit your channel</string>
 </resources>

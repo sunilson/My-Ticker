@@ -34,9 +34,6 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @BindView(R.id.registerFragment_email)
     EditText emailEditText;
 
-    @BindView(R.id.registerFragment_username)
-    EditText usernameEditText;
-
     @BindView(R.id.registerFragment_password)
     EditText passwordEditText;
 
@@ -81,7 +78,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                 ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
                 break;
             case R.id.registerFragment_submit:
-                createUser(emailEditText.getText().toString(), usernameEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText.getText().toString());
+                createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText.getText().toString());
                 break;
         }
     }
@@ -91,17 +88,14 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
      * Creates new user from Anonymous user
      *
      * @param email
-     * @param username
      * @param password
      * @param password2
      */
-    private void createUser(String email, String username, String password, String password2) {
+    private void createUser(String email, String password, String password2) {
 
         //TODO Test Username and Password/Email
 
-        if (username.isEmpty()) {
-
-        } else if (password.isEmpty()) {
+        if (password.isEmpty()) {
 
         } else if (password2.isEmpty()) {
 
@@ -109,14 +103,11 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
 
         } else {
             AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-            registerUsername = username;
-
             FirebaseAuth.getInstance().getCurrentUser().linkWithCredential(credential)
                     .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             Log.d(Constants.LOGGING_TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
-
                             if (!task.isSuccessful()) {
                                 Toast.makeText(getContext(), task.getResult().toString(),
                                         Toast.LENGTH_SHORT).show();
@@ -126,7 +117,6 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         }
     }
 
-
     private void initializeAuthListener() {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -134,8 +124,18 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     if (!user.isAnonymous()) {
-                        ((CanChangeFragment)getActivity()).replaceFragment(UpdateChannelFragment.newInstance(), "egal");
+                        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Toast.makeText(getContext(), R.string.verification_email_sent, Toast.LENGTH_LONG).show();
+                                mAuth.signOut();
+                            }
+                        });
+                    } else {
+                        ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
                     }
+                } else {
+                    ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
                 }
             }
         };

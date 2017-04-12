@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_edit_channel_progressBar_image_upload"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:visibility="gone"
+            android:progress="0"
+            />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/fragment_edit_channel_profile"
+            />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/fragment_edit_channel_title"
+            />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/fragment_edit_channel_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/channel_username" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/fragment_edit_channel_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/channel_status" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/fragment_edit_channel_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/channel_info" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/fragment_edit_channel_pick_profile"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="@string/channel_edit_pick_profile" />
+        <Button
+            android:id="@+id/fragment_edit_channel_pick_title"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="@string/channel_edit_pick_title" />
+        <Button
+            android:id="@+id/fragment_edit_channel_save"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="@string/channel_edit_save" />
+
+    </LinearLayout>
+
+    <!-- Progress bar overlay; shown while login is in progress -->
+    <include layout="@layout/progress_overlay"/>
+
+</RelativeLayout>

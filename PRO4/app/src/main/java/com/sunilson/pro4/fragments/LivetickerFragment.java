@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,17 +18,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -43,12 +40,13 @@ import com.sunilson.pro4.baseClasses.LivetickerEvent;
 import com.sunilson.pro4.dialogFragments.LivetickerPictureEditDialog;
 import com.sunilson.pro4.exceptions.LivetickerEventSetException;
 import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.utilities.Utilities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -61,7 +59,6 @@ import butterknife.ButterKnife;
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
     private DatabaseReference livetickerContentReference, currentResultReference;
-    private ValueEventListener resultListener;
     private ChildEventListener livetickerContentListener;
     private FirebaseStorage storage;
     private Uri imageURI;
@@ -85,6 +82,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @BindView(R.id.fragment_liveticker_progressBar_image_upload)
     ProgressBar progressBarImageUpload;
 
+    @BindView(R.id.progress_overlay)
+    View progressOverlay;
+
     public static LivetickerFragment newInstance() {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
         return livetickerFragment;
@@ -106,7 +106,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
         livetickerContents.setLayoutManager(new LinearLayoutManager(getActivity()));
         livetickerContents.setAdapter(livetickerAdapter = new LivetickerRecyclerViewAdapter(livetickerContents, getContext()));
-        initializeResultListener();
 
         livetickerContentReference.addChildEventListener(livetickerContentListener);
     }
@@ -114,11 +113,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @Override
     public void onStop() {
         super.onStop();
-
-        //Remove Event Listener from Queue, if it has been started
-        if (currentResultReference != null && resultListener != null) {
-            currentResultReference.removeEventListener(resultListener);
-        }
 
         if (livetickerContentReference != null && livetickerContentListener != null) {
             livetickerContentReference.removeEventListener(livetickerContentListener);
@@ -168,37 +162,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fragment_liveticker_camera_button:
-                dispatchTakePictureIntent();
+                dispatchTakePictureIntent(Constants.REQUEST_IMAGE_CAPTURE);
                 break;
             case R.id.fragment_liveticker_send_button:
                 pushTextOnQueue();
                 break;
-        }
-    }
-
-    /**
-     * Take picture from camera on generated URI
-     */
-    private void dispatchTakePictureIntent() {
-        Intent imageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        if (imageIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            File photoFile = null;
-
-            try {
-                photoFile = createImageFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (photoFile != null) {
-                //Generate URI, so image can later be accessed again
-                imageURI = FileProvider.getUriForFile(getActivity(), "com.sunilson.pro4.fileprovider", photoFile);
-
-                //Start Camera activity
-                imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
-                startActivityForResult(imageIntent, Constants.REQUEST_IMAGE_CAPTURE);
-            }
         }
     }
 
@@ -218,13 +186,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             case Constants.PICTURE_DIALOG_REQUEST_CODE:
                 switch (resultCode) {
                     case Constants.PICTURE_DIALOG_RESULT_CODE_SUCCESS:
-                        Bitmap bitmap = null;
-                        try {
-                            bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), (Uri) data.getExtras().getParcelable("imageURI"));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        storeImageToDatabase(bitmap, data.getStringExtra("caption"));
+                        storeImageToDatabase((Uri) data.getExtras().getParcelable("imageURI"), data.getStringExtra("caption"));
                         break;
                     case Constants.PICTURE_DIALOG_RESULT_CODE_FAILURE:
                         getActivity().getContentResolver().delete((Uri) data.getExtras().getParcelable("imageURI"), null, null);
@@ -236,10 +198,16 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     /**
      * Store Bitmap to Firebase Storage with unique Name. Then delete local image.
-     *
-     * @param bitmap Image captured from camera
      */
-    private void storeImageToDatabase(Bitmap bitmap, final String caption) {
+    private void storeImageToDatabase(Uri uri, final String caption) {
+
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         progressBarImageUpload.setVisibility(View.VISIBLE);
 
         String uniqueId = UUID.randomUUID().toString();
@@ -280,11 +248,19 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                         progressBarImageUpload.setVisibility(View.GONE);
                         progressBarImageUpload.setProgress(0);
                     }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //TODO Failure Handeln
+                    }
                 });
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //TODO Failure Handeln
+            }
         });
-
-
     }
 
     /**
@@ -331,53 +307,34 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
         Liveticker liveticker = ((LivetickerActivity) getActivity()).getLiveticker();
 
-        event.setAuthorID(liveticker.getAuthorID());
-        event.setLivetickerID(liveticker.getLivetickerID());
-        final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("request").child(Constants.LIVETICKER_ADD_EVENT_PATH).push();
-        dRef.setValue(event).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                //Remove Event Listener from Queue, if it has been started
-                if (currentResultReference != null && resultListener != null) {
-                    currentResultReference.removeEventListener(resultListener);
-                }
-                //Listen for results from Queue
-                DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference().child("result").child(Constants.LIVETICKER_ADD_EVENT_PATH).child(dRef.getKey());
+        Map<String, Object> map = new HashMap<>();
 
-                //Add Listener to Reference and store Reference so we can later detach Listener
-                taskRef.addValueEventListener(resultListener);
-                currentResultReference = taskRef;
+        map.put("authorID", liveticker.getAuthorID());
+        map.put("content", event.getContent());
+        map.put("livetickerID", liveticker.getLivetickerID());
+        map.put("timestamp", ServerValue.TIMESTAMP);
+        map.put("type", event.getType());
+
+        if (event.getType().equals("image")) {
+            map.put("thumbnail", event.getThumbnail());
+            map.put("caption", event.getCaption());
+        }
+
+        final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("contents/" + liveticker.getLivetickerID()).push();
+        dRef.setValue(map).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //TODO Failure Handling
             }
         });
     }
 
-    private void initializeResultListener() {
-        resultListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("state").getValue() != null) {
-                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
-                        Toast.makeText(getActivity(), "Added", Toast.LENGTH_LONG).show();
-                    } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
-                        loadingAddingNewEvent(false);
-                        Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();
-                    }
-                    loadingAddingNewEvent(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-    }
 
     private void loadingAddingNewEvent(boolean loading) {
         if (loading) {
-            progressBar.setVisibility(View.VISIBLE);
+            Utilities.animateView(progressOverlay,View.VISIBLE, 0.4f, 200);
         } else {
-            progressBar.setVisibility(View.GONE);
+            Utilities.animateView(progressOverlay,View.GONE, 0, 200);
         }
     }
 
@@ -386,17 +343,28 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     }
 
     /**
-     * Create file to be used for camera Activity
-     *
-     * @return File that can be used by Camera Activity to store Image
-     * @throws IOException
+     * Take picture from camera on generated URI
      */
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        String mCurrentPath = image.getAbsolutePath();
-        return image;
+    public void dispatchTakePictureIntent(int requestCode) {
+        Intent imageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (imageIntent.resolveActivity(getContext().getPackageManager()) != null) {
+            File photoFile = null;
+
+            try {
+                photoFile = Utilities.createImageFile(getContext());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (photoFile != null) {
+                //Generate URI, so image can later be accessed again
+                imageURI = FileProvider.getUriForFile(getContext(), "com.sunilson.pro4.fileprovider", photoFile);
+
+                //Start Camera activity
+                imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+                startActivityForResult(imageIntent, requestCode);
+            }
+        }
     }
 }

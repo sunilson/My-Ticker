@@ -14,7 +14,6 @@ public class Liveticker {
     private String livetickerID;
     private String title;
     private String description;
-    private String author;
     private String state;
     private String status;
     private String authorID;
@@ -30,7 +29,7 @@ public class Liveticker {
     }
 
     public void setPrivacy(String privacy) throws LivetickerSetException {
-        if (privacy.isEmpty()) {
+        if (privacy == null || privacy.isEmpty()) {
             throw new LivetickerSetException("Privacy not valid");
         }
         this.privacy = privacy;
@@ -43,7 +42,7 @@ public class Liveticker {
     }
 
     public void setAuthorID(String authorID) throws LivetickerSetException {
-        if (authorID.isEmpty()) {
+        if (authorID == null || authorID.isEmpty()) {
             throw new LivetickerSetException("Author ID not valid");
         }
         this.authorID = authorID;
@@ -54,7 +53,7 @@ public class Liveticker {
     }
 
     public void setLivetickerID(String livetickerID) throws LivetickerSetException {
-        if (livetickerID.isEmpty()) {
+        if (livetickerID == null || livetickerID.isEmpty()) {
             throw new LivetickerSetException("Liveticker ID not valid");
         }
         this.livetickerID = livetickerID;
@@ -65,7 +64,7 @@ public class Liveticker {
     }
 
     public void setTitle(String title) throws LivetickerSetException {
-        if (title.isEmpty()) {
+        if (title == null || title.isEmpty()) {
             throw new LivetickerSetException("Title is empty!");
         }
 
@@ -77,21 +76,10 @@ public class Liveticker {
     }
 
     public void setDescription(String description) throws LivetickerSetException {
-        if (description.isEmpty()) {
+        if (description == null || description.isEmpty()) {
             throw new LivetickerSetException("Description is empty");
         }
         this.description = description;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) throws LivetickerSetException  {
-        if (author.isEmpty()) {
-            throw new LivetickerSetException("Author is not defined");
-        }
-        this.author = author;
     }
 
     public String getState() {
@@ -132,7 +120,7 @@ public class Liveticker {
     }
 
     public void setStatus(String status) throws LivetickerSetException {
-        if (status.isEmpty()) {
+        if (status == null || status.isEmpty()) {
             throw new LivetickerSetException("Status is not valid");
         }
         this.status = status;
