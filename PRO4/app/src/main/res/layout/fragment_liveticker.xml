@@ -21,14 +21,6 @@
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
-        <ProgressBar
-            android:id="@+id/fragment_liveticker_progressBar_image_upload"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:progress="0"
-            android:visibility="gone" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

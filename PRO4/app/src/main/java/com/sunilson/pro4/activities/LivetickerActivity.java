@@ -2,14 +2,17 @@ package com.sunilson.pro4.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.sunilson.pro4.R;
@@ -126,10 +129,15 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     }
 
     private void addToRecentlyVisited(String livetickerID, String userID) {
-        DatabaseReference dRef = mReference.child("recentlyVisited").child(userID).push();
-        Map<String, String> map = new HashMap<>();
-        map.put("livetickerID", livetickerID);
-        dRef.setValue(map);
+        DatabaseReference dRef = mReference.child("recentlyVisited").child(userID).child(livetickerID);
+        Map<String, Object> map = new HashMap<>();
+        map.put("timestamp", ServerValue.TIMESTAMP);
+        dRef.setValue(map).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //TODO Error Handling
+            }
+        });
     }
 
     private void updateViews() {

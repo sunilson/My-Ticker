@@ -54,4 +54,20 @@ public class Utilities {
         return image;
     }
 
+    public static boolean checkImageForType(int width, int height, String type) {
+        if (type.equals("profile")) {
+            if (width >= 100 && height >= 100) {
+                return true;
+            }
+            return false;
+        } else if (type.equals("title")) {
+            if (width >= 720 && height >= 281) {
+                return true;
+            }
+            return false;
+        }
+
+        return false;
+    }
+
 }

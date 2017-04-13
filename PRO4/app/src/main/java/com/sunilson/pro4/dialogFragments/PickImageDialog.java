@@ -39,7 +39,6 @@ public class PickImageDialog extends BaseDialog {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String string = simpleDialogAdapter.getStringAtPosition(i);
                 Intent intent = new Intent();
-                intent.putExtra("type", getArguments().getString("type"));
                 if (string.equals(getString(R.string.camera))) {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICK_IMAGE_DIALOG_RESULT_CAMERA, intent);
                 } else {
@@ -52,11 +51,8 @@ public class PickImageDialog extends BaseDialog {
         return builder.create();
     }
 
-    public static PickImageDialog newInstance(String type) {
+    public static PickImageDialog newInstance() {
         PickImageDialog pickImageDialog = new PickImageDialog();
-        Bundle args = new Bundle();
-        args.putString("type", type);
-        pickImageDialog.setArguments(args);
         return pickImageDialog;
     }
 }

@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,7 +38,7 @@ import com.sunilson.pro4.activities.LivetickerActivity;
 import com.sunilson.pro4.adapters.LivetickerRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.baseClasses.LivetickerEvent;
-import com.sunilson.pro4.dialogFragments.LivetickerPictureEditDialog;
+import com.sunilson.pro4.dialogFragments.LivetickerPictureCaptionDialog;
 import com.sunilson.pro4.exceptions.LivetickerEventSetException;
 import com.sunilson.pro4.utilities.Constants;
 import com.sunilson.pro4.utilities.Utilities;
@@ -79,11 +80,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @BindView(R.id.fragment_liveticker_input)
     EditText textInput;
 
-    @BindView(R.id.fragment_liveticker_progressBar_image_upload)
-    ProgressBar progressBarImageUpload;
-
     @BindView(R.id.progress_overlay)
     View progressOverlay;
+
+    @BindView(R.id.progress_overlay_progressbar)
+    ProgressBar progressBarImageUpload;
 
     public static LivetickerFragment newInstance() {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
@@ -133,7 +134,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         livetickerContentListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                livetickerAdapter.addEvent(dataSnapshot.getValue(LivetickerEvent.class));
+                if(dataSnapshot == null || dataSnapshot.getKey().equals("authorID")) {
+
+                } else {
+                    livetickerAdapter.addEvent(dataSnapshot.getValue(LivetickerEvent.class));
+                }
             }
 
             @Override
@@ -165,8 +170,18 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                 dispatchTakePictureIntent(Constants.REQUEST_IMAGE_CAPTURE);
                 break;
             case R.id.fragment_liveticker_send_button:
-                pushTextOnQueue();
+                createTextEvent();
                 break;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (imageURI != null) {
+            getActivity().getContentResolver().delete(imageURI, null, null);
+            imageURI = null;
         }
     }
 
@@ -178,7 +193,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             //Result from Camera Activity with the captured picture
             case Constants.REQUEST_IMAGE_CAPTURE:
                 if (imageURI != null) {
-                    DialogFragment dialogFragment = LivetickerPictureEditDialog.newInstance(imageURI);
+                    DialogFragment dialogFragment = LivetickerPictureCaptionDialog.newInstance(imageURI);
                     dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_REQUEST_CODE);
                     dialogFragment.show(getFragmentManager(), "dialog");
                 }
@@ -186,10 +201,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             case Constants.PICTURE_DIALOG_REQUEST_CODE:
                 switch (resultCode) {
                     case Constants.PICTURE_DIALOG_RESULT_CODE_SUCCESS:
-                        storeImageToDatabase((Uri) data.getExtras().getParcelable("imageURI"), data.getStringExtra("caption"));
+                        storeImageToDatabase(imageURI, data.getStringExtra("caption"));
                         break;
                     case Constants.PICTURE_DIALOG_RESULT_CODE_FAILURE:
-                        getActivity().getContentResolver().delete((Uri) data.getExtras().getParcelable("imageURI"), null, null);
+                        getActivity().getContentResolver().delete(imageURI, null, null);
+                        imageURI = null;
                         break;
                 }
                 break;
@@ -200,7 +216,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      * Store Bitmap to Firebase Storage with unique Name. Then delete local image.
      */
     private void storeImageToDatabase(Uri uri, final String caption) {
-
+        loadingAddingNewEvent(true);
         Bitmap bitmap = null;
         try {
             bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
@@ -242,23 +258,31 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
-                        pushImageOnQueue(fullSnapshot.getDownloadUrl().toString(), thumbSnapshot.getDownloadUrl().toString(), caption);
+                        loadingAddingNewEvent(false);
+                        createImageEvent(fullSnapshot.getDownloadUrl().toString(), thumbSnapshot.getDownloadUrl().toString(), caption);
                         getActivity().getContentResolver().delete(imageURI, null, null);
                         imageURI = null;
-                        progressBarImageUpload.setVisibility(View.GONE);
                         progressBarImageUpload.setProgress(0);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        //TODO Failure Handeln
+                        loadingAddingNewEvent(false);
+                        Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_LONG).show();
+                        getActivity().getContentResolver().delete(imageURI, null, null);
+                        imageURI = null;
+                        progressBarImageUpload.setProgress(0);
                     }
                 });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                //TODO Failure Handeln
+                loadingAddingNewEvent(false);
+                Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_LONG).show();
+                getActivity().getContentResolver().delete(imageURI, null, null);
+                imageURI = null;
+                progressBarImageUpload.setProgress(0);
             }
         });
     }
@@ -268,7 +292,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      *
      * @param downloadURL URL of captured image in Firebase Storage
      */
-    private void pushImageOnQueue(String downloadURL, String thumbURL, String caption) {
+    private void createImageEvent(String downloadURL, String thumbURL, String caption) {
         //TODO Image important?
 
         LivetickerEvent event = new LivetickerEvent();
@@ -281,10 +305,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
         event.setThumbnail(thumbURL);
         event.setCaption(caption);
-        pushEventToQueue(event);
+        addEventToDatabase(event);
     }
 
-    private void pushTextOnQueue() {
+    private void createTextEvent() {
         //TODO Text important?
 
         LivetickerEvent event = new LivetickerEvent();
@@ -294,7 +318,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         } catch (LivetickerEventSetException e) {
             e.printStackTrace();
         }
-        pushEventToQueue(event);
+        addEventToDatabase(event);
     }
 
     /**
@@ -302,9 +326,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      *
      * @param event Finished Event
      */
-    private void pushEventToQueue(LivetickerEvent event) {
-        loadingAddingNewEvent(true);
-
+    private void addEventToDatabase(final LivetickerEvent event) {
         Liveticker liveticker = ((LivetickerActivity) getActivity()).getLiveticker();
 
         Map<String, Object> map = new HashMap<>();
@@ -324,7 +346,14 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         dRef.setValue(map).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                //TODO Failure Handling
+                Toast.makeText(getActivity(), R.string.add_liveticker_event_failure, Toast.LENGTH_LONG).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (event.getType().equals("text")) {
+                    textInput.setText("");
+                }
             }
         });
     }

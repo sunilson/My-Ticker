@@ -24,7 +24,7 @@ import java.io.IOException;
  * Created by linus_000 on 09.04.2017.
  */
 
-public class LivetickerPictureEditDialog extends ImageBaseDialog {
+public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
 
     private Uri imageURI;
 
@@ -33,12 +33,12 @@ public class LivetickerPictureEditDialog extends ImageBaseDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
 
-        View view = inflater.inflate(R.layout.picture_edit_fragment, null);
+        View view = inflater.inflate(R.layout.picture_caption_fragment, null);
         builder.setView(view);
 
         //Setting up the toolbar
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.menu_view_image);
+        toolbar.inflateMenu(R.menu.menu_caption_image);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -92,8 +92,8 @@ public class LivetickerPictureEditDialog extends ImageBaseDialog {
         getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICTURE_DIALOG_RESULT_CODE_FAILURE, intent);
     }
 
-    public static LivetickerPictureEditDialog newInstance(Uri uri) {
-        LivetickerPictureEditDialog dialog = new LivetickerPictureEditDialog();
+    public static LivetickerPictureCaptionDialog newInstance(Uri uri) {
+        LivetickerPictureCaptionDialog dialog = new LivetickerPictureCaptionDialog();
         Bundle args = new Bundle();
         args.putString("imageURI", uri.toString());
         dialog.setArguments(args);
