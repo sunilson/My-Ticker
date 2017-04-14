@@ -1,15 +1,20 @@
 package com.sunilson.pro4.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.FileProvider;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.afollestad.materialcamera.MaterialCamera;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
@@ -134,7 +140,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         livetickerContentListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if(dataSnapshot == null || dataSnapshot.getKey().equals("authorID")) {
+                if (dataSnapshot == null || dataSnapshot.getKey().equals("authorID")) {
 
                 } else {
                     livetickerAdapter.addEvent(dataSnapshot.getValue(LivetickerEvent.class));
@@ -180,7 +186,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         super.onDestroy();
 
         if (imageURI != null) {
-            getActivity().getContentResolver().delete(imageURI, null, null);
+            File file = new File(imageURI.getPath());
+            file.delete();
             imageURI = null;
         }
     }
@@ -192,23 +199,48 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         switch (requestCode) {
             //Result from Camera Activity with the captured picture
             case Constants.REQUEST_IMAGE_CAPTURE:
-                if (imageURI != null) {
+                if (resultCode == Activity.RESULT_OK) {
+                    imageURI = Uri.parse(data.getDataString());
                     DialogFragment dialogFragment = LivetickerPictureCaptionDialog.newInstance(imageURI);
                     dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_REQUEST_CODE);
                     dialogFragment.show(getFragmentManager(), "dialog");
+                    break;
+                } else if (data != null) {
+                    Exception e = (Exception) data.getSerializableExtra(MaterialCamera.ERROR_EXTRA);
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-                break;
             case Constants.PICTURE_DIALOG_REQUEST_CODE:
                 switch (resultCode) {
                     case Constants.PICTURE_DIALOG_RESULT_CODE_SUCCESS:
                         storeImageToDatabase(imageURI, data.getStringExtra("caption"));
                         break;
                     case Constants.PICTURE_DIALOG_RESULT_CODE_FAILURE:
-                        getActivity().getContentResolver().delete(imageURI, null, null);
+                        File file = new File(imageURI.getPath());
+                        file.delete();
                         imageURI = null;
                         break;
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.REQUEST_CAMERA_PERMISSION:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startCamera(Constants.REQUEST_IMAGE_CAPTURE);
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    Toast.makeText(getContext(), R.string.camera_permission_failure, Toast.LENGTH_LONG).show();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
         }
     }
 
@@ -260,7 +292,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
                         loadingAddingNewEvent(false);
                         createImageEvent(fullSnapshot.getDownloadUrl().toString(), thumbSnapshot.getDownloadUrl().toString(), caption);
-                        getActivity().getContentResolver().delete(imageURI, null, null);
+                        File file = new File(imageURI.getPath());
+                        file.delete();
                         imageURI = null;
                         progressBarImageUpload.setProgress(0);
                     }
@@ -269,7 +302,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     public void onFailure(@NonNull Exception e) {
                         loadingAddingNewEvent(false);
                         Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_LONG).show();
-                        getActivity().getContentResolver().delete(imageURI, null, null);
+                        File file = new File(imageURI.getPath());
+                        file.delete();
                         imageURI = null;
                         progressBarImageUpload.setProgress(0);
                     }
@@ -280,7 +314,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             public void onFailure(@NonNull Exception e) {
                 loadingAddingNewEvent(false);
                 Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_LONG).show();
-                getActivity().getContentResolver().delete(imageURI, null, null);
+                File file = new File(imageURI.getPath());
+                file.delete();
                 imageURI = null;
                 progressBarImageUpload.setProgress(0);
             }
@@ -361,9 +396,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     private void loadingAddingNewEvent(boolean loading) {
         if (loading) {
-            Utilities.animateView(progressOverlay,View.VISIBLE, 0.4f, 200);
+            Utilities.animateView(progressOverlay, View.VISIBLE, 0.4f, 200);
         } else {
-            Utilities.animateView(progressOverlay,View.GONE, 0, 200);
+            Utilities.animateView(progressOverlay, View.GONE, 0, 200);
         }
     }
 
@@ -375,25 +410,27 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      * Take picture from camera on generated URI
      */
     public void dispatchTakePictureIntent(int requestCode) {
-        Intent imageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        if (imageIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            File photoFile = null;
-
-            try {
-                photoFile = Utilities.createImageFile(getContext());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (photoFile != null) {
-                //Generate URI, so image can later be accessed again
-                imageURI = FileProvider.getUriForFile(getContext(), "com.sunilson.pro4.fileprovider", photoFile);
-
-                //Start Camera activity
-                imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
-                startActivityForResult(imageIntent, requestCode);
-            }
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    Constants.REQUEST_CAMERA_PERMISSION);
+        } else {
+            startCamera(Constants.REQUEST_IMAGE_CAPTURE);
         }
+    }
+
+    private void startCamera(int requestCode) {
+        //File saveDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File saveDir = new File(Environment.getExternalStorageDirectory(), "Pro4");
+        if (!saveDir.exists() && !saveDir.mkdirs()) {
+            Toast.makeText(getContext(), R.string.camera_permission_failure, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        new MaterialCamera(this).saveDir(saveDir).labelConfirm(R.string.camera_confirm).labelRetry(R.string.camera_retry).stillShot().start(requestCode);
     }
 }

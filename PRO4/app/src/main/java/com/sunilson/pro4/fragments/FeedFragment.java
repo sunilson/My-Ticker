@@ -18,12 +18,13 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
-import com.sunilson.pro4.activities.BaseActivity;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
@@ -95,25 +96,28 @@ public class FeedFragment extends BaseFragment {
         }
     }
 
-
     private void requestFeed() {
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || user.isAnonymous()) {
+            Toast.makeText(getContext(), R.string.feed_load_failure, Toast.LENGTH_SHORT).show();
+            return;
+        }
         //First clear all adapters
         clearFeeds();
 
         //Request Feed from Database
         loading(true);
         Map<String, String> data = new HashMap<>();
-        data.put("userID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-        final DatabaseReference ref = ((BaseActivity) getActivity()).getReference().child("request").child(Constants.LIVETICKER_REQUEST_FEED_PATH).push();
+        data.put("userID", user.getUid());
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + "/feed/").push();
         ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (currentResultReference != null && resultListener != null) {
                     currentResultReference.removeEventListener(resultListener);
                 }
-                DatabaseReference taskRef = ((BaseActivity) getActivity()).getReference().child("result").child(Constants.LIVETICKER_REQUEST_FEED_PATH).child(ref.getKey());
-                taskRef.addValueEventListener(resultListener);
-                currentResultReference = taskRef;
+                currentResultReference = FirebaseDatabase.getInstance().getReference("/result/" + user.getUid() + "/feed/" + ref.getKey());
+                currentResultReference.addValueEventListener(resultListener);
             }
         });
     }

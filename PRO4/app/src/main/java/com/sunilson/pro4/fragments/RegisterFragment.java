@@ -56,6 +56,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         initializeAuthListener();
     }
 
+
     public static RegisterFragment newInstance() {
         return new RegisterFragment();
     }

@@ -89,7 +89,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         if (user == null) {
             signInAnonymously();
         } else {
-            if (user.isAnonymous()) {
+            if (user.isAnonymous() ) {
                 loginButton.setVisibility(View.VISIBLE);
                 fab.setVisibility(GONE);
                 Toast.makeText(MainActivity.this, "ANONYNMOUS", Toast.LENGTH_SHORT).show();

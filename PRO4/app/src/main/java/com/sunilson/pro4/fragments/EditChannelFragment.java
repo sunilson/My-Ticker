@@ -1,16 +1,19 @@
 package com.sunilson.pro4.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.FileProvider;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.afollestad.materialcamera.MaterialCamera;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -44,7 +48,6 @@ import com.sunilson.pro4.utilities.Utilities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -105,24 +108,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         initializeResultListener();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (resultReference != null) {
-            resultReference.addValueEventListener(resultListener);
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if (resultReference != null && resultListener != null) {
-            resultReference.removeEventListener(resultListener);
-        }
-    }
-
     public static EditChannelFragment newInstance() {
         return new EditChannelFragment();
     }
@@ -178,28 +163,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         };
     }
 
-    private void initializeResultListener() {
-        resultListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("state").getValue() != null) {
-                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
-                        Intent i = new Intent(getActivity(), MainActivity.class);
-                        startActivity(i);
-                    } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
-                        loading(false);
-                        Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-    }
-
     public void loadUserData(FirebaseUser user) {
         this.user = user;
 
@@ -217,7 +180,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             case Constants.PICK_IMAGE_DIALOG_REQUEST_CODE:
                 switch (resultCode) {
                     case Constants.PICK_IMAGE_DIALOG_RESULT_CAMERA:
-                        dispatchTakePictureIntent(Constants.REQUEST_IMAGE_CAPTURE);
+                        dispatchTakePictureIntent();
                         break;
                     case Constants.PICK_IMAGE_DIALOG_RESULT_GALLERY:
                         dispatchChooseImageFromGalleryIntent(Constants.REQUEST_IMAGE_GALLERY);
@@ -239,9 +202,13 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                         x = 16;
                         y = 9;
                     }
+                    cameraURI = Uri.parse(data.getDataString());
                     DialogFragment dialogFragment = LivetickerPicktureCropDialog.newInstance(cameraURI, fixedAspect, x, y);
                     dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_CROP_REQUEST_CODE);
                     dialogFragment.show(getFragmentManager(), "dialog");
+                } else if (data != null) {
+                    Exception e = (Exception) data.getSerializableExtra(MaterialCamera.ERROR_EXTRA);
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 break;
             case Constants.REQUEST_IMAGE_GALLERY:
@@ -272,13 +239,15 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                         storeImageToDatabase(bitmap);
 
                         if (cameraURI != null) {
-                            getActivity().getContentResolver().delete(cameraURI, null, null);
+                            File file = new File(cameraURI.getPath());
+                            file.delete();
                             cameraURI = null;
                         }
                         break;
                     case Constants.PICTURE_DIALOG__CROP_RESULT_CODE_FAILURE:
                         if (cameraURI != null) {
-                            getActivity().getContentResolver().delete(cameraURI, null, null);
+                            File file = new File(cameraURI.getPath());
+                            file.delete();
                             cameraURI = null;
                         }
                         break;
@@ -287,30 +256,51 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.REQUEST_CAMERA_PERMISSION:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startCamera(Constants.REQUEST_IMAGE_CAPTURE);
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    Toast.makeText(getContext(), R.string.camera_permission_failure, Toast.LENGTH_LONG).show();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+        }
+    }
+
     /**
      * Take picture from camera on generated URI
      */
-    public void dispatchTakePictureIntent(int requestCode) {
-        Intent imageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        if (imageIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            File photoFile = null;
-
-            try {
-                photoFile = Utilities.createImageFile(getContext());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (photoFile != null) {
-                //Generate URI, so image can later be accessed again
-                cameraURI = FileProvider.getUriForFile(getContext(), "com.sunilson.pro4.fileprovider", photoFile);
-
-                //Start Camera activity
-                imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraURI);
-                startActivityForResult(imageIntent, requestCode);
-            }
+    public void dispatchTakePictureIntent() {
+        if (ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    Constants.REQUEST_CAMERA_PERMISSION);
+        } else {
+            startCamera(Constants.REQUEST_IMAGE_CAPTURE);
         }
+    }
+
+    private void startCamera(int requestCode) {
+        //File saveDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File saveDir = new File(Environment.getExternalStorageDirectory(), "Pro4");
+        if (!saveDir.exists() && !saveDir.mkdirs()) {
+            Toast.makeText(getContext(), R.string.camera_permission_failure, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        new MaterialCamera(this).saveDir(saveDir).labelConfirm(R.string.camera_confirm).labelRetry(R.string.camera_retry).stillShot().start(requestCode);
     }
 
     /**
@@ -393,18 +383,30 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             tempUser.setInfo(info.getText().toString());
         }
 
-        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/editChannel/" + user.getUid()).push();
-        dRef.setValue(tempUser).addOnFailureListener(new OnFailureListener() {
+        if (status.getText() != null) {
+            tempUser.setStatus(status.getText().toString());
+        }
+
+        tempUser.setUserID(user.getUid());
+
+        final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + "/editChannel/" ).push();
+        dRef.setValue(tempUser).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (resultReference != null) {
+                    resultReference.removeEventListener(resultListener);
+                }
+                resultReference = FirebaseDatabase.getInstance().getReference("result/" + user.getUid() + "/editChannel/" + dRef.getKey());
+                resultReference.addValueEventListener(resultListener);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), R.string.editing_channel_failure, Toast.LENGTH_LONG).show();
+                loading(false);
             }
         });
-        if (resultReference != null && resultListener != null) {
-            resultReference.removeEventListener(resultListener);
-        }
-        resultReference = FirebaseDatabase.getInstance().getReference("result/editChannel/" + dRef.getKey());
-        resultReference.addValueEventListener(resultListener);
+
     }
 
     private void getImage(String type) {
@@ -443,8 +445,31 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         super.onDestroy();
 
         if (cameraURI != null) {
-            getActivity().getContentResolver().delete(cameraURI, null, null);
+            File file = new File(cameraURI.getPath());
+            file.delete();
             cameraURI = null;
         }
+    }
+
+    private void initializeResultListener() {
+        resultListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                loading(false);
+                if (dataSnapshot.child("state").getValue() != null) {
+                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
+                        Intent i = new Intent(getActivity(), MainActivity.class);
+                        startActivity(i);
+                    } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
+                        Toast.makeText(getContext(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 }

@@ -28,4 +28,5 @@ public class Constants {
     public static final int REQUEST_IMAGE_GALLERY = 21;
     public static final int REQUEST_CAMERA_PERMISSION = 20;
     public static final int PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS = 22;
+    public static final int CAMERA_RQ = 6969;
 }

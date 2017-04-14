@@ -11,7 +11,7 @@ import com.sunilson.pro4.R;
 import butterknife.ButterKnife;
 
 /**
- * Created by linus_000 on 17.03.2017.
+ * @author Linus Weiss
  */
 
 public class SearchFragment extends BaseFragment {

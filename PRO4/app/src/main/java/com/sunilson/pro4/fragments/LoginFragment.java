@@ -76,6 +76,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
         initializeAuthListener();
     }
 
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
