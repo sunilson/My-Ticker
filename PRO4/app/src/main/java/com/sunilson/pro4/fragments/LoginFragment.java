@@ -84,7 +84,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
                 emailLogin(emailEditText.getText().toString(), passwordEditText.getText().toString());
                 break;
             case R.id.loginFragment_register:
-                ((CanChangeFragment)getActivity()).replaceFragment(RegisterFragment.newInstance(), "egal");
+                ((CanChangeFragment)getActivity()).replaceFragment(RegisterFragment.newInstance(), "register");
                 break;
         }
     }

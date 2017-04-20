@@ -13,37 +13,47 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
+
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="@string/channel_username"
+            android:id="@+id/fragment_edit_channel_username_layout"
+            >
 
             <EditText
                 android:id="@+id/fragment_edit_channel_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/channel_username" />
+                 />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="@string/channel_status"
+            android:id="@+id/fragment_edit_channel_status_layout"
+            >
 
             <EditText
                 android:id="@+id/fragment_edit_channel_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/channel_status" />
+                />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="@string/channel_info"
+            android:id="@+id/fragment_edit_channel_info_layout"
+            >
 
             <EditText
                 android:id="@+id/fragment_edit_channel_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/channel_info" />
+                 />
         </android.support.design.widget.TextInputLayout>
 
         <Button

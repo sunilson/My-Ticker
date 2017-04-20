@@ -13,10 +13,13 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+    <include layout="@layout/camera_view" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
+        android:id="@+id/caption_view"
         >
         <ImageView
             android:layout_width="match_parent"

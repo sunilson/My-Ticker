@@ -5,8 +5,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.google.firebase.database.FirebaseDatabase;
-
 /**
  * @author Linus Weiss
  */
@@ -18,7 +16,7 @@ public class BaseApplication extends Application {
         super.onCreate();
 
         //Activate Disk Persistence of Firebase
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 
     /**

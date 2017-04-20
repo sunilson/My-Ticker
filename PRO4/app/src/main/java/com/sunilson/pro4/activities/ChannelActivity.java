@@ -1,6 +1,8 @@
 package com.sunilson.pro4.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,7 +15,6 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.EditChannelFragment;
-import com.sunilson.pro4.fragments.LoginFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 
 import butterknife.BindView;
@@ -22,6 +23,7 @@ import butterknife.ButterKnife;
 public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
     private String currentFragment;
+    private boolean firstLogin = false;
 
     @BindView(R.id.content_channel)
     FrameLayout frameLayout;
@@ -40,8 +42,11 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
         if (type == null) {
 
-        } else if (type.equals("editChannel")){
+        } else if (type.equals("editChannel")) {
             replaceFragment(EditChannelFragment.newInstance(), "edit");
+        } else if (type.equals("firstLogin")) {
+            replaceFragment(EditChannelFragment.newInstance(), "edit");
+            firstLogin = true;
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -56,22 +61,21 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
     @Override
     protected void authChanged(FirebaseUser user) {
+
         if (user != null) {
-            if (user.isAnonymous()) {
-                replaceFragment(LoginFragment.newInstance(), "edit");
-                Toast.makeText(this, R.string.no_access_permission, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(this, MainActivity.class);
-            } else {
-                if (currentFragment.equals("edit")) {
-                    EditChannelFragment editChannelFragment = (EditChannelFragment) getSupportFragmentManager().findFragmentByTag(currentFragment);
-                    if (editChannelFragment != null && editChannelFragment.isVisible()) {
-                        editChannelFragment.loadUserData(user);
-                    }
+            if(firstLogin) {
+                firstLogin = false;
+                SharedPreferences sharedPreferences = getSharedPreferences(user.getUid(), Context.MODE_PRIVATE);
+                sharedPreferences.edit().putBoolean("firstLogin", false).commit();
+            }
+
+            if (currentFragment.equals("edit")) {
+                if (user.isAnonymous()) {
+                    Intent i = new Intent(ChannelActivity.this, MainActivity.class);
+                    startActivity(i);
+                    Toast.makeText(this, R.string.no_access_permission, Toast.LENGTH_SHORT).show();
                 }
             }
-        } else {
-            Toast.makeText(this, R.string.no_access_permission, Toast.LENGTH_SHORT).show();
-            signInAnonymously();
         }
     }
 

@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -23,11 +22,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.afollestad.materialcamera.MaterialCamera;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,7 +38,6 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.sunilson.pro4.R;
-import com.sunilson.pro4.activities.MainActivity;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.LivetickerPicktureCropDialog;
 import com.sunilson.pro4.dialogFragments.PickImageDialog;
@@ -47,7 +45,6 @@ import com.sunilson.pro4.utilities.Constants;
 import com.sunilson.pro4.utilities.Utilities;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -61,9 +58,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
     private DatabaseReference userReference, resultReference;
     private ValueEventListener loadUserDataListener, resultListener;
-    private FirebaseStorage storage;
-    private FirebaseUser user;
-    private Uri cameraURI, cropURI;
     private User tempUser;
     private String currentType;
     private boolean started;
@@ -98,14 +92,33 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     @BindView(R.id.progress_overlay)
     View progressOverlay;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tempUser = new User();
-        storage = FirebaseStorage.getInstance();
         initializeUserListener();
         initializeResultListener();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loading(true);
+        if (!started) {
+            started = true;
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            userReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
+            userReference.addListenerForSingleValueEvent(loadUserDataListener);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (resultReference != null && resultListener != null) {
+            resultReference.removeEventListener(resultListener);
+        }
     }
 
     public static EditChannelFragment newInstance() {
@@ -146,14 +159,22 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                         if (tempUser.getProfilePicture() != null) {
                             StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(tempUser.getProfilePicture());
                             Glide.with(getActivity()).using(new FirebaseImageLoader()).load(storageReference).into(profileImage);
+                        } else {
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(Constants.PROFILE_PICTURE_PLACEHOLDER);
+                            Glide.with(getActivity()).using(new FirebaseImageLoader()).load(storageReference).into(profileImage);
                         }
 
                         if (tempUser.getTitlePicture() != null) {
-                            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(tempUser.getProfilePicture());
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(tempUser.getTitlePicture());
                             Glide.with(getActivity()).using(new FirebaseImageLoader()).load(storageReference).into(titleImage);
+                        } else {
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(Constants.PROFILE_PICTURE_PLACEHOLDER);
+                            Glide.with(getActivity()).using(new FirebaseImageLoader()).load(storageReference).into(profileImage);
                         }
                     }
+                    loading(false);
                 }
+                loading(false);
             }
 
             @Override
@@ -161,16 +182,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
             }
         };
-    }
-
-    public void loadUserData(FirebaseUser user) {
-        this.user = user;
-
-        if (!started) {
-            started = true;
-            userReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
-            userReference.addListenerForSingleValueEvent(loadUserDataListener);
-        }
     }
 
     @Override
@@ -185,30 +196,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                     case Constants.PICK_IMAGE_DIALOG_RESULT_GALLERY:
                         dispatchChooseImageFromGalleryIntent(Constants.REQUEST_IMAGE_GALLERY);
                         break;
-                }
-                break;
-            case Constants.REQUEST_IMAGE_CAPTURE:
-                if (resultCode == Activity.RESULT_OK) {
-                    Integer x = null;
-                    Integer y = null;
-                    Boolean fixedAspect = null;
-
-                    if (currentType.equals("profile")) {
-                        fixedAspect = true;
-                        x = 1;
-                        y = 1;
-                    } else if (currentType.equals("title")) {
-                        fixedAspect = true;
-                        x = 16;
-                        y = 9;
-                    }
-                    cameraURI = Uri.parse(data.getDataString());
-                    DialogFragment dialogFragment = LivetickerPicktureCropDialog.newInstance(cameraURI, fixedAspect, x, y);
-                    dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_CROP_REQUEST_CODE);
-                    dialogFragment.show(getFragmentManager(), "dialog");
-                } else if (data != null) {
-                    Exception e = (Exception) data.getSerializableExtra(MaterialCamera.ERROR_EXTRA);
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 break;
             case Constants.REQUEST_IMAGE_GALLERY:
@@ -237,19 +224,9 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                     case Constants.PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS:
                         Bitmap bitmap = data.getExtras().getParcelable("image");
                         storeImageToDatabase(bitmap);
-
-                        if (cameraURI != null) {
-                            File file = new File(cameraURI.getPath());
-                            file.delete();
-                            cameraURI = null;
-                        }
                         break;
                     case Constants.PICTURE_DIALOG__CROP_RESULT_CODE_FAILURE:
-                        if (cameraURI != null) {
-                            File file = new File(cameraURI.getPath());
-                            file.delete();
-                            cameraURI = null;
-                        }
+                        //TODO Error Handling
                         break;
                 }
                 break;
@@ -263,7 +240,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startCamera(Constants.REQUEST_IMAGE_CAPTURE);
+                    startCamera();
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
 
@@ -281,26 +258,34 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
      */
     public void dispatchTakePictureIntent() {
         if (ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
                     Constants.REQUEST_CAMERA_PERMISSION);
         } else {
-            startCamera(Constants.REQUEST_IMAGE_CAPTURE);
+            startCamera();
         }
     }
 
-    private void startCamera(int requestCode) {
-        //File saveDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File saveDir = new File(Environment.getExternalStorageDirectory(), "Pro4");
-        if (!saveDir.exists() && !saveDir.mkdirs()) {
-            Toast.makeText(getContext(), R.string.camera_permission_failure, Toast.LENGTH_LONG).show();
-            return;
-        }
+    private void startCamera() {
 
-        new MaterialCamera(this).saveDir(saveDir).labelConfirm(R.string.camera_confirm).labelRetry(R.string.camera_retry).stillShot().start(requestCode);
+        Integer x = null;
+        Integer y = null;
+        Boolean fixedAspect = null;
+
+        if (currentType.equals("profile")) {
+            fixedAspect = true;
+            x = 1;
+            y = 1;
+        } else if (currentType.equals("title")) {
+            fixedAspect = true;
+            x = 16;
+            y = 9;
+        }
+        DialogFragment dialogFragment = LivetickerPicktureCropDialog.newInstance(null, fixedAspect, x, y);
+        dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_CROP_REQUEST_CODE);
+        dialogFragment.show(getFragmentManager(), "dialog");
     }
 
     /**
@@ -375,6 +360,9 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
      */
     private void saveChannel() {
         loading(true);
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         if (userName.getText() != null) {
             tempUser.setUserName(userName.getText().toString());
         }
@@ -440,27 +428,16 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (cameraURI != null) {
-            File file = new File(cameraURI.getPath());
-            file.delete();
-            cameraURI = null;
-        }
-    }
-
     private void initializeResultListener() {
         resultListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                loading(false);
                 if (dataSnapshot.child("state").getValue() != null) {
                     if (dataSnapshot.child("state").getValue().toString().equals("success")) {
-                        Intent i = new Intent(getActivity(), MainActivity.class);
-                        startActivity(i);
+                        loading(false);
+                        getActivity().finish();
                     } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
+                        loading(false);
                         Toast.makeText(getContext(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();
                     }
                 }

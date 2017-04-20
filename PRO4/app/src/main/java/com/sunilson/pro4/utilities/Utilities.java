@@ -53,9 +53,11 @@ public class Utilities {
     public static File createImageFile(Context ctx) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        return image;
+        File saveDir = new File(Environment.getExternalStorageDirectory(), "Pro4");
+        if (!saveDir.exists()) {
+            saveDir.mkdirs();
+        }
+        return File.createTempFile(imageFileName, ".jpg", saveDir);
     }
 
     public static boolean checkImageForType(int width, int height, String type) {

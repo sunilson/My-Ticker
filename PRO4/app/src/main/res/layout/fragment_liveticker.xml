@@ -3,52 +3,81 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/fragment_liveticker_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="1" />
-
-        <ProgressBar
-            android:id="@+id/fragment_liveticker_progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
         <LinearLayout
+            android:id="@+id/fragment_liveticker_header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="100dp"
+            android:background="@color/colorAccent">
 
-            <EditText
-                android:id="@+id/fragment_liveticker_input"
-                android:layout_width="0px"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:background="@color/colorAccent"
-                android:textColor="@color/cardview_light_background" />
+            <TextView
+                android:id="@+id/fragment_liveticker_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/fragment_liveticker_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/fragment_liveticker_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/fragment_liveticker_camera_button"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary"
-                android:text="Kamera" />
+                android:id="@+id/fragment_liveticker_subscribe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:visibility="gone"
+                android:text="@string/subscribe" />
 
-            <Button
-                android:id="@+id/fragment_liveticker_send_button"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary"
-                android:text="Senden" />
         </LinearLayout>
 
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/fragment_liveticker_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="1" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/fragment_liveticker_input"
+                    android:layout_width="0px"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@color/colorAccent"
+                    android:textColor="@color/cardview_light_background" />
+
+                <Button
+                    android:id="@+id/fragment_liveticker_camera_button"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"
+                    android:text="Kamera" />
+
+                <Button
+                    android:id="@+id/fragment_liveticker_send_button"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"
+                    android:text="Senden" />
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
     <!-- Progress bar overlay; shown while login is in progress -->
     <include layout="@layout/progress_overlay" />

@@ -2,11 +2,11 @@ package com.sunilson.pro4.activities;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -39,7 +39,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddLivetickerActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class AddLivetickerActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private ValueEventListener resultListener;
     private DatabaseReference mReference, currentResultReference;
@@ -159,6 +159,15 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
         //Remove Event Listener from Queue, if it has been started
         if (currentResultReference != null && resultListener != null) {
             currentResultReference.removeEventListener(resultListener);
+        }
+    }
+
+    @Override
+    protected void authChanged(FirebaseUser user) {
+        if (user.isAnonymous()) {
+            Intent i = new Intent(AddLivetickerActivity.this, MainActivity.class);
+            startActivity(i);
+            Toast.makeText(this, R.string.no_access_permission, Toast.LENGTH_SHORT).show();
         }
     }
 

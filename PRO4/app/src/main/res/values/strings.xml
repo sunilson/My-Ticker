@@ -6,7 +6,7 @@
     <string name="title_activity_liveticker">LivetickerActivity</string>
     <string name="title_activity_image_view">ImageViewActivity</string>
     <string name="no_access_permission">No permission to access this page!</string>
-    <string name="register_email_hint">Enter your email addres</string>
+    <string name="register_email_hint">Enter your email address</string>
     <string name="register_password_hint">Enter your password</string>
     <string name="register_password2_hint">Enter your password again</string>
     <string name="register_button">Register</string>
@@ -19,6 +19,9 @@
     <string name="channel_edit_pick_profile">Choose Image for Profile Picture</string>
     <string name="channel_edit_pick_title">Choose Image for Title Picture</string>
     <string name="gallery">Gallery</string>
+    <string name="password_empty">Password is empty!</string>
+    <string name="password_match">Passwords don\'t match!</string>
+    <string name="not_verified_yet">Email not verified yet! Please check your emails and then re-login!</string>
     <string name="camera">Camera</string>
     <string name="camera_confirm">Done</string>
     <string name="camera_retry">Retry</string>
@@ -31,4 +34,11 @@
     <string name="add_liveticker_event_failure">Failed to add event! Please check your internet connection and try again</string>
     <string name="feed_load_failure">Failed to fetch feed! Please refresh</string>
     <string name="add_liveticker_user_failure">Not authorised to add new Liveticker!</string>
+    <string name="feed_title">Your feed</string>
+    <string name="search_title">Search</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="subscribe_failure">Subscription failed!</string>
+    <string name="unsubscribe">Unsubscribe</string>
+    <string name="unsubscribe_failure">Unsubscription failed!</string>
+    <string name="subscribed">Subscribed</string>
 </resources>

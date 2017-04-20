@@ -1,6 +1,8 @@
 package com.sunilson.pro4.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -9,32 +11,32 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.sunilson.pro4.MainActivityFragmentPagerAdapter;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.adapters.MainActivityFragmentPagerAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.view.View.GONE;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener{
-
-    @BindView(R.id.mainActivity_loginButton)
-    Button loginButton;
+public class MainActivity extends BaseActivity {
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
+    private MenuItem loginButton, logoutButton;
+
     private ViewPager viewPager;
     private TabLayout tabLayout;
+    private MainActivityFragmentPagerAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,11 +47,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         //Set up the Viewpager and the Tab Layout, which are used to switch between the 3 Fragments of the Main Activity
         viewPager = (ViewPager) findViewById(R.id.mainActivityViewPager);
         tabLayout = (TabLayout) findViewById(R.id.mainActivityTabLayout);
-        viewPager.setAdapter(new MainActivityFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this));
+        viewPager.setAdapter(adapter = new MainActivityFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this));
         tabLayout.setupWithViewPager(viewPager);
 
-        //Setup onClick Listeners
-        loginButton.setOnClickListener(this);
+        //Listener to change title on fragment swap
+        final ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                setTitle(adapter.getPageTitle(position));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        };
+        viewPager.addOnPageChangeListener(onPageChangeListener);
+
+        //Ensure correct title is set on startup
+        viewPager.post(new Runnable() {
+            @Override
+            public void run() {
+                onPageChangeListener.onPageSelected(viewPager.getCurrentItem());
+            }
+        });
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +89,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        if (viewPager.getCurrentItem() == 0) {
+            menu.findItem(R.id.feed_menu_refresh).setVisible(true);
+            menu.findItem(R.id.feed_menu_search).setVisible(false);
+        } else if (viewPager.getCurrentItem() == 1) {
+            menu.findItem(R.id.feed_menu_refresh).setVisible(false);
+            menu.findItem(R.id.feed_menu_search).setVisible(true);
+        } else if (viewPager.getCurrentItem() == 2) {
+            menu.findItem(R.id.feed_menu_refresh).setVisible(false);
+            menu.findItem(R.id.feed_menu_search).setVisible(false);
+        }
+
+        loginButton = menu.findItem(R.id.main_menu_login);
+        logoutButton = menu.findItem(R.id.main_menu_logOut);
+        checkLoginStatus(FirebaseAuth.getInstance().getCurrentUser());
         return true;
     }
 
@@ -75,10 +115,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.main_menu_logOut) {
-            mAuth.signOut();
             return true;
         } else if (id == R.id.feed_menu_refresh) {
             return false;
+        } else if (id == R.id.main_menu_login) {
+            Intent i = new Intent(this, AuthenticationActivity.class);
+            startActivity(i);
         }
 
         return false;
@@ -86,26 +128,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     @Override
     protected void authChanged(FirebaseUser user) {
-        if (user == null) {
-            signInAnonymously();
-        } else {
-            if (user.isAnonymous() ) {
-                loginButton.setVisibility(View.VISIBLE);
-                fab.setVisibility(GONE);
-                Toast.makeText(MainActivity.this, "ANONYNMOUS", Toast.LENGTH_SHORT).show();
-            } else {
-                loginButton.setVisibility(GONE);
-                fab.setVisibility(View.VISIBLE);
+        checkLoginStatus(user);
+        if (user != null) {
+            if (!user.isAnonymous()) {
+                //Check for first login
+                SharedPreferences sharedPreferences = getSharedPreferences(user.getUid(), Context.MODE_PRIVATE);
+                if (sharedPreferences.getBoolean("firstLogin", true)) {
+                    Intent i = new Intent(this, ChannelActivity.class);
+                    i.putExtra("type", "firstLogin");
+                    startActivity(i);
+                }
             }
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.mainActivity_loginButton:
-                startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
-                break;
+    private void checkLoginStatus(FirebaseUser user) {
+        if (user != null) {
+            if (user.isAnonymous()) {
+                if (loginButton != null && logoutButton != null) {
+                    loginButton.setVisible(true);
+                    logoutButton.setVisible(false);
+                    fab.setVisibility(GONE);
+                }
+            } else {
+                if (loginButton != null && logoutButton != null) {
+                    loginButton.setVisible(false);
+                    logoutButton.setVisible(false);
+                    fab.setVisibility(View.VISIBLE);
+                }
+            }
         }
     }
 }

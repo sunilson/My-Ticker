@@ -8,7 +8,6 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -56,7 +55,15 @@
         <activity
             android:name=".activities.LivetickerActivity"
             android:label="@string/title_activity_liveticker"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="firenote.at"/>
+                <data android:pathPattern="/.*"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.ChannelActivity"
             android:label="@string/title_activity_channel"

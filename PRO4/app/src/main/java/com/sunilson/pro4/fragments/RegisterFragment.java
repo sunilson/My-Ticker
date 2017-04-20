@@ -3,6 +3,7 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -37,8 +39,17 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @BindView(R.id.registerFragment_password)
     EditText passwordEditText;
 
-    @BindView(R.id.registerFragment_login)
-    Button loginButton;
+    @BindView(R.id.registerFragment_password2)
+    EditText passwordEditText2;
+
+    @BindView(R.id.registerFragment_email_layout)
+    TextInputLayout emailEditTextLayout;
+
+    @BindView(R.id.registerFragment_password_layout)
+    TextInputLayout passwordEditTextLayout;
+
+    @BindView(R.id.registerFragment_password2_layout)
+    TextInputLayout passwordEditText2Layout;
 
     @BindView(R.id.registerFragment_submit)
     Button registerButton;
@@ -66,7 +77,6 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
         unbinder = ButterKnife.bind(this, view);
-        loginButton.setOnClickListener(this);
         registerButton.setOnClickListener(this);
 
         return view;
@@ -75,11 +85,8 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.registerFragment_login:
-                ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
-                break;
             case R.id.registerFragment_submit:
-                createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText.getText().toString());
+                createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText2.getText().toString());
                 break;
         }
     }
@@ -97,11 +104,11 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         //TODO Test Username and Password/Email
 
         if (password.isEmpty()) {
-
+            passwordEditTextLayout.setError(getString(R.string.password_empty));
         } else if (password2.isEmpty()) {
-
+            passwordEditText2Layout.setError(getString(R.string.password_empty));
         } else if (!password.equals(password2)) {
-
+            passwordEditText2Layout.setError(getString(R.string.password_match));
         } else {
             AuthCredential credential = EmailAuthProvider.getCredential(email, password);
             FirebaseAuth.getInstance().getCurrentUser().linkWithCredential(credential)
@@ -114,7 +121,12 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
-                    });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -132,8 +144,6 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                                 mAuth.signOut();
                             }
                         });
-                    } else {
-                        ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
                     }
                 } else {
                     ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");

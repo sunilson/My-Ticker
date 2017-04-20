@@ -24,15 +24,6 @@
             android:layout_gravity="bottom" />
     </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:text="Login"
-        android:visibility="gone"
-        android:id="@+id/mainActivity_loginButton"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
-
     <android.support.v4.view.ViewPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"

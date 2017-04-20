@@ -65,8 +65,15 @@ public class LivetickerPictureViewDialog extends ImageBaseDialog {
     }
 
     @Override
+    void orientationChange(int orientation) {
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+
+        mOrientationListener.disable();
     }
 
     public static LivetickerPictureViewDialog newInstance(String url) {
