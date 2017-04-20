@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Password"
-            android:inputType="numberPassword" />
+            android:inputType="textPassword" />
 
     </android.support.design.widget.TextInputLayout>
 

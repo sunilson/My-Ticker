@@ -3,6 +3,7 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -34,14 +36,20 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @BindView(R.id.registerFragment_email)
     EditText emailEditText;
 
-    @BindView(R.id.registerFragment_username)
-    EditText usernameEditText;
-
     @BindView(R.id.registerFragment_password)
     EditText passwordEditText;
 
-    @BindView(R.id.registerFragment_login)
-    Button loginButton;
+    @BindView(R.id.registerFragment_password2)
+    EditText passwordEditText2;
+
+    @BindView(R.id.registerFragment_email_layout)
+    TextInputLayout emailEditTextLayout;
+
+    @BindView(R.id.registerFragment_password_layout)
+    TextInputLayout passwordEditTextLayout;
+
+    @BindView(R.id.registerFragment_password2_layout)
+    TextInputLayout passwordEditText2Layout;
 
     @BindView(R.id.registerFragment_submit)
     Button registerButton;
@@ -59,6 +67,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         initializeAuthListener();
     }
 
+
     public static RegisterFragment newInstance() {
         return new RegisterFragment();
     }
@@ -68,7 +77,6 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
         unbinder = ButterKnife.bind(this, view);
-        loginButton.setOnClickListener(this);
         registerButton.setOnClickListener(this);
 
         return view;
@@ -77,11 +85,8 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.registerFragment_login:
-                ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
-                break;
             case R.id.registerFragment_submit:
-                createUser(emailEditText.getText().toString(), usernameEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText.getText().toString());
+                createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText2.getText().toString());
                 break;
         }
     }
@@ -91,41 +96,39 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
      * Creates new user from Anonymous user
      *
      * @param email
-     * @param username
      * @param password
      * @param password2
      */
-    private void createUser(String email, String username, String password, String password2) {
+    private void createUser(String email, String password, String password2) {
 
         //TODO Test Username and Password/Email
 
-        if (username.isEmpty()) {
-
-        } else if (password.isEmpty()) {
-
+        if (password.isEmpty()) {
+            passwordEditTextLayout.setError(getString(R.string.password_empty));
         } else if (password2.isEmpty()) {
-
+            passwordEditText2Layout.setError(getString(R.string.password_empty));
         } else if (!password.equals(password2)) {
-
+            passwordEditText2Layout.setError(getString(R.string.password_match));
         } else {
             AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-            registerUsername = username;
-
             FirebaseAuth.getInstance().getCurrentUser().linkWithCredential(credential)
                     .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             Log.d(Constants.LOGGING_TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
-
                             if (!task.isSuccessful()) {
                                 Toast.makeText(getContext(), task.getResult().toString(),
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
-                    });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
-
 
     private void initializeAuthListener() {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -134,8 +137,16 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     if (!user.isAnonymous()) {
-                        ((CanChangeFragment)getActivity()).replaceFragment(UpdateChannelFragment.newInstance(), "egal");
+                        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Toast.makeText(getContext(), R.string.verification_email_sent, Toast.LENGTH_LONG).show();
+                                mAuth.signOut();
+                            }
+                        });
                     }
+                } else {
+                    ((CanChangeFragment) getActivity()).replaceFragment(LoginFragment.newInstance(), "egal");
                 }
             }
         };

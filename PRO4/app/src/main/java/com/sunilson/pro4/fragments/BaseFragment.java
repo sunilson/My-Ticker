@@ -10,7 +10,7 @@ import butterknife.Unbinder;
  * @author Linus Weiss
  */
 
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
     protected Unbinder unbinder;
 
@@ -23,4 +23,5 @@ public class BaseFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
     }
+
 }

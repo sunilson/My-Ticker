@@ -1,4 +1,4 @@
-package com.sunilson.pro4;
+package com.sunilson.pro4.adapters;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;

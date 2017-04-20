@@ -1,7 +1,9 @@
 package com.sunilson.pro4.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,10 +15,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.sunilson.pro4.R;
 import com.sunilson.pro4.utilities.Constants;
 
+import java.util.List;
+
 /**
- * Created by linus_000 on 17.03.2017.
+ * @author Linus Weiss
  */
 
 public abstract class BaseActivity extends AppCompatActivity{
@@ -72,7 +77,19 @@ public abstract class BaseActivity extends AppCompatActivity{
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    if (!user.isAnonymous()) {
+                        if (!user.isEmailVerified()) {
+                            mAuth.signOut();
+                            signInAnonymously();
+                            Toast.makeText(BaseActivity.this, R.string.not_verified_yet, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    signInAnonymously();
+                }
+
                 authChanged(user);
             }
         };
@@ -80,6 +97,36 @@ public abstract class BaseActivity extends AppCompatActivity{
 
     public DatabaseReference getReference() {
         return mReference;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    fragment.onActivityResult(requestCode, resultCode, data);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                }
+            }
+        }
+    }
+
+    public FirebaseUser getCurrentUser() {
+        return user;
     }
 
     abstract protected void authChanged(FirebaseUser user);

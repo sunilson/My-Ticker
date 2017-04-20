@@ -1,38 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <EditText
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:ems="10"
-        android:id="@+id/registerFragment_username" />
+        android:id="@+id/registerFragment_email_layout"
+        >
 
-    <EditText
+        <EditText
+            android:id="@+id/registerFragment_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/register_email_hint"
+            android:inputType="textEmailAddress" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:ems="10"
-        android:id="@+id/registerFragment_email" />
+        android:id="@+id/registerFragment_password_layout"
+        >
 
-    <EditText
+        <EditText
+            android:id="@+id/registerFragment_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/register_password_hint"
+            android:inputType="textPassword" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:id="@+id/registerFragment_password" />
+        android:id="@+id/registerFragment_password2_layout"
+        >
+
+        <EditText
+            android:id="@+id/registerFragment_password2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/register_password2_hint"
+            android:inputType="textPassword" />
+    </android.support.design.widget.TextInputLayout>
 
     <Button
-        android:text="Register"
+        android:id="@+id/registerFragment_submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/registerFragment_submit" />
-
-    <Button
-        android:text="Login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/registerFragment_login" />
+        android:text="@string/register_button" />
 </LinearLayout>

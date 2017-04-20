@@ -51,6 +51,10 @@ public class AuthenticationActivity extends AppCompatActivity implements CanChan
 
     @Override
     public void replaceFragment(Fragment fragment, String tag) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.authentication_frameLayout, fragment).commit();
+        if (tag.equals("register")) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.authentication_frameLayout, fragment).addToBackStack(tag).commit();
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.authentication_frameLayout, fragment).commit();
+        }
     }
 }

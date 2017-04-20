@@ -11,13 +11,18 @@ import com.sunilson.pro4.R;
 import butterknife.ButterKnife;
 
 /**
- * Created by linus_000 on 17.03.2017.
+ * @author Linus Weiss
  */
 
 public class SearchFragment extends BaseFragment {
 
     public static SearchFragment newInstance() {
         return new SearchFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Nullable

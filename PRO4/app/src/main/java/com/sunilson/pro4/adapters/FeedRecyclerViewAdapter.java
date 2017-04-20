@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.activities.LivetickerActivity;
 import com.sunilson.pro4.baseClasses.Liveticker;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by linus_000 on 17.03.2017.
+ * @author Linus Weiss
  */
 
 public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
@@ -25,7 +24,6 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     private List<Liveticker> data = new ArrayList<>();
     private Context ctx;
     private final View.OnClickListener mOnclickListener = new FeedClickListener();
-    private final Gson gson = new Gson();
     private RecyclerView recyclerView;
 
     public FeedRecyclerViewAdapter(RecyclerView recyclerView, Context context) {
@@ -73,7 +71,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             int pos = recyclerView.getChildLayoutPosition(view);
             Liveticker element = data.get(pos);
             Intent i = new Intent(ctx, LivetickerActivity.class);
-            i.putExtra("liveticker", gson.toJson(element));
+            i.putExtra("livetickerID", element.getLivetickerID());
             ctx.startActivity(i);
         }
     }

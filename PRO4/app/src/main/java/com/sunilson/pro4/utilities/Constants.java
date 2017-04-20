@@ -16,9 +16,18 @@ public class Constants {
     public static final String LIVETICKER_RESULT_OWN = "ownLivetickers";
     public static final String LIVETICKER_RESULT_RECENT = "recentLivetickers";
     public static final String USERS_PATH = "users";
+    public static final int PICK_IMAGE_DIALOG_REQUEST_CODE = 2;
+    public static final int PICK_IMAGE_DIALOG_RESULT_CAMERA = 3;
+    public static final int PICK_IMAGE_DIALOG_RESULT_GALLERY = 4;
     public static final int PICTURE_DIALOG_REQUEST_CODE = 5;
+    public static final int PICTURE_DIALOG_CROP_REQUEST_CODE = 23;
     public static final int PICTURE_DIALOG_RESULT_CODE_SUCCESS = 6;
     public static final int PICTURE_DIALOG_RESULT_CODE_FAILURE = 7;
+    public static final int PICTURE_DIALOG__CROP_RESULT_CODE_FAILURE = 24;
     public static final int REQUEST_IMAGE_CAPTURE = 1;
+    public static final int REQUEST_IMAGE_GALLERY = 21;
     public static final int REQUEST_CAMERA_PERMISSION = 20;
+    public static final int PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS = 22;
+    public static final String PROFILE_PICTURE_PLACEHOLDER = "https://firebasestorage.googleapis.com/v0/b/pro4-84e1f.appspot.com/o/livetickerImages%2Fdefault-placeholder.png?alt=media&token=902cf175-b6b7-43bf-9f8e-7646ece3d6ba";
+    public static final int CAMERA_RQ = 6969;
 }

@@ -3,15 +3,18 @@
     package="com.sunilson.pro4">
 
     <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18" />
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <application
         android:allowBackup="true"
+        android:name="com.sunilson.pro4.BaseApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -32,6 +35,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -51,7 +55,27 @@
         <activity
             android:name=".activities.LivetickerActivity"
             android:label="@string/title_activity_liveticker"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="firenote.at"/>
+                <data android:pathPattern="/.*"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.ChannelActivity"
+            android:label="@string/title_activity_channel"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
+        <activity
+            android:name="com.afollestad.materialcamera.CaptureActivity"
+            android:theme="@style/MaterialCamera.CaptureActivity" />
+        <activity
+            android:name="com.afollestad.materialcamera.CaptureActivity2"
+            android:theme="@style/MaterialCamera.CaptureActivity" />
     </application>
 
 </manifest>

@@ -2,9 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="profile" />
+        android:layout_height="50dp"
+        android:id="@+id/fragment_profile_edit_channel"
+        android:text="@string/edit_user_channel"
+        />
 </LinearLayout>

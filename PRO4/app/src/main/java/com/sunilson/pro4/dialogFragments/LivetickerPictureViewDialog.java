@@ -36,7 +36,7 @@ public class LivetickerPictureViewDialog extends ImageBaseDialog {
 
         //Setting up the Toolbar
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.menu_edit_image);
+        toolbar.inflateMenu(R.menu.menu_caption_image);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -65,8 +65,15 @@ public class LivetickerPictureViewDialog extends ImageBaseDialog {
     }
 
     @Override
+    void orientationChange(int orientation) {
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+
+        mOrientationListener.disable();
     }
 
     public static LivetickerPictureViewDialog newInstance(String url) {

@@ -2,11 +2,11 @@ package com.sunilson.pro4.activities;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,7 +31,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
-import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,7 +39,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddLivetickerActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class AddLivetickerActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private ValueEventListener resultListener;
     private DatabaseReference mReference, currentResultReference;
@@ -78,13 +78,20 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
 
     @OnClick(R.id.add_liveticker_submit_button)
     public void submit(View view) {
-        Liveticker liveticker = new Liveticker();
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null || user.isAnonymous()) {
+            Toast.makeText(this, R.string.add_liveticker_user_failure, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        final Liveticker liveticker = new Liveticker();
 
         try {
             liveticker.setTitle(titleEditText.getText().toString());
             liveticker.setDescription(descriptionEditText.getText().toString());
-            liveticker.setAuthor(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-            liveticker.setAuthorID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            liveticker.setAuthorID(user.getUid());
             liveticker.setStartDate(calendar.getTimeInMillis());
             liveticker.setPrivacy(privacy);
             liveticker.setStatus(statusEditText.getText().toString());
@@ -95,7 +102,7 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
 
         loading(true);
 
-        final DatabaseReference ref = mReference.child("request").child(Constants.LIVETICKER_ADD_QUEUE_PATH).push();
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + "/addLiveticker/").push();
         ref.setValue(liveticker).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -104,7 +111,7 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
                     currentResultReference.removeEventListener(resultListener);
                 }
                 //Listen for results from Queue
-                DatabaseReference taskRef = mReference.child("result").child(Constants.LIVETICKER_ADD_QUEUE_PATH).child(ref.getKey());
+                DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("/result/" + user.getUid() + "/addLiveticker/" + ref.getKey());
 
                 //Add Listener to Reference and store Reference so we can later detach Listener
                 taskRef.addValueEventListener(resultListener);
@@ -152,6 +159,15 @@ public class AddLivetickerActivity extends AppCompatActivity implements View.OnC
         //Remove Event Listener from Queue, if it has been started
         if (currentResultReference != null && resultListener != null) {
             currentResultReference.removeEventListener(resultListener);
+        }
+    }
+
+    @Override
+    protected void authChanged(FirebaseUser user) {
+        if (user.isAnonymous()) {
+            Intent i = new Intent(AddLivetickerActivity.this, MainActivity.class);
+            startActivity(i);
+            Toast.makeText(this, R.string.no_access_permission, Toast.LENGTH_SHORT).show();
         }
     }
 
