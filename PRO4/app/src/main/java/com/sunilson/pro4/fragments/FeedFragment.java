@@ -93,7 +93,10 @@ public class FeedFragment extends BaseFragment {
         ownLivetickers.setAdapter(ownLivetickersAdapter = new FeedRecyclerViewAdapter(ownLivetickers, getContext()));
         recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
         subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
-        requestFeed();
+
+        ownLivetickers.setNestedScrollingEnabled(false);
+        recentlyVisited.setNestedScrollingEnabled(false);
+        subscriptionLivetickers.setNestedScrollingEnabled(false);
     }
 
     @Override
@@ -170,6 +173,7 @@ public class FeedFragment extends BaseFragment {
                     if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                         ArrayList<Liveticker> ownLivetickersData = new ArrayList<>();
                         ArrayList<Liveticker> recentLivetickersData = new ArrayList<>();
+                        ArrayList<Liveticker> subscriptionLivetickersData = new ArrayList<>();
 
                         //Get Own Livetickers
                         ownLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_OWN);
@@ -177,11 +181,19 @@ public class FeedFragment extends BaseFragment {
                         //Get Recent Livetickers
                         recentLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_RECENT);
 
+                        //Get Subscription Livetickers
+                        subscriptionLivetickersData = retrieveLivetickers(dataSnapshot, Constants.LIVETICKER_RESULT_SUBSCRIPTIONS);
+
                         recentlyVisitedAdapter.setData(recentLivetickersData);
                         ownLivetickersAdapter.setData(ownLivetickersData);
+                        subscriptionLivetickersAdapter.setData(subscriptionLivetickersData);
                         loading(false);
                     } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
-                        Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_SHORT).show();
+                        if (dataSnapshot.child("errorDetails").getValue() != null) {
+                            Toast.makeText(getActivity(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getActivity(), R.string.feed_load_failure, Toast.LENGTH_SHORT).show();
+                        }
                         loading(false);
                     }
                 }
@@ -199,10 +211,12 @@ public class FeedFragment extends BaseFragment {
 
         for (DataSnapshot postSnapshot : snapshot.child(child).getChildren()) {
             Liveticker tempLiveticker = postSnapshot.getValue(Liveticker.class);
-            try {
-                tempLiveticker.setLivetickerID(postSnapshot.getKey());
-            } catch (LivetickerSetException e) {
-                e.printStackTrace();
+            if (tempLiveticker.getLivetickerID() == null) {
+                try {
+                    tempLiveticker.setLivetickerID(postSnapshot.getKey());
+                } catch (LivetickerSetException e) {
+                    e.printStackTrace();
+                }
             }
             result.add(tempLiveticker);
         }

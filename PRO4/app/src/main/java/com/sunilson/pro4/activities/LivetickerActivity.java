@@ -36,6 +36,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         setContentView(R.layout.activity_liveticker);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ButterKnife.bind(this);
 

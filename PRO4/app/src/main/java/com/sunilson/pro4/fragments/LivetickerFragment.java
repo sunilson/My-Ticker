@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,10 +18,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,6 +61,7 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * @author Linus Weiss
@@ -64,7 +69,7 @@ import butterknife.ButterKnife;
 
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
-    private DatabaseReference livetickerContentReference, currentResultReference, livetickerReference, subscriptionReference;
+    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference;
     private ChildEventListener livetickerContentListener;
     private ValueEventListener livetickerListener;
     private ValueEventListener authorListener;
@@ -75,7 +80,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private User author;
     private FirebaseStorage storage;
     private boolean owner, subscribed, addedToRecent;
-    private Uri imageURI;
     private LivetickerRecyclerViewAdapter livetickerAdapter;
 
     @BindView(R.id.fragment_liveticker_recyclerView)
@@ -99,14 +103,20 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @BindView(R.id.fragment_liveticker_description)
     TextView description;
 
-    @BindView(R.id.fragment_liveticker_title)
-    TextView title;
+    @BindView(R.id.fragment_liveticker_profile_picture)
+    ImageView profilePicture;
 
     @BindView(R.id.fragment_liveticker_author)
     TextView authorText;
 
     @BindView(R.id.fragment_liveticker_subscribe)
     Button subscribeButton;
+
+    @BindView(R.id.fragment_liveticker_input_layout)
+    LinearLayout inputLayout;
+
+    @BindView(R.id.fragment_liveticker_visitor_layout)
+    LinearLayout visitorLayout;
 
     public static LivetickerFragment newInstance(String livetickerID) {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
@@ -138,6 +148,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @Override
     public void onStart() {
         super.onStart();
+
+        loadingAddingNewEvent(true);
 
         livetickerContents.setLayoutManager(new LinearLayoutManager(getActivity()));
         livetickerContents.setAdapter(livetickerAdapter = new LivetickerRecyclerViewAdapter(livetickerContents, getContext()));
@@ -408,6 +420,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         livetickerContentListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                loadingAddingNewEvent(false);
                 if (dataSnapshot == null || dataSnapshot.getKey().equals("authorID")) {
 
                 } else {
@@ -542,25 +555,34 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private void updateViews(String type) {
         if (type.equals("liveticker") || type.equals("both")) {
             if (liveticker != null) {
+
                 if (liveticker.getTitle() != null) {
-                    title.setText(liveticker.getTitle());
+                    getActivity().setTitle(liveticker.getTitle());
                 }
                 if (liveticker.getDescription() != null) {
                     description.setText(liveticker.getDescription());
                 }
 
                 if (owner) {
-                    subscribeButton.setVisibility(View.GONE);
+                    inputLayout.setVisibility(View.VISIBLE);
+                    visitorLayout.setVisibility(View.GONE);
                 } else {
-                    subscribeButton.setVisibility(View.VISIBLE);
+                    inputLayout.setVisibility(View.GONE);
+                    visitorLayout.setVisibility(View.VISIBLE);
                 }
             }
         }
 
         if (type.equals("author") || type.equals("both")) {
-            if (author != null) {
+            if (author != null && !owner) {
                 if (author.getUserName() != null) {
                     authorText.setText(author.getUserName());
+                }
+
+                if (author.getProfilePicture() != null) {
+                    DrawableRequestBuilder<Integer> placeholder = Glide.with(getContext()).load(R.drawable.default_placeholder).bitmapTransform(new CropCircleTransformation(getContext()));
+                    StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(author.getProfilePicture());
+                    Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(getContext())).crossFade().into(profilePicture);
                 }
             }
         }

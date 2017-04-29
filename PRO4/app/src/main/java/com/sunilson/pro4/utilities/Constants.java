@@ -15,6 +15,7 @@ public class Constants {
     public static final String LIVETICKER_REQUEST_FEED_PATH = "feed";
     public static final String LIVETICKER_RESULT_OWN = "ownLivetickers";
     public static final String LIVETICKER_RESULT_RECENT = "recentLivetickers";
+    public static final String LIVETICKER_RESULT_SUBSCRIPTIONS = "subscriptionLivetickers";
     public static final String USERS_PATH = "users";
     public static final int PICK_IMAGE_DIALOG_REQUEST_CODE = 2;
     public static final int PICK_IMAGE_DIALOG_RESULT_CAMERA = 3;

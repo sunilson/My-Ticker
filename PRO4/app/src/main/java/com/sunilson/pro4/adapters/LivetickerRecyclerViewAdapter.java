@@ -93,7 +93,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             ViewHolderImage viewHolderImage = (ViewHolderImage) holder;
             if (event.getThumbnail() != null) {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(event.getThumbnail());
-                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).into(viewHolderImage.image);
+                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).placeholder(R.drawable.default_placeholder).crossFade().into(viewHolderImage.image);
                 //viewHolderImage.image.setOnClickListener(onImageClickListener);
             }
             //Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);
@@ -101,13 +101,19 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             if (event.getCaption() != null) {
                 viewHolderImage.caption.setText(event.getCaption());
             }
+        } else if (event.getType().equals("state")) {
+            if (event.getContent().equals("started")) {
+                ViewHolderText viewHolderText = (ViewHolderText) holder;
+                viewHolderText.content.setText(ctx.getString(R.string.started_liveticker));
+                viewHolderText.date.setText(dateFormat.format(event.getTimestamp()));
+            }
         }
     }
 
     @Override
     public int getItemViewType(int position) {
         LivetickerEvent event = data.get(position);
-        if(event.getType().equals("text")) {
+        if(event.getType().equals("text") || event.getType().equals("state")) {
             return 0;
         } else {
             return 1;

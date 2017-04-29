@@ -115,6 +115,7 @@ public class MainActivity extends BaseActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.main_menu_logOut) {
+            mAuth.signOut();
             return true;
         } else if (id == R.id.feed_menu_refresh) {
             return false;
@@ -130,7 +131,7 @@ public class MainActivity extends BaseActivity {
     protected void authChanged(FirebaseUser user) {
         checkLoginStatus(user);
         if (user != null) {
-            if (!user.isAnonymous()) {
+            if (!user.isAnonymous() && user.isEmailVerified()) {
                 //Check for first login
                 SharedPreferences sharedPreferences = getSharedPreferences(user.getUid(), Context.MODE_PRIVATE);
                 if (sharedPreferences.getBoolean("firstLogin", true)) {
@@ -153,7 +154,7 @@ public class MainActivity extends BaseActivity {
             } else {
                 if (loginButton != null && logoutButton != null) {
                     loginButton.setVisible(false);
-                    logoutButton.setVisible(false);
+                    logoutButton.setVisible(true);
                     fab.setVisibility(View.VISIBLE);
                 }
             }

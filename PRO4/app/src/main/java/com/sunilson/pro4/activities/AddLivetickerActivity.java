@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Switch;
@@ -31,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
+import com.sunilson.pro4.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -75,6 +77,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
 
     @BindView(R.id.add_liveticker_date_layout)
     LinearLayout dateLayout;
+
+    @BindView(R.id.progress_overlay)
+    FrameLayout progressOverlay;
 
     @OnClick(R.id.add_liveticker_submit_button)
     public void submit(View view) {
@@ -197,23 +202,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
 
     private void loading(boolean loading) {
         if (loading) {
-            progressBar.setVisibility(View.VISIBLE);
-            descriptionEditText.setVisibility(View.GONE);
-            titleEditText.setVisibility(View.GONE);
-            dateSwitch.setVisibility(View.GONE);
-            privacySwitch.setVisibility(View.GONE);
-            if (!startNow) {
-                dateLayout.setVisibility(View.GONE);
-            }
+            Utilities.animateView(progressOverlay, View.VISIBLE, 0.4f, 200);
         } else {
-            progressBar.setVisibility(View.GONE);
-            descriptionEditText.setVisibility(View.VISIBLE);
-            titleEditText.setVisibility(View.VISIBLE);
-            dateSwitch.setVisibility(View.VISIBLE);
-            privacySwitch.setVisibility(View.VISIBLE);
-            if (!startNow) {
-                dateLayout.setVisibility(View.VISIBLE);
-            }
+            Utilities.animateView(progressOverlay, View.GONE, 0, 200);
         }
     }
 

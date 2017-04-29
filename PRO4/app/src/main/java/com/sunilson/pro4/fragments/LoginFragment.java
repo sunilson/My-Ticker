@@ -16,6 +16,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 
@@ -49,6 +52,9 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
     @BindView(R.id.loginFragment_register)
     Button registerButton;
 
+    @BindView(R.id.progress_overlay)
+    View progressOverlay;
+
     /**
      * Create new Login Fragment
      *
@@ -65,6 +71,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
         unbinder = ButterKnife.bind(this, view);
         loginButton.setOnClickListener(this);
         registerButton.setOnClickListener(this);
+        loading(false);
         return view;
     }
 
@@ -81,6 +88,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.loginFragment_Submit:
+                loading(true);
                 emailLogin(emailEditText.getText().toString(), passwordEditText.getText().toString());
                 break;
             case R.id.loginFragment_register:
@@ -113,7 +121,18 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
 
                 if (user != null) {
                     if (!user.isAnonymous()) {
-                        getActivity().finish();
+                        if (user.isEmailVerified()) {
+                            DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("registrationTokens/" + user.getUid()).push();
+                            dRef.setValue(FirebaseInstanceId.getInstance().getToken()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    getActivity().finish();
+                                }
+                            });
+                        } else {
+                            Toast.makeText(getContext(), R.string.not_verified_yet, Toast.LENGTH_SHORT).show();
+                            mAuth.signOut();
+                        }
                     }
                 }
             }
@@ -125,17 +144,28 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
 
         if (email.isEmpty()) {
             emailLayout.setError("Email can't be empty");
+            loading(false);
         } else if (password.isEmpty()) {
             passwordLayout.setError("Password can't be empty!");
+            loading(false);
         } else {
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (!task.isSuccessful()) {
                         Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
+                        loading(false);
                     }
                 }
             });
+        }
+    }
+
+    private void loading(boolean loading) {
+        if (loading) {
+            progressOverlay.setVisibility(View.VISIBLE);
+        } else {
+            progressOverlay.setVisibility(View.GONE);
         }
     }
 }

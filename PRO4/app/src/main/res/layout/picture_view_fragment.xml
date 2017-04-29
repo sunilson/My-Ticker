@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
         >
-        <ImageView
+        <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/fragment_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

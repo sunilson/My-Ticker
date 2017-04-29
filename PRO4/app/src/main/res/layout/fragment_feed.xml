@@ -1,64 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:id="@+id/feed_fragment_loading_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
-        <ProgressBar
-            android:id="@+id/feed_fragment_progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/feed_fragment_content_container"
+    >
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
+        >
+        <LinearLayout
+            android:id="@+id/feed_fragment_loading_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Own Livetickers" />
+            android:gravity="center"
+            android:layout_marginTop="50dp"
+            android:orientation="vertical">
+            <ProgressBar
+                android:id="@+id/feed_fragment_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/feed_fragment_ownLivetickers_recyclerView"
+        <LinearLayout
+            android:id="@+id/feed_fragment_content_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-        </android.support.v7.widget.RecyclerView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Own Livetickers" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Recently Visited" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/feed_fragment_ownLivetickers_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/feed_fragment_recentlyVisited_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            </android.support.v7.widget.RecyclerView>
 
-        </android.support.v7.widget.RecyclerView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Recently Visited" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Subscriptions" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/feed_fragment_recentlyVisited_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/feed_fragment_subscriptionLivetickers_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+            </android.support.v7.widget.RecyclerView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Subscriptions" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/feed_fragment_subscriptionLivetickers_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</android.support.v4.widget.NestedScrollView>

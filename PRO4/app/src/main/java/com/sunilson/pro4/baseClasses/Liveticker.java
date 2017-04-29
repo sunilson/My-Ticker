@@ -17,6 +17,8 @@ public class Liveticker {
     private String state;
     private String status;
     private String authorID;
+    private String userName;
+    private String profilePicture;
     private int commentCount;
     private Long startDate;
 
@@ -124,5 +126,21 @@ public class Liveticker {
             throw new LivetickerSetException("Status is not valid");
         }
         this.status = status;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

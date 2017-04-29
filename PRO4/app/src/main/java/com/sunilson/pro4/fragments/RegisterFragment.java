@@ -54,6 +54,9 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @BindView(R.id.registerFragment_submit)
     Button registerButton;
 
+    @BindView(R.id.progress_overlay)
+    View progressOverlay;
+
     private String registerUsername = "Default Username";
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -78,7 +81,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_register, container, false);
         unbinder = ButterKnife.bind(this, view);
         registerButton.setOnClickListener(this);
-
+        loading(false);
         return view;
     }
 
@@ -86,6 +89,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.registerFragment_submit:
+                loading(true);
                 createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText2.getText().toString());
                 break;
         }
@@ -105,10 +109,13 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
 
         if (password.isEmpty()) {
             passwordEditTextLayout.setError(getString(R.string.password_empty));
+            loading(false);
         } else if (password2.isEmpty()) {
             passwordEditText2Layout.setError(getString(R.string.password_empty));
+            loading(false);
         } else if (!password.equals(password2)) {
             passwordEditText2Layout.setError(getString(R.string.password_match));
+            loading(false);
         } else {
             AuthCredential credential = EmailAuthProvider.getCredential(email, password);
             FirebaseAuth.getInstance().getCurrentUser().linkWithCredential(credential)
@@ -119,11 +126,13 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                             if (!task.isSuccessful()) {
                                 Toast.makeText(getContext(), task.getResult().toString(),
                                         Toast.LENGTH_SHORT).show();
+                                loading(false);
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
+                    loading(false);
                     Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -165,6 +174,14 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
 
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    private void loading(boolean loading){
+        if (loading) {
+            progressOverlay.setVisibility(View.VISIBLE);
+        } else {
+            progressOverlay.setVisibility(View.GONE);
         }
     }
 }

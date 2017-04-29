@@ -13,7 +13,9 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.flurgle.camerakit.CameraKit;
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
 import com.sunilson.pro4.R;
@@ -43,6 +46,10 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
     private CameraView cameraView;
     private int orientation;
     private Bitmap result;
+    private boolean captioning;
+    private int flashState = 0;
+    private int cameraState = 0;
+    private ImageView flash, switchCamera;
 
     @NonNull
     @Override
@@ -65,7 +72,11 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getDialog().dismiss();
+                if(captioning) {
+                    switchCameraCaption(true);
+                } else {
+                    getDialog().dismiss();
+                }
             }
         });
 
@@ -74,6 +85,11 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         captionView = (RelativeLayout) view.findViewById(R.id.caption_view);
         cameraViewLayout = (CoordinatorLayout) view.findViewById(R.id.camera_view_layout);
         FloatingActionButton cameraButton = (FloatingActionButton) view.findViewById(R.id.camera_view_take_picture);
+        flash = (ImageView) view.findViewById(R.id.camera_view_flash);
+        switchCamera = (ImageView) view.findViewById(R.id.camera_view_switch);
+
+        cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,8 +97,40 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             }
         });
 
+        flash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(flashState == 0) {
+                    cameraView.setFlash(CameraKit.Constants.FLASH_AUTO);
+                    flash.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flash_auto_white_24dp));
+                    flashState = 1;
+                } else if (flashState == 1) {
+                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+                    flash.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flash_on_white_24dp));
+                    flashState = 2;
+                } else {
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+                    flash.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flash_off_white_24dp));
+                    flashState = 0;
+                }
+            }
+        });
+
+        switchCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(cameraState == 0) {
+                    cameraView.setFacing(CameraKit.Constants.FACING_FRONT);
+                    cameraState = 1;
+                } else {
+                    cameraView.setFacing(CameraKit.Constants.FACING_BACK);
+                    cameraState = 0;
+                }
+            }
+        });
+
         if (getArguments().getString("imageUri") != null) {
-            switchCameraCrop(false);
+            switchCameraCaption(false);
             //Setting up the given image
             imageURI = Uri.parse(getArguments().getString("imageURI"));
             try {
@@ -93,7 +141,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
                 e.printStackTrace();
             }
         } else {
-            switchCameraCrop(true);
+            switchCameraCaption(true);
             cameraView.start();
             cameraView.setCameraListener(new CameraListener() {
                 @Override
@@ -124,7 +172,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    switchCameraCrop(false);
+                    switchCameraCaption(false);
                 }
             });
         }
@@ -146,10 +194,37 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             }
         });
 
-        return builder.create();
+        Dialog dialog = builder.create();
+
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                if (i == KeyEvent.KEYCODE_BACK && keyEvent.getAction() == KeyEvent.ACTION_UP) {
+                    if(captioning) {
+                        switchCameraCaption(true);
+                    } else {
+                        getDialog().dismiss();
+                    }
+                }
+                return true;
+            }
+        });
+
+        return dialog;
     }
 
-    private void switchCameraCrop(boolean camera) {
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        cameraView.stop();
+    }
+
+    private void switchCameraCaption(boolean camera) {
+
+        captioning = !camera;
+
         if (!camera) {
             cameraViewLayout.setVisibility(View.GONE);
             captionView.setVisibility(View.VISIBLE);

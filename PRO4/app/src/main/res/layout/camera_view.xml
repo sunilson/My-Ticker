@@ -8,6 +8,33 @@
     android:id="@+id/camera_view_layout"
     >
 
+    <com.flurgle.camerakit.CameraView
+        android:id="@+id/camera_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:ckFacing="back"
+        app:ckFlash="auto"
+        android:adjustViewBounds="true" />
+
+    <ImageView
+        android:id="@+id/camera_view_flash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginLeft="48dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_flash_off_white_24dp"
+        />
+    <ImageView
+        android:id="@+id/camera_view_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="48dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_switch_camera_white_24dp"
+        />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/camera_view_take_picture"
         android:layout_width="wrap_content"
@@ -18,9 +45,5 @@
         app:srcCompat="@drawable/ic_camera_white_24dp"
         />
 
-    <com.flurgle.camerakit.CameraView
-        android:id="@+id/camera_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true" />
+
 </android.support.design.widget.CoordinatorLayout>

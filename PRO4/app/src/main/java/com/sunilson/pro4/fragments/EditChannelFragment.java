@@ -107,8 +107,10 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         if (!started) {
             started = true;
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            userReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
-            userReference.addListenerForSingleValueEvent(loadUserDataListener);
+            if (user != null) {
+                userReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
+                userReference.addListenerForSingleValueEvent(loadUserDataListener);
+            }
         }
     }
 
@@ -227,6 +229,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                         break;
                     case Constants.PICTURE_DIALOG__CROP_RESULT_CODE_FAILURE:
                         //TODO Error Handling
+                        loading(false);
                         break;
                 }
                 break;
@@ -363,8 +366,12 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (userName.getText() != null) {
+        if (!userName.getText().toString().isEmpty()) {
             tempUser.setUserName(userName.getText().toString());
+        } else  {
+            Toast.makeText(getActivity(), R.string.username_empty, Toast.LENGTH_SHORT).show();
+            loading(false);
+            return;
         }
 
         if (info.getText() != null) {
@@ -373,6 +380,12 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
         if (status.getText() != null) {
             tempUser.setStatus(status.getText().toString());
+        }
+
+        if (tempUser.getTitlePicture().isEmpty() || tempUser.getProfilePicture().isEmpty()) {
+            Toast.makeText(getActivity(), R.string.profile_pictures_invalid, Toast.LENGTH_LONG).show();
+            loading(false);
+            return;
         }
 
         tempUser.setUserID(user.getUid());

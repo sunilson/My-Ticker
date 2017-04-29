@@ -1,86 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_add_liveticker"
-    android:paddingTop="?actionBarSize"
-    android:layout_width="match_parent"
+<RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.sunilson.pro4.activities.AddLivetickerActivity"
-    tools:showIn="@layout/activity_add_liveticker"
-    android:animateLayoutChanges="true"
-    >
-
-    <EditText
-        android:id="@+id/add_liveticker_title_edittext"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/content_add_liveticker"
+        android:paddingTop="?actionBarSize"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Title" />
-
-    <EditText
-        android:id="@+id/add_liveticker_description_edittext"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Beschreibung" />
-    <EditText
-        android:id="@+id/add_liveticker_status_edittext"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Status" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Public?"
-        />
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:id="@+id/add_liveticker_privacy_switch"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sofort starten?"
-        />
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:id="@+id/add_liveticker_start_switch"
-        />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone"
-        android:id="@+id/add_liveticker_date_layout"
+        tools:context="com.sunilson.pro4.activities.AddLivetickerActivity"
+        tools:showIn="@layout/activity_add_liveticker"
+        android:animateLayoutChanges="true"
         >
-        <TextView
+
+        <EditText
+            android:id="@+id/add_liveticker_title_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/add_liveticker_date"
-            android:hint="Date"
-            />
-        <TextView
+            android:hint="Title" />
+
+        <EditText
+            android:id="@+id/add_liveticker_description_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/add_liveticker_time"
-            android:hint="Time"
+            android:hint="Beschreibung" />
+        <EditText
+            android:id="@+id/add_liveticker_status_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Status" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Public?"
             />
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:id="@+id/add_liveticker_privacy_switch"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sofort starten?"
+            />
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:id="@+id/add_liveticker_start_switch"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:id="@+id/add_liveticker_date_layout"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/add_liveticker_date"
+                android:hint="Date"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/add_liveticker_time"
+                android:hint="Time"
+                />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/add_liveticker_submit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Liveticker hinzufügen" />
+        <ProgressBar
+            android:id="@+id/add_liveticker_loading_spinner"
+            style="?android:attr/progressBarStyleLarge"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" />
+
     </LinearLayout>
+    <!-- Progress bar overlay; shown while login is in progress -->
+    <include layout="@layout/progress_overlay" />
+</RelativeLayout>
 
-    <Button
-        android:id="@+id/add_liveticker_submit_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Liveticker hinzufügen" />
-    <ProgressBar
-        android:id="@+id/add_liveticker_loading_spinner"
-        style="?android:attr/progressBarStyleLarge"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true" />
-
-</LinearLayout>
