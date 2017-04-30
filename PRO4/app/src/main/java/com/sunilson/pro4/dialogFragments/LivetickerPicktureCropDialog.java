@@ -10,14 +10,12 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.flurgle.camerakit.CameraKit;
 import com.flurgle.camerakit.CameraListener;
@@ -40,7 +38,7 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
     private Uri imageURI, cameraURI;
     private CameraView cameraView;
     private CropImageView cropImageView;
-    private CoordinatorLayout cameraViewLayout;
+    private RelativeLayout cameraViewLayout;
     private int orientation;
     private boolean cropping;
     private boolean fromGallery;
@@ -58,7 +56,7 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
 
         //Setting up the Crop View and the Camera view
         cropImageView = (CropImageView) view.findViewById(R.id.crop_image_view);
-        cameraViewLayout = (CoordinatorLayout) view.findViewById(R.id.camera_view_layout);
+        cameraViewLayout = (RelativeLayout) view.findViewById(R.id.camera_view_layout);
         cameraView = (CameraView) view.findViewById(R.id.camera_view);
         FloatingActionButton cameraButton = (FloatingActionButton) view.findViewById(R.id.camera_view_take_picture);
         flash = (ImageView) view.findViewById(R.id.camera_view_flash);
@@ -155,37 +153,12 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
             });
         }
 
-        //Setting up the toolbar
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.menu_crop_image);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.crop_menu_done) {
-                    Intent intent = new Intent();
-                    intent.putExtra("image", cropImageView.getCroppedImage());
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS, intent);
-                    getDialog().dismiss();
-                    return true;
-                }
-                return false;
-            }
-        });
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fromGallery) {
-                    getDialog().dismiss();
-                }
-
-                if(cropping) {
-                    switchCameraCrop(true);
-                } else {
-                    getDialog().dismiss();
-                }
-            }
-        });
+        /*
+        Intent intent = new Intent();
+        intent.putExtra("image", cropImageView.getCroppedImage());
+        getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS, intent);
+        getDialog().dismiss();
+        */
 
         Dialog dialog = builder.create();
 

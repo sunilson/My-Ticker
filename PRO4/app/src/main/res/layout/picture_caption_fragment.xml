@@ -2,30 +2,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/pictureDialogBackground">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/imageViewBackground"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     <include layout="@layout/camera_view" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
         android:id="@+id/caption_view"
         >
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/picture_dialog_image"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:adjustViewBounds="true"
             android:layout_centerInParent="true"
             />
@@ -33,9 +23,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp"
+            android:padding="10dp"
             android:orientation="horizontal"
             android:layout_alignBottom="@+id/picture_dialog_image"
+            android:background="@color/captionBackground"
             >
             <EditText
                 android:layout_width="0dp"
@@ -44,12 +35,16 @@
                 android:textColor="@color/white"
                 android:hint="Enter caption here"
                 android:id="@+id/picture_dialog_caption"
+                android:textColorHint="@color/white"
                 />
-            <Button
+            <ImageButton
+                android:layout_marginLeft="10dp"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:id="@+id/picture_dialog_submit"
-                android:text="Done"/>
+                android:background="@drawable/liveticker_input_send_button_background"
+                android:src="@drawable/ic_send_white_24dp"
+                />
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

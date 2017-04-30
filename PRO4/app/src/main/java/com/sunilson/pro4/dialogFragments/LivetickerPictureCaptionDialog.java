@@ -14,11 +14,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -59,27 +57,6 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         final View view = inflater.inflate(R.layout.picture_caption_fragment, null);
         builder.setView(view);
 
-        //Setting up the toolbar
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.menu_caption_image);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                return false;
-            }
-        });
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(captioning) {
-                    switchCameraCaption(true);
-                } else {
-                    getDialog().dismiss();
-                }
-            }
-        });
-
         //Setting up the views
         cameraView = (CameraView) view.findViewById(R.id.camera_view);
         captionView = (RelativeLayout) view.findViewById(R.id.caption_view);
@@ -100,7 +77,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         flash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(flashState == 0) {
+                if (flashState == 0) {
                     cameraView.setFlash(CameraKit.Constants.FLASH_AUTO);
                     flash.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flash_auto_white_24dp));
                     flashState = 1;
@@ -119,11 +96,11 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         switchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(cameraState == 0) {
+                if (cameraState == 0) {
                     cameraView.setFacing(CameraKit.Constants.FACING_FRONT);
                     cameraState = 1;
                 } else {
-                    cameraView.setFacing(CameraKit.Constants.FACING_BACK);
+                    //cameraView.setFacing(CameraKit.Constants.FACING_BACK);
                     cameraState = 0;
                 }
             }
@@ -182,7 +159,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         caption.setHint("Enter Caption here!");
 
         //Return result
-        Button submitButton = (Button) view.findViewById(R.id.picture_dialog_submit);
+        ImageButton submitButton = (ImageButton) view.findViewById(R.id.picture_dialog_submit);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -200,7 +177,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             @Override
             public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
                 if (i == KeyEvent.KEYCODE_BACK && keyEvent.getAction() == KeyEvent.ACTION_UP) {
-                    if(captioning) {
+                    if (captioning) {
                         switchCameraCaption(true);
                     } else {
                         getDialog().dismiss();
@@ -226,8 +203,13 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         captioning = !camera;
 
         if (!camera) {
-            cameraViewLayout.setVisibility(View.GONE);
-            captionView.setVisibility(View.VISIBLE);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    cameraViewLayout.setVisibility(View.GONE);
+                    captionView.setVisibility(View.VISIBLE);
+                }
+            });
         } else {
             cameraViewLayout.setVisibility(View.VISIBLE);
             captionView.setVisibility(View.GONE);

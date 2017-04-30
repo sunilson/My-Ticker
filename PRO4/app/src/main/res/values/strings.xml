@@ -44,4 +44,5 @@
     <string name="started_liveticker">Started Liveticker!</string>
     <string name="username_empty">Username is empty!</string>
     <string name="profile_pictures_invalid">Profile or/and Title picture is/are invalid!</string>
+    <string name="liveticker_input_placeholder">Enter your message</string>
 </resources>

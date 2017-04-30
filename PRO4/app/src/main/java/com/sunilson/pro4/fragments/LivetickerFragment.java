@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -86,10 +87,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     RecyclerView livetickerContents;
 
     @BindView(R.id.fragment_liveticker_camera_button)
-    Button cameraButton;
+    ImageButton cameraButton;
 
     @BindView(R.id.fragment_liveticker_send_button)
-    Button sendButton;
+    ImageButton sendButton;
 
     @BindView(R.id.fragment_liveticker_input)
     EditText textInput;
@@ -269,7 +270,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         final byte[] data = byteArrayOutputStream.toByteArray();
 
         //Generate Thumbnail of Image
-        Bitmap thumbMap = ThumbnailUtils.extractThumbnail(bitmap, 200, 200);
+        Bitmap thumbMap = ThumbnailUtils.extractThumbnail(bitmap, 400, 225);
         ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream();
         thumbMap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream2);
         final byte[] thumbnail = byteArrayOutputStream2.toByteArray();

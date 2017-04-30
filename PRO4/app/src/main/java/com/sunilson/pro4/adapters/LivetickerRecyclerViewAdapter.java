@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
@@ -23,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 /**
  * @author Linus Weiss
@@ -38,7 +41,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
 
     public LivetickerRecyclerViewAdapter(RecyclerView recyclerView, Context ctx) {
         this.ctx = ctx;
-        this.dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+        this.dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getDefault());
         this.liveticker = recyclerView;
     }
@@ -93,7 +96,8 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             ViewHolderImage viewHolderImage = (ViewHolderImage) holder;
             if (event.getThumbnail() != null) {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(event.getThumbnail());
-                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).placeholder(R.drawable.default_placeholder).crossFade().into(viewHolderImage.image);
+                DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 15, 0, RoundedCornersTransformation.CornerType.ALL));
+                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 15, 0, RoundedCornersTransformation.CornerType.ALL)).animate(android.R.anim.fade_in).into(viewHolderImage.image);
                 //viewHolderImage.image.setOnClickListener(onImageClickListener);
             }
             //Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);

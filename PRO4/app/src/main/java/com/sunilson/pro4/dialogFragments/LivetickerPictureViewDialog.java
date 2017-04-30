@@ -55,7 +55,7 @@ public class LivetickerPictureViewDialog extends ImageBaseDialog {
         ImageView imageView = (ImageView) view.findViewById(R.id.fragment_image_view);
         if (imageURL != null) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
-            Glide.with(this).using(new FirebaseImageLoader()).load(storageReference).into(imageView);
+            Glide.with(this).using(new FirebaseImageLoader()).load(storageReference).placeholder(R.drawable.default_placeholder).animate(android.R.anim.fade_in).into(imageView);
         } else {
             getDialog().dismiss();
         }
