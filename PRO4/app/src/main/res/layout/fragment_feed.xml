@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:background="@color/livetickerBackground"
     >
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -34,6 +35,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                style="@style/RecyclerViewElement"
+                android:padding="10dp"
                 android:text="Own Livetickers" />
 
             <android.support.v7.widget.RecyclerView
@@ -46,6 +50,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                style="@style/RecyclerViewElement"
+                android:padding="10dp"
                 android:text="Recently Visited" />
 
             <android.support.v7.widget.RecyclerView
@@ -58,6 +65,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                style="@style/RecyclerViewElement"
+                android:padding="10dp"
                 android:text="Subscriptions" />
 
             <android.support.v7.widget.RecyclerView

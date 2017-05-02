@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.activities.ChannelActivity;
 
@@ -23,6 +24,14 @@ public class ProfileFragment extends BaseFragment {
     public void editProfile() {
         Intent i = new Intent(getActivity(), ChannelActivity.class);
         i.putExtra("type", "editChannel");
+        startActivity(i);
+    }
+
+    @OnClick(R.id.fragment_profile_view_channel)
+    public void viewProfile() {
+        Intent i = new Intent(getActivity(), ChannelActivity.class);
+        i.putExtra("type", "view");
+        i.putExtra("authorID", FirebaseAuth.getInstance().getCurrentUser().getUid());
         startActivity(i);
     }
 

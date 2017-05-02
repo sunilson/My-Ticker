@@ -6,7 +6,9 @@
     <color name="pictureDialogBackground">#000000</color>
     <color name="imageViewBackground">#000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="livetickerBackground">#e4e4e4</color>
+    <color name="livetickerBackground">#f0f0f0</color>
     <color name="livetickerInputHintColor">#e4e4e4</color>
     <color name="captionBackground">#80000000</color>
+    <color name="icon_tint_color">#A8ADAF</color>
+    <color name="camera_button_background">#9E9E9E</color>
 </resources>

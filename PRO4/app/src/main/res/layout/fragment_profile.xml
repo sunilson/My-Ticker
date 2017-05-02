@@ -8,4 +8,10 @@
         android:id="@+id/fragment_profile_edit_channel"
         android:text="@string/edit_user_channel"
         />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/fragment_profile_view_channel"
+        android:text="@string/view_own_channel"
+        />
 </LinearLayout>

@@ -96,8 +96,8 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             ViewHolderImage viewHolderImage = (ViewHolderImage) holder;
             if (event.getThumbnail() != null) {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(event.getThumbnail());
-                DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 15, 0, RoundedCornersTransformation.CornerType.ALL));
-                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 15, 0, RoundedCornersTransformation.CornerType.ALL)).animate(android.R.anim.fade_in).into(viewHolderImage.image);
+                DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 5, 0, RoundedCornersTransformation.CornerType.ALL));
+                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 5, 0, RoundedCornersTransformation.CornerType.ALL)).animate(android.R.anim.fade_in).into(viewHolderImage.image);
                 //viewHolderImage.image.setOnClickListener(onImageClickListener);
             }
             //Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);

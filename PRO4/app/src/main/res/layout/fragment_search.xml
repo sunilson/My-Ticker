@@ -18,5 +18,20 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="search" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_search_input"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_search_submit"
+            />
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_search_recycler_view"/>
     </LinearLayout>
+
 </android.support.v4.widget.NestedScrollView>

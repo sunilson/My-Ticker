@@ -5,11 +5,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.fragments.CommentsFragment;
 import com.sunilson.pro4.fragments.LivetickerFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
@@ -20,8 +21,6 @@ import butterknife.ButterKnife;
 
 public class LivetickerActivity extends BaseActivity implements CanChangeFragment {
 
-    private ValueEventListener livetickerListener;
-    private DatabaseReference livetickerReference;
     private String livetickerID;
     private boolean started;
 
@@ -34,7 +33,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_liveticker);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.liveticker_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -43,9 +42,9 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         if (savedInstanceState == null) {
             Intent i = getIntent();
 
-            if (i.getStringExtra("livetickerID") != null) {
+            if (i.getStringExtra(Constants.LIVETICKER_ID) != null) {
                 //Started from within app
-                livetickerID = i.getStringExtra("livetickerID");
+                livetickerID = i.getStringExtra(Constants.LIVETICKER_ID);
             } else {
                 //Started from external URL
                 Uri data = i.getData();
@@ -72,30 +71,35 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        if (livetickerReference != null) {
-            livetickerReference.addValueEventListener(livetickerListener);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (livetickerListener != null && livetickerReference != null) {
-            livetickerReference.removeEventListener(livetickerListener);
-        }
-    }
-
-    @Override
     public void replaceFragment(Fragment fragment, String tag) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).commit();
+        if (tag.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).addToBackStack(null).commit();
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).commit();
+        }
 
         if (tag.equals(Constants.FRAGMENT_LIVETICKER_TAG)) {
             //fab.setVisibility(View.VISIBLE);
         } else {
             //fab.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_liveticker, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.liveticker_menu_comments:
+                replaceFragment(CommentsFragment.newInstance(), Constants.FRAGMENT_COMMENTS_TAG);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

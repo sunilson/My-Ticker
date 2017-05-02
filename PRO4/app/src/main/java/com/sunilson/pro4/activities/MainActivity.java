@@ -1,8 +1,6 @@
 package com.sunilson.pro4.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -12,8 +10,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.MainActivityFragmentPagerAdapter;
 
@@ -133,12 +137,27 @@ public class MainActivity extends BaseActivity {
         if (user != null) {
             if (!user.isAnonymous() && user.isEmailVerified()) {
                 //Check for first login
-                SharedPreferences sharedPreferences = getSharedPreferences(user.getUid(), Context.MODE_PRIVATE);
-                if (sharedPreferences.getBoolean("firstLogin", true)) {
-                    Intent i = new Intent(this, ChannelActivity.class);
-                    i.putExtra("type", "firstLogin");
-                    startActivity(i);
-                }
+                final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("firstLogin/" + user.getUid());
+                dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() == null) {
+                            dRef.setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Intent i = new Intent(MainActivity.this, ChannelActivity.class);
+                                    i.putExtra("type", "firstLogin");
+                                    startActivity(i);
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         }
     }

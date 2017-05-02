@@ -6,8 +6,10 @@ package com.sunilson.pro4.utilities;
 
 public class Constants {
 
+    public static final String LIVETICKER_ID = "livetickerID";
     public static final String LOGGING_TAG = "Linus";
     public static final String FRAGMENT_LIVETICKER_TAG = "liveticker";
+    public static final String FRAGMENT_COMMENTS_TAG = "comments";
     public static final String LIVETICKER_PATH = "liveticker";
     public static final String LIVETICKER_CONTENT_PATH = "contents";
     public static final String LIVETICKER_ADD_QUEUE_PATH = "addLiveticker";

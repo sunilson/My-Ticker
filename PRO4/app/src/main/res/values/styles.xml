@@ -14,6 +14,34 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="RecyclerViewElement">
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:background">@drawable/liveticker_content_element_background</item>
+    </style>
+
+    <style name="LivetickerInput">
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:drawableLeft">@drawable/input_drawable_left</item>
+        <item name="android:drawableStart">@drawable/input_drawable_left</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">50dp</item>
+        <item name="android:background">@drawable/liveticker_input_background</item>
+        <item name="android:hint">@string/liveticker_input_placeholder</item>
+        <item name="android:textColorHint">@color/livetickerInputHintColor</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="LivetickerInputWithoutCamera" parent="LivetickerInput">
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="expandedAppBar" parent="@android:style/TextAppearance">
+        <item name="android:textSize">22sp</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

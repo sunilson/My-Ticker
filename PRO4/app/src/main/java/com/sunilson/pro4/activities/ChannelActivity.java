@@ -1,8 +1,6 @@
 package com.sunilson.pro4.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.fragments.ChannelFragment;
 import com.sunilson.pro4.fragments.EditChannelFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 
@@ -34,6 +33,7 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
         setContentView(R.layout.activity_channel);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ButterKnife.bind(this);
 
@@ -46,7 +46,13 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
             replaceFragment(EditChannelFragment.newInstance(), "edit");
         } else if (type.equals("firstLogin")) {
             replaceFragment(EditChannelFragment.newInstance(), "edit");
-            firstLogin = true;
+        } else if (type.equals("view")) {
+            String authorID = i.getStringExtra("authorID");
+            if (authorID != null) {
+                replaceFragment(ChannelFragment.newInstance(authorID), "view");
+            } else {
+                finish();
+            }
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -63,12 +69,6 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
     protected void authChanged(FirebaseUser user) {
 
         if (user != null) {
-            if(firstLogin) {
-                firstLogin = false;
-                SharedPreferences sharedPreferences = getSharedPreferences(user.getUid(), Context.MODE_PRIVATE);
-                sharedPreferences.edit().putBoolean("firstLogin", false).commit();
-            }
-
             if (currentFragment.equals("edit")) {
                 if (user.isAnonymous()) {
                     Intent i = new Intent(ChannelActivity.this, MainActivity.class);

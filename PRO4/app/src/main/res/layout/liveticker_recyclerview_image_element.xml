@@ -1,49 +1,42 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginBottom="0dp"
-    android:layout_marginLeft="5dp"
-    android:layout_marginRight="5dp"
-    android:layout_marginTop="5dp"
-    >
+    style="@style/RecyclerViewElement"
+    android:padding="5dp">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <ImageView
+        android:id="@+id/liveticker_recyclerView_imageElement_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/liveticker_content_element_background"
-        android:padding="4dp">
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
 
-        <ImageView
-            android:id="@+id/liveticker_recyclerView_imageElement_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/liveticker_content_image_caption_background"
-            android:orientation="vertical"
-            android:padding="10dp">
-
-            <TextView
-                android:id="@+id/liveticker_recyclerView_imageElement_caption"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white" />
-        </LinearLayout>
-
-    </RelativeLayout>
-    <TextView
-        android:id="@+id/liveticker_recyclerView_imageElement_date"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        android:textSize="10sp"
-        android:paddingRight="5dp"
-        android:paddingEnd="5dp"
-        />
-</LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/liveticker_content_image_caption_background"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/liveticker_recyclerView_imageElement_caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/liveticker_recyclerView_imageElement_date"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingRight="10dp"
+            android:textColor="@color/white"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+</RelativeLayout>
+
+
+

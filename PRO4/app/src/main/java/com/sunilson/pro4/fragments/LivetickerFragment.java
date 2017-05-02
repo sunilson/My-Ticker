@@ -8,6 +8,7 @@ import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
@@ -70,7 +71,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
-    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference;
+    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference, authorReference;
     private ChildEventListener livetickerContentListener;
     private ValueEventListener livetickerListener;
     private ValueEventListener authorListener;
@@ -82,6 +83,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private FirebaseStorage storage;
     private boolean owner, subscribed, addedToRecent;
     private LivetickerRecyclerViewAdapter livetickerAdapter;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
+    private TextView description, userName;
+    private ImageView profilePicture;
 
     @BindView(R.id.fragment_liveticker_recyclerView)
     RecyclerView livetickerContents;
@@ -100,15 +104,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @BindView(R.id.progress_overlay_progressbar)
     ProgressBar progressBarImageUpload;
-
-    @BindView(R.id.fragment_liveticker_description)
-    TextView description;
-
-    @BindView(R.id.fragment_liveticker_profile_picture)
-    ImageView profilePicture;
-
-    @BindView(R.id.fragment_liveticker_author)
-    TextView authorText;
 
     @BindView(R.id.fragment_liveticker_subscribe)
     Button subscribeButton;
@@ -132,13 +127,14 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         super.onCreate(savedInstanceState);
 
         String livetickerID = getArguments().getString("livetickerID");
-
         storage = FirebaseStorage.getInstance();
-
         livetickerContentReference = ((BaseActivity) getActivity()).getReference().child(Constants.LIVETICKER_CONTENT_PATH).child(livetickerID);
         initializeContentListener();
-
         livetickerReference = FirebaseDatabase.getInstance().getReference("liveticker/" + livetickerID);
+
+        //description = (TextView) getActivity().findViewById(R.id.liveticker_description);
+        userName = (TextView) getActivity().findViewById(R.id.liveticker_username);
+        profilePicture = (ImageView) getActivity().findViewById(R.id.liveticker_profile_picture);
 
         initializeLivetickerListener();
         initializeAuthListener();
@@ -193,6 +189,38 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         cameraButton.setOnClickListener(this);
         sendButton.setOnClickListener(this);
         subscribeButton.setOnClickListener(this);
+
+
+        final CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.liveticker_collapsing);
+        collapsingToolbarLayout.setTitleEnabled(false);
+        /*
+        AppBarLayout appBarLayout = (AppBarLayout) getActivity().findViewById(R.id.main_liveticker_appbar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = false;
+            int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    isShow = true;
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            collapsingToolbarLayout.setTitle("Title");
+                        }
+                    }, 500);
+                } else if (isShow) {
+                    collapsingToolbarLayout.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                    isShow = false;
+                }
+            }
+        });
+        */
+
         return view;
     }
 
@@ -516,7 +544,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     //Start subscription listener
                     if (user != null) {
                         //First remove current Listener
-                        if(subscriptionReference != null && subscriptionListener != null) {
+                        if (subscriptionReference != null && subscriptionListener != null) {
                             subscriptionReference.removeEventListener(subscriptionListener);
                         }
 
@@ -561,7 +589,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     getActivity().setTitle(liveticker.getTitle());
                 }
                 if (liveticker.getDescription() != null) {
-                    description.setText(liveticker.getDescription());
+                    //description.setText(liveticker.getDescription());
                 }
 
                 if (owner) {
@@ -575,9 +603,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
 
         if (type.equals("author") || type.equals("both")) {
-            if (author != null && !owner) {
+            if (author != null) {
                 if (author.getUserName() != null) {
-                    authorText.setText(author.getUserName());
+                    userName.setText(author.getUserName());
                 }
 
                 if (author.getProfilePicture() != null) {
