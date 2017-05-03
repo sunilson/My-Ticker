@@ -1,6 +1,7 @@
 package com.sunilson.pro4.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,8 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,10 +45,23 @@ public class SearchFragment extends BaseFragment {
     @BindView(R.id.fragment_search_recycler_view)
     RecyclerView recyclerView;
 
+    @BindView(R.id.fragment_search_loading_container)
+    LinearLayout loadingContainer;
+
+    @BindView(R.id.fragment_search_placeholder)
+    TextView placeholder;
+
     @OnClick(R.id.fragment_search_submit)
     public void startSearch() {
+        loading(true);
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/search/tasks").push();
-        dRef.child("searchValue").setValue(searchInput.getText().toString());
+        dRef.child("searchValue").setValue(searchInput.getText().toString()).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                loading(false);
+                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
         dRef.addValueEventListener(searchResultListener);
     }
 
@@ -89,18 +106,26 @@ public class SearchFragment extends BaseFragment {
                 if (dataSnapshot != null) {
                     if (dataSnapshot.child("error_state").getValue() != null) {
                         Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
-                    } else if (dataSnapshot.child("_state").getValue() != null && dataSnapshot.child("_state").getValue().equals("success")) {
-                        ArrayList<Liveticker> livetickerData = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.child("searchResults").getChildren()) {
-                            Liveticker liveticker = childSnapshot.getValue(Liveticker.class);
-                            try {
-                                liveticker.setLivetickerID(childSnapshot.getKey());
-                                livetickerData.add(liveticker);
-                            } catch (LivetickerSetException e) {
-                                e.printStackTrace();
+                    } else if (dataSnapshot.child("_state").getValue() != null
+                            && dataSnapshot.child("_state").getValue().equals("success")) {
+
+                        if(dataSnapshot.child("searchResults").getChildrenCount() == 0) {
+                            placeholder.setVisibility(View.VISIBLE);
+                        } else {
+                            placeholder.setVisibility(View.GONE);
+                            ArrayList<Liveticker> livetickerData = new ArrayList<>();
+                            for (DataSnapshot childSnapshot : dataSnapshot.child("searchResults").getChildren()) {
+                                Liveticker liveticker = childSnapshot.getValue(Liveticker.class);
+                                try {
+                                    liveticker.setLivetickerID(childSnapshot.getKey());
+                                    livetickerData.add(liveticker);
+                                } catch (LivetickerSetException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                            loading(false);
+                            adapter.setData(livetickerData);
                         }
-                        adapter.setData(livetickerData);
                     }
                 }
             }
@@ -112,4 +137,14 @@ public class SearchFragment extends BaseFragment {
         };
     }
 
+    private void loading(boolean value) {
+        if (value) {
+            loadingContainer.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            placeholder.setVisibility(View.GONE);
+        } else {
+            loadingContainer.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="30dp"
+    android:orientation="horizontal"
+    android:id="@+id/subscribe_button_layout"
+    android:animateLayoutChanges="true">
+        <Button
+            android:visibility="gone"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:textSize="12sp"
+            android:text="@string/subscribe"
+            android:textColor="@color/white"
+            android:background="@drawable/subscribe_button_background"
+            android:foreground="?selectableItemBackground"
+            android:enabled="false"
+            android:id="@+id/subscribe_button"
+            />
+</LinearLayout>

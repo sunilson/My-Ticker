@@ -15,8 +15,21 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/fragment_comments_recyclerView"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="0px"
             android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/fragment_comments_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:text="No comments yet!"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/text_background"
+            />
 
         <!-- Layout for Author Input -->
         <LinearLayout
@@ -33,6 +46,7 @@
                 android:id="@+id/fragment_comments_input"
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
                 android:minHeight="50dp"
                 android:layout_weight="1"
                 style="@style/LivetickerInputWithoutCamera"
@@ -40,14 +54,11 @@
 
             <ImageButton
                 android:id="@+id/fragment_comments_send_button"
-                android:layout_width="50dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"
-                android:layout_height="50dp"
-                android:background="@drawable/liveticker_input_send_button_background"
-                android:foreground="?android:selectableItemBackground"
-                android:src="@drawable/ic_send_white_24dp"
-                />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/liveticker_input_send_button_background" />
+
         </LinearLayout>
 
     </LinearLayout>

@@ -2,6 +2,7 @@ package com.sunilson.pro4.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,7 +45,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     private class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView title, author, state, status;
-        ImageView profilePicture;
+        ImageView profilePicture, stateImage;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -52,6 +53,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             author = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_author);
             state = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_state);
             status = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_status);
+            stateImage = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_state_image);
             profilePicture = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_image);
         }
     }
@@ -66,15 +68,30 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolder vh = (ViewHolder) holder;
-        vh.title.setText(data.get(position).getTitle());
-        vh.author.setText(data.get(position).getUserName());
-        vh.state.setText(data.get(position).getState());
-        vh.status.setText(data.get(position).getStatus());
+        Liveticker liveticker = data.get(position);
+        vh.title.setText(liveticker.getTitle());
+        vh.author.setText(liveticker.getUserName());
+        switch (liveticker.getState()) {
+            case Constants.LIVETICKER_NOT_STARTED_STATE:
+                vh.state.setText(ctx.getString(R.string.state_not_started));
+                vh.stateImage.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.state_not_started));
+                break;
+            case Constants.LIVETICKER_STARTED_STATE:
+                vh.state.setText(ctx.getString(R.string.state_started));
+                vh.stateImage.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.state_started));
+                break;
+            default:
+                vh.state.setText(ctx.getString(R.string.state_finished));
+                vh.stateImage.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.state_finished));
+                break;
+        }
 
-        if (data.get(position).getProfilePicture() != null) {
+        vh.status.setText(liveticker.getStatus());
+
+        if (liveticker.getProfilePicture() != null) {
             Log.i(Constants.LOGGING_TAG, "Profile picture");
             DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
-            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(data.get(position).getProfilePicture());
+            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(liveticker.getProfilePicture());
             Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(ctx)).crossFade().into(vh.profilePicture);
         }
     }

@@ -11,4 +11,14 @@
     <color name="captionBackground">#80000000</color>
     <color name="icon_tint_color">#A8ADAF</color>
     <color name="camera_button_background">#9E9E9E</color>
+    <color name="text_background">#c1c1c1</color>
+    <color name="primary_text_dark">#FFFFFF</color>
+    <color name="secondary_text_dark">#70FFFFFF</color>
+    <color name="disabled_text_dark">#50FFFFFF</color>
+    <color name="primary_text">#87000000</color>
+    <color name="secondary_text">#54000000</color>
+    <color name="disabled_text">#38000000</color>
+    <color name="status_started">#00ff00</color>
+    <color name="status_not_started">#ff0000</color>
+    <color name="status_finished">#939393</color>
 </resources>

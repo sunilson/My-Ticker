@@ -3,27 +3,39 @@ package com.sunilson.pro4.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
-import com.sunilson.pro4.fragments.CommentsFragment;
 import com.sunilson.pro4.fragments.LivetickerFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LivetickerActivity extends BaseActivity implements CanChangeFragment {
 
     private String livetickerID;
+    private String currentFragment;
     private boolean started;
 
+    @BindView(R.id.liveticker_appbar)
+    AppBarLayout appBarLayout;
+
+    @BindView(R.id.subscribe_button)
+    Button subscribeButton;
+
+    @BindView(R.id.liveticker_status_image)
+    ImageView statusImage;
     /*
     @BindView(R.id.fab)
     FloatingActionButton fab;
@@ -35,7 +47,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         setContentView(R.layout.activity_liveticker);
         Toolbar toolbar = (Toolbar) findViewById(R.id.liveticker_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ButterKnife.bind(this);
 
@@ -59,6 +71,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
 
             getSupportFragmentManager().beginTransaction().add(R.id.content_liveticker, LivetickerFragment.newInstance(livetickerID), Constants.FRAGMENT_LIVETICKER_TAG).commit();
         }
+
     }
 
     @Override
@@ -72,6 +85,8 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
 
     @Override
     public void replaceFragment(Fragment fragment, String tag) {
+        currentFragment = tag;
+
         if (tag.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
             getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).addToBackStack(null).commit();
         } else {
@@ -85,21 +100,38 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_liveticker, menu);
-        return super.onCreateOptionsMenu(menu);
+    public void collapseToolbar(boolean collapse) {
+        if(collapse) {
+            appBarLayout.setExpanded(false);
+        } else {
+            appBarLayout.setExpanded(true);
+        }
+    }
+
+    public void updateSubscriptionStatus(Boolean value) {
+        subscribeButton.setEnabled(true);
+
+        if (value) {
+            subscribeButton.setVisibility(View.VISIBLE);
+            subscribeButton.setText(getString(R.string.subscribed));
+        } else {
+            subscribeButton.setVisibility(View.VISIBLE);
+            subscribeButton.setText(getString(R.string.subscribe));
+        }
+    }
+
+    public void updateLivetickerStatus(String value) {
+        if (value.equals(Constants.LIVETICKER_NOT_STARTED_STATE)) {
+            statusImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.state_not_started));
+        } else if(value.equals(Constants.LIVETICKER_STARTED_STATE)){
+            statusImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.state_started));
+        } else {
+
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            case R.id.liveticker_menu_comments:
-                replaceFragment(CommentsFragment.newInstance(), Constants.FRAGMENT_COMMENTS_TAG);
-        }
-        return super.onOptionsItemSelected(item);
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

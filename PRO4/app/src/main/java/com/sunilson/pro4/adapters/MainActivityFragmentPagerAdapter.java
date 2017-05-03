@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.FeedFragment;
 import com.sunilson.pro4.fragments.ProfileFragment;
 import com.sunilson.pro4.fragments.SearchFragment;
@@ -41,13 +42,13 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return "Feed";
+                return context.getString(R.string.feed_fragment_title);
             case 1:
-                return "Search";
+                return context.getString(R.string.search_fragment_title);
             case 2:
-                return "Profile";
+                return context.getString(R.string.profile_fragment_title);
             default:
-                return "Feed";
+                return context.getString(R.string.feed_fragment_title);
         }
     }
 

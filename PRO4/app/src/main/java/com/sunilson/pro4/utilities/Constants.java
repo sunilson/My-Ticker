@@ -6,6 +6,8 @@ package com.sunilson.pro4.utilities;
 
 public class Constants {
 
+    public static final String LIVETICKER_STARTED_STATE = "started";
+    public static final String LIVETICKER_NOT_STARTED_STATE = "not started";
     public static final String LIVETICKER_ID = "livetickerID";
     public static final String LOGGING_TAG = "Linus";
     public static final String FRAGMENT_LIVETICKER_TAG = "liveticker";

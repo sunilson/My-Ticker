@@ -258,7 +258,7 @@ public class FeedFragment extends BaseFragment {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
+                if (user != null && user.isEmailVerified()) {
                     requestFeed();
                 }
             }

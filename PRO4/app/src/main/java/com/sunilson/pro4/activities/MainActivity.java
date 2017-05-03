@@ -63,7 +63,7 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onPageSelected(int position) {
-                setTitle(adapter.getPageTitle(position));
+
             }
 
             @Override

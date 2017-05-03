@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?><!--  res/drawable/rounded_edittext.xml -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item>
         <shape android:shape="oval">
             <solid android:color="#cacacaca" />
             <size
-                android:width="25dp"
-                android:height="25dp" />
+                android:width="50dp"
+                android:height="50dp" />
         </shape>
     </item>
     <item
@@ -18,11 +19,20 @@
             android:shape="oval">
             <solid android:color="@color/colorAccent" />
             <size
-                android:width="25dp"
-                android:height="25dp" />
+                android:width="50dp"
+                android:height="50dp" />
             <size
-                android:width="25dp"
-                android:height="25dp" />
+                android:width="50dp"
+                android:height="50dp" />
         </shape>
+    </item>
+    <item
+        android:bottom="13dp"
+        android:drawable="@drawable/ic_send_white_24dp"
+        android:left="13dp"
+        android:right="13dp"
+        android:top="13dp"
+        >
+
     </item>
 </layer-list>
