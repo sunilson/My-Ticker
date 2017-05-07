@@ -10,13 +10,91 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/feed_bar"
+                >
+                <TextView
+                    android:id="@+id/feed_bar_title"
+                    android:layout_gravity="center_vertical"
+                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:maxLines="1"
+                    android:gravity="center_vertical"
+                    android:singleLine="true"
+                    android:text="@string/app_name" />
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|right"
+                    >
+                    <Spinner
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:id="@+id/feed_bar_spinner"
+                        android:popupBackground="@color/white"
+                        android:dropDownWidth="200dp"
+                        android:paddingRight="30dp"
+                        android:background="@android:color/transparent"
+                        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                        android:theme="@style/dialog_spinner"
+                        />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_arrow_drop_down_white_24dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/search_bar_layout"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/search_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/edittext_background"
+                    android:textColor="@color/primary_text"
+                    android:textColorHint="@color/secondary_text"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:hint="@string/search_hint"
+                    android:drawablePadding="10dp"
+                    android:drawableLeft="@drawable/search_icon"
+                    android:ellipsize="end"
+                    android:scrollHorizontally="true"
+                    android:imeOptions="actionDone"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                     />
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+
         <android.support.design.widget.TabLayout
             android:id="@+id/mainActivityTabLayout"
             android:layout_width="match_parent"
@@ -25,11 +103,10 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
+        android:id="@+id/mainActivityViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/mainActivityViewPager"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

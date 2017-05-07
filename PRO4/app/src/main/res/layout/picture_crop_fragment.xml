@@ -5,17 +5,8 @@
     android:background="@color/pictureDialogBackground"
     >
 
-
     <include layout="@layout/camera_view"/>
 
-    <com.theartofdev.edmodo.cropper.CropImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/crop_image_view"
-        android:layout_centerInParent="true"
-        android:adjustViewBounds="true"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        />
+    <include layout="@layout/crop_view" />
 
 </RelativeLayout>

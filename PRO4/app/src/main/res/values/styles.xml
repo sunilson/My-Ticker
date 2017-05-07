@@ -14,21 +14,38 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="SubmitButton">
-        <item name="android:background">@drawable/submit_button_background</item>
+    <style name="SubmitButton" parent="@style/Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@drawable/submit_button_drawable</item>
+        <item name="android:foreground">?selectableItemBackground</item>
         <item name="android:textColor">@color/primary_text_dark</item>
     </style>
 
     <style name="SubmitButtonLarge" parent="SubmitButton">
         <item name="android:textSize">16sp</item>
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="SubscribeButton" parent="SubmitButton">
+
+    </style>
+
+    <style name="WhiteProgressBar" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@color/white</item>
     </style>
 
     <style name="RecyclerViewElement">
         <item name="android:layout_marginBottom">0dp</item>
-        <item name="android:layout_marginLeft">10dp</item>
-        <item name="android:layout_marginRight">10dp</item>
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginLeft">15dp</item>
+        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:layout_marginTop">15dp</item>
         <item name="android:background">@drawable/liveticker_content_element_background</item>
+    </style>
+
+    <style name="dialog_spinner" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <!-- Color when pressed -->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- Default color for the dropdown arrow and line -->
+        <item name="colorControlNormal">#dadada</item>
     </style>
 
     <style name="DescriptionTitle">
@@ -45,10 +62,23 @@
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
         <item name="android:minHeight">50dp</item>
+        <item name="android:maxLines">1</item>
         <item name="android:background">@drawable/edittext_background</item>
         <item name="android:textColorHint">@color/disabled_text</item>
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:drawablePadding">10dp</item>
+    </style>
+
+    <style name="BigEditText">
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="android:lines">5</item>
+        <item name="android:gravity">top</item>
+        <item name="android:paddingTop">15dp</item>
+        <item name="android:background">@drawable/edittext_background</item>
+        <item name="android:textColorHint">@color/disabled_text</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:paddingLeft">15dp</item>
     </style>
 
     <style name="LivetickerInput">

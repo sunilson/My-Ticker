@@ -1,95 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    >
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
 
-        <android.support.design.widget.TextInputLayout
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/content_add_liveticker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/channel_username"
-            android:id="@+id/fragment_edit_channel_username_layout"
-            >
+            android:animateLayoutChanges="true"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingBottom="15dp"
+            android:clipToPadding="false"
+            tools:context="com.sunilson.pro4.activities.AddLivetickerActivity"
+            tools:showIn="@layout/activity_add_liveticker">
+
+            <TextView
+                style="@style/DescriptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="@string/edit_channel_username_title" />
+
+            <TextView
+                style="@style/DescriptionSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/edit_channel_username_subtitle"
+                android:textColor="@color/secondary_text" />
 
             <EditText
                 android:id="@+id/fragment_edit_channel_username"
+                style="@style/BasicEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                 />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_marginTop="20dp"
+                android:drawableLeft="@drawable/account_icon"
+                android:hint="@string/channel_username"/>
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/channel_status"
-            android:id="@+id/fragment_edit_channel_status_layout"
-            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                style="@style/DescriptionTitle"
+                android:text="@string/edit_channel_status_title" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/secondary_text"
+                android:layout_marginTop="10dp"
+                style="@style/DescriptionSubtitle"
+                android:text="@string/edit_channel_status_subtitle" />
 
             <EditText
                 android:id="@+id/fragment_edit_channel_status"
+                style="@style/BasicEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_marginTop="20dp"
+                android:drawableLeft="@drawable/state_icon"
+                android:hint="@string/channel_status" />
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/channel_info"
-            android:id="@+id/fragment_edit_channel_info_layout"
-            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                style="@style/DescriptionTitle"
+                android:text="@string/edit_channel_description_title" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/secondary_text"
+                android:layout_marginTop="10dp"
+                style="@style/DescriptionSubtitle"
+                android:text="@string/edit_channel_description_subtitle" />
 
             <EditText
                 android:id="@+id/fragment_edit_channel_info"
+                style="@style/BigEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                 />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_marginTop="20dp"
+                android:hint="@string/channel_info_placeholder" />
 
-        <Button
-            android:id="@+id/fragment_edit_channel_pick_profile"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="@string/channel_edit_pick_profile" />
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:scaleType="fitCenter"
-            android:id="@+id/fragment_edit_channel_profile"
-            android:adjustViewBounds="true"
-            />
-        <Button
-            android:id="@+id/fragment_edit_channel_pick_title"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="@string/channel_edit_pick_title" />
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/fragment_edit_channel_title"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            />
-        <Button
-            android:id="@+id/fragment_edit_channel_save"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="@string/channel_edit_save" />
+            <TextView
+                style="@style/DescriptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="@string/edit_channel_profile_picture_title" />
 
-    </LinearLayout>
+            <TextView
+                style="@style/DescriptionSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/edit_channel_profile_picture_subtitle"
+                android:textColor="@color/secondary_text" />
+
+            <RelativeLayout
+                android:layout_gravity="center_horizontal"
+                android:layout_width="250dp"
+                android:clipToPadding="false"
+                android:layout_height="250dp">
+                <ImageView
+                    android:id="@+id/fragment_edit_channel_profile"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/default_placeholder"
+                    android:scaleType="fitCenter" />
+                <ImageButton
+                    android:id="@+id/fragment_edit_channel_pick_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="6dp"
+                    android:background="@drawable/edit_picture_button_drawable"
+                    android:layout_alignBottom="@+id/fragment_edit_channel_profile"
+                    android:layout_alignRight="@id/fragment_edit_channel_profile"
+                    android:layout_marginBottom="-15dp"
+                    android:layout_marginRight="-15dp" />
+            </RelativeLayout>
+
+            <TextView
+                style="@style/DescriptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/edit_channel_title_picture_title" />
+
+            <TextView
+                style="@style/DescriptionSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/edit_channel_title_picture_subtitle"
+                android:textColor="@color/secondary_text" />
+
+            <RelativeLayout
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
+                android:layout_width="250dp"
+                android:layout_height="250dp">
+                <ImageView
+                    android:id="@+id/fragment_edit_channel_title"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/default_placeholder"
+                    android:scaleType="fitCenter" />
+                <ImageButton
+                    android:id="@+id/fragment_edit_channel_pick_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="6dp"
+                    android:background="@drawable/edit_picture_button_drawable"
+                    android:layout_alignBottom="@+id/fragment_edit_channel_title"
+                    android:layout_alignRight="@id/fragment_edit_channel_title"
+                    android:layout_marginBottom="-15dp"
+                    android:layout_marginRight="-15dp" />
+            </RelativeLayout>
+
+            <include layout="@layout/big_submit_button_with_progress" />
+
+        </LinearLayout>
     </ScrollView>
 
     <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/progress_overlay"/>
+    <include layout="@layout/progress_overlay" />
 
 </RelativeLayout>

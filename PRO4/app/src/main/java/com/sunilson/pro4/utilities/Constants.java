@@ -21,6 +21,8 @@ public class Constants {
     public static final String LIVETICKER_RESULT_RECENT = "recentLivetickers";
     public static final String LIVETICKER_RESULT_SUBSCRIPTIONS = "subscriptionLivetickers";
     public static final String USERS_PATH = "users";
+    public static final String EDIT_CHANNEL_IMAGE_TYPE_PROFILE = "profile";
+    public static final String EDIT_CHANNEL_IMAGE_TYPE_TITLE = "title";
     public static final int PICK_IMAGE_DIALOG_REQUEST_CODE = 2;
     public static final int PICK_IMAGE_DIALOG_RESULT_CAMERA = 3;
     public static final int PICK_IMAGE_DIALOG_RESULT_GALLERY = 4;
@@ -35,4 +37,10 @@ public class Constants {
     public static final int PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS = 22;
     public static final String PROFILE_PICTURE_PLACEHOLDER = "https://firebasestorage.googleapis.com/v0/b/pro4-84e1f.appspot.com/o/livetickerImages%2Fdefault-placeholder.png?alt=media&token=902cf175-b6b7-43bf-9f8e-7646ece3d6ba";
     public static final int CAMERA_RQ = 6969;
+    public static final int PROFILE_IMAGE_MAX_SIZE = 200;
+    public static final int PROFILE_IMAGE_MIN_SIZE = 100;
+    public static final int TITLE_IMAGE_MAX_WIDTH = 1600;
+    public static final int TITLE_IMAGE_MIN_WIDTH = 720;
+    public static final int TITLE_IMAGE_MAX_HEIGHT= 900;
+    public static final int TITLE_IMAGE_MIN_HEIGHT = 281;
 }

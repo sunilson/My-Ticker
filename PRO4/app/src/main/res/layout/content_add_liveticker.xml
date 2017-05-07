@@ -2,208 +2,215 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/content_add_liveticker"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="15dp"
+        android:paddingTop="?actionBarSize"
+        tools:context="com.sunilson.pro4.activities.AddLivetickerActivity"
+        tools:showIn="@layout/activity_add_liveticker">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/content_add_liveticker"
+        <TextView
+            style="@style/DescriptionTitle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:paddingTop="?actionBarSize"
-            tools:context="com.sunilson.pro4.activities.AddLivetickerActivity"
-            tools:showIn="@layout/activity_add_liveticker">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@string/add_liveticker_title_title" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                style="@style/DescriptionTitle"
-                android:text="@string/add_liveticker_title_title" />
+        <TextView
+            style="@style/DescriptionSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_liveticker_title_subtitle"
+            android:textColor="@color/secondary_text" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/secondary_text"
-                android:layout_marginTop="10dp"
-                style="@style/DescriptionSubtitle"
-                android:text="@string/add_liveticker_title_subtitle" />
+        <EditText
+            android:id="@+id/add_liveticker_title_edittext"
+            style="@style/BasicEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:drawableLeft="@drawable/title_icon"
+            android:hint="Title" />
 
-            <EditText
-                android:id="@+id/add_liveticker_title_edittext"
-                style="@style/BasicEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:drawableLeft="@drawable/title_icon"
-                android:hint="Title" />
+        <TextView
+            style="@style/DescriptionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/add_liveticker_status_title" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                style="@style/DescriptionTitle"
-                android:text="@string/add_liveticker_status_title" />
+        <TextView
+            style="@style/DescriptionSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_liveticker_status_subtitle"
+            android:textColor="@color/secondary_text" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/secondary_text"
-                android:layout_marginTop="10dp"
-                style="@style/DescriptionSubtitle"
-                android:text="@string/add_liveticker_status_subtitle" />
+        <EditText
+            android:id="@+id/add_liveticker_status_edittext"
+            style="@style/BasicEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:drawableLeft="@drawable/state_icon"
+            android:hint="Status"
+            android:maxLength="140" />
 
-            <EditText
-                android:id="@+id/add_liveticker_status_edittext"
-                style="@style/BasicEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:drawableLeft="@drawable/state_icon"
-                android:hint="Status" />
+        <TextView
+            style="@style/DescriptionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/add_liveticker_description_title" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                style="@style/DescriptionTitle"
-                android:text="@string/add_liveticker_description_title" />
+        <TextView
+            style="@style/DescriptionSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_liveticker_description_subtitle"
+            android:textColor="@color/secondary_text" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/secondary_text"
-                android:layout_marginTop="10dp"
-                style="@style/DescriptionSubtitle"
-                android:text="@string/add_liveticker_description_subtitle" />
+        <EditText
+            android:id="@+id/add_liveticker_description_edittext"
+            style="@style/BigEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="Beschreibung"
+            android:maxLength="999" />
 
-            <EditText
-                android:id="@+id/add_liveticker_description_edittext"
-                style="@style/BasicEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:lines="5"
-                android:gravity="top"
-                android:paddingTop="15dp"
-                android:paddingLeft="15dp"
-                android:hint="Beschreibung" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0px"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="40dp"
-                >
-                <LinearLayout
-                    android:layout_width="0px"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/DescriptionTitle"
-                        android:text="@string/add_liveticker_public_title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/secondary_text"
-                        android:layout_marginTop="10dp"
-                        style="@style/DescriptionSubtitle"
-                        android:text="@string/add_liveticker_public_subtitle" />
-                </LinearLayout>
-                <Switch
-                    android:id="@+id/add_liveticker_privacy_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="10dp"
-                    android:paddingLeft="10dp"
-                    android:layout_gravity="center_vertical"
-                    android:checked="true" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="40dp"
-                >
-                <LinearLayout
-                    android:layout_width="0px"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/DescriptionTitle"
-                        android:text="@string/add_liveticker_start_title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/secondary_text"
-                        android:layout_marginTop="10dp"
-                        style="@style/DescriptionSubtitle"
-                        android:text="@string/add_liveticker_start_subtitle" />
-                </LinearLayout>
-                <Switch
-                    android:id="@+id/add_liveticker_start_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="10dp"
-                    android:paddingLeft="10dp"
-                    android:layout_gravity="center_vertical"
-                    android:checked="true" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/add_liveticker_date_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/add_liveticker_date"
+                    android:id="@+id/add_liveticker_privacy_title"
+                    style="@style/DescriptionTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Date" />
+                    android:text="@string/add_liveticker_public_title" />
 
                 <TextView
-                    android:id="@+id/add_liveticker_time"
+                    style="@style/DescriptionSubtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Time" />
+                    android:layout_marginTop="10dp"
+                    android:text="@string/add_liveticker_public_subtitle"
+                    android:textColor="@color/secondary_text" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/add_liveticker_submit_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                style="@style/SubmitButtonLarge"
-                android:text="Liveticker hinzufügen" />
-
-            <ProgressBar
-                android:id="@+id/add_liveticker_loading_spinner"
-                style="?android:attr/progressBarStyleLarge"
+            <Switch
+                android:id="@+id/add_liveticker_privacy_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:visibility="gone" />
-
+                android:layout_gravity="center_vertical"
+                android:checked="true"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" />
         </LinearLayout>
-        <!-- Progress bar overlay; shown while login is in progress -->
-        <include layout="@layout/progress_overlay" />
-    </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/DescriptionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_liveticker_start_title" />
+
+                <TextView
+                    style="@style/DescriptionSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/add_liveticker_start_subtitle"
+                    android:textColor="@color/secondary_text" />
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/add_liveticker_start_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:checked="true"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/add_liveticker_date_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_date_range_black_24dp"
+                android:tint="@color/primary_text" />
+
+            <TextView
+                android:id="@+id/add_liveticker_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="10dp"
+                android:textColor="@color/primary_text"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_access_time_black_24dp"
+                android:tint="@color/primary_text" />
+
+            <TextView
+                android:id="@+id/add_liveticker_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primary_text"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            />
+
+        <include layout="@layout/big_submit_button_with_progress" />
+
+    </LinearLayout>
 </ScrollView>

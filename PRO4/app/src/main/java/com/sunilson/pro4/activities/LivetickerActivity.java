@@ -8,8 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
@@ -22,24 +22,21 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LivetickerActivity extends BaseActivity implements CanChangeFragment {
+public class LivetickerActivity extends BaseActivity implements CanChangeFragment, View.OnClickListener {
 
     private String livetickerID;
     private String currentFragment;
     private boolean started;
+    private FirebaseUser user;
 
     @BindView(R.id.liveticker_appbar)
     AppBarLayout appBarLayout;
 
-    @BindView(R.id.subscribe_button)
-    Button subscribeButton;
-
     @BindView(R.id.liveticker_status_image)
     ImageView statusImage;
-    /*
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
-    */
+
+    @BindView(R.id.title)
+    TextView title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +66,13 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
                 }
             }
 
-            getSupportFragmentManager().beginTransaction().add(R.id.content_liveticker, LivetickerFragment.newInstance(livetickerID), Constants.FRAGMENT_LIVETICKER_TAG).commit();
+            replaceFragment(LivetickerFragment.newInstance(livetickerID), Constants.FRAGMENT_LIVETICKER_TAG);
         }
-
     }
 
     @Override
     protected void authChanged(FirebaseUser user) {
+        this.user = user;
         if (user != null && livetickerID != null) {
             if (!started) {
                 started = true;
@@ -100,38 +97,27 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         }
     }
 
-    public void collapseToolbar(boolean collapse) {
-        if(collapse) {
-            appBarLayout.setExpanded(false);
-        } else {
-            appBarLayout.setExpanded(true);
-        }
-    }
 
-    public void updateSubscriptionStatus(Boolean value) {
-        subscribeButton.setEnabled(true);
-
-        if (value) {
-            subscribeButton.setVisibility(View.VISIBLE);
-            subscribeButton.setText(getString(R.string.subscribed));
-        } else {
-            subscribeButton.setVisibility(View.VISIBLE);
-            subscribeButton.setText(getString(R.string.subscribe));
-        }
-    }
-
-    public void updateLivetickerStatus(String value) {
+    public void updateLivetickerState(String value) {
         if (value.equals(Constants.LIVETICKER_NOT_STARTED_STATE)) {
             statusImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.state_not_started));
-        } else if(value.equals(Constants.LIVETICKER_STARTED_STATE)){
+        } else if (value.equals(Constants.LIVETICKER_STARTED_STATE)) {
             statusImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.state_started));
         } else {
 
         }
     }
 
+    public void updateLivetickerTitle(String title) {
+        this.title.setText(title);
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public void onClick(View view) {
     }
 }

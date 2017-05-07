@@ -12,8 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        app:ckMethod="still"
-        app:ckFlash="auto" />
+        app:ckMethod="standard"
+        app:ckFlash="off"
+        />
 
     <ImageView
         android:id="@+id/camera_view_flash"

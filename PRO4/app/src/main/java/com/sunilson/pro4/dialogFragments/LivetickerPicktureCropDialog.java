@@ -10,12 +10,12 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.flurgle.camerakit.CameraKit;
 import com.flurgle.camerakit.CameraListener;
@@ -38,7 +38,9 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
     private Uri imageURI, cameraURI;
     private CameraView cameraView;
     private CropImageView cropImageView;
-    private RelativeLayout cameraViewLayout;
+    private CoordinatorLayout cropImageViewLayout;
+    private FloatingActionButton cropImageViewDone;
+    private CoordinatorLayout cameraViewLayout;
     private int orientation;
     private boolean cropping;
     private boolean fromGallery;
@@ -56,7 +58,9 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
 
         //Setting up the Crop View and the Camera view
         cropImageView = (CropImageView) view.findViewById(R.id.crop_image_view);
-        cameraViewLayout = (RelativeLayout) view.findViewById(R.id.camera_view_layout);
+        cropImageViewLayout = (CoordinatorLayout) view.findViewById(R.id.crop_image_view_layout);
+        cropImageViewDone = (FloatingActionButton) view.findViewById(R.id.crop_image_view_done);
+        cameraViewLayout = (CoordinatorLayout) view.findViewById(R.id.camera_view_layout);
         cameraView = (CameraView) view.findViewById(R.id.camera_view);
         FloatingActionButton cameraButton = (FloatingActionButton) view.findViewById(R.id.camera_view_take_picture);
         flash = (ImageView) view.findViewById(R.id.camera_view_flash);
@@ -74,7 +78,7 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
         flash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(flashState == 0) {
+                if (flashState == 0) {
                     cameraView.setFlash(CameraKit.Constants.FLASH_AUTO);
                     flash.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flash_auto_white_24dp));
                     flashState = 1;
@@ -93,13 +97,23 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
         switchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(cameraState == 0) {
+                if (cameraState == 0) {
                     cameraView.setFacing(CameraKit.Constants.FACING_FRONT);
                     cameraState = 1;
                 } else {
                     cameraView.setFacing(CameraKit.Constants.FACING_BACK);
                     cameraState = 0;
                 }
+            }
+        });
+
+        cropImageViewDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.putExtra("image", cropImageView.getCroppedImage());
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS, intent);
+                getDialog().dismiss();
             }
         });
 
@@ -126,12 +140,12 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
                     super.onPictureTaken(jpeg);
                     Bitmap result = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
 
-                    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-                        if(orientation < 315 && orientation > 225) {
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        if (orientation < 315 && orientation > 225) {
                             Matrix matrix = new Matrix();
                             matrix.postRotate(-90);
                             result = Bitmap.createBitmap(result, 0, 0, result.getWidth(), result.getHeight(), matrix, true);
-                        }else if(orientation > 45 && orientation < 135) {
+                        } else if (orientation > 45 && orientation < 135) {
                             Matrix matrix = new Matrix();
                             matrix.postRotate(90);
                             result = Bitmap.createBitmap(result, 0, 0, result.getWidth(), result.getHeight(), matrix, true);
@@ -153,13 +167,6 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
             });
         }
 
-        /*
-        Intent intent = new Intent();
-        intent.putExtra("image", cropImageView.getCroppedImage());
-        getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICTURE_DIALOG_CROP_RESULT_CODE_SUCCESS, intent);
-        getDialog().dismiss();
-        */
-
         Dialog dialog = builder.create();
 
         dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -170,7 +177,7 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
                         getDialog().dismiss();
                     }
 
-                    if(cropping) {
+                    if (cropping) {
                         switchCameraCrop(true);
                     } else {
                         getDialog().dismiss();
@@ -186,18 +193,27 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
     private void switchCameraCrop(boolean camera) {
         cropping = !camera;
         if (!camera) {
-            cameraViewLayout.setVisibility(View.GONE);
-            cropImageView.setVisibility(View.VISIBLE);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    cameraViewLayout.setVisibility(View.GONE);
+                    cropImageViewLayout.setVisibility(View.VISIBLE);
+                }
+            });
         } else {
             if (cameraURI != null) {
                 File file = new File(cameraURI.getPath());
                 file.delete();
             }
-            cameraViewLayout.setVisibility(View.VISIBLE);
-            cropImageView.setVisibility(View.GONE);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    cameraViewLayout.setVisibility(View.VISIBLE);
+                    cropImageViewLayout.setVisibility(View.GONE);
+                }
+            });
         }
     }
-
 
     @Override
     public void onStop() {

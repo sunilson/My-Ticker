@@ -10,8 +10,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,15 +43,26 @@ import butterknife.ButterKnife;
  * @author Linus Weiss
  */
 
-public class FeedFragment extends BaseFragment {
+public class FeedFragment extends BaseFragment implements AdapterView.OnItemSelectedListener {
 
     private FeedRecyclerViewAdapter ownLivetickersAdapter, recentlyVisitedAdapter, subscriptionLivetickersAdapter;
     private ValueEventListener resultListener;
     private DatabaseReference currentResultReference;
     private FirebaseAuth.AuthStateListener authStateListener;
+    private boolean started;
+    private Spinner spinner;
 
     @BindView(R.id.feed_fragment_progress)
     ProgressBar progressBar;
+
+    @BindView(R.id.feed_fragment_ownLivetickers_layout)
+    LinearLayout ownLivetickersLayout;
+
+    @BindView(R.id.feed_fragment_recentlyVisited_layout)
+    LinearLayout recentlyVisitedLayout;
+
+    @BindView(R.id.feed_fragment_subscriptionLIvetickers_layout)
+    LinearLayout subscriptionLayout;
 
     @BindView(R.id.feed_fragment_ownLivetickers_recyclerView)
     RecyclerView ownLivetickers;
@@ -84,19 +97,6 @@ public class FeedFragment extends BaseFragment {
         super.onStart();
 
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
-
-        //Set Up Liveticker RecyclerViews
-        ownLivetickers.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recentlyVisited.setLayoutManager(new LinearLayoutManager(getActivity()));
-        subscriptionLivetickers.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        ownLivetickers.setAdapter(ownLivetickersAdapter = new FeedRecyclerViewAdapter(ownLivetickers, getContext()));
-        recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
-        subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
-
-        ownLivetickers.setNestedScrollingEnabled(false);
-        recentlyVisited.setNestedScrollingEnabled(false);
-        subscriptionLivetickers.setNestedScrollingEnabled(false);
     }
 
     @Override
@@ -161,6 +161,21 @@ public class FeedFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        ownLivetickers.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recentlyVisited.setLayoutManager(new LinearLayoutManager(getActivity()));
+        subscriptionLivetickers.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        ownLivetickers.setAdapter(ownLivetickersAdapter = new FeedRecyclerViewAdapter(ownLivetickers, getContext()));
+        recentlyVisited.setAdapter(recentlyVisitedAdapter = new FeedRecyclerViewAdapter(recentlyVisited, getContext()));
+        subscriptionLivetickers.setAdapter(subscriptionLivetickersAdapter = new FeedRecyclerViewAdapter(subscriptionLivetickers, getContext()));
+
+        ownLivetickers.setNestedScrollingEnabled(false);
+        recentlyVisited.setNestedScrollingEnabled(false);
+        subscriptionLivetickers.setNestedScrollingEnabled(false);
+
+        spinner = (Spinner) getActivity().findViewById(R.id.feed_bar_spinner);
+        spinner.setOnItemSelectedListener(this);
         return view;
     }
 
@@ -258,10 +273,45 @@ public class FeedFragment extends BaseFragment {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null && user.isEmailVerified()) {
-                    requestFeed();
+                if (user != null) {
+                    if (user.isAnonymous()) {
+                        requestFeed();
+                    } else if (user.isEmailVerified()) {
+                        if (!started) {
+                            requestFeed();
+                            started = true;
+                        }
+                    }
                 }
             }
         };
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        String string = adapterView.getItemAtPosition(i).toString();
+
+        if (string.equals(getString(R.string.own_livetickers_spinner))) {
+            ownLivetickersLayout.setVisibility(View.VISIBLE);
+            recentlyVisitedLayout.setVisibility(View.GONE);
+            subscriptionLayout.setVisibility(View.GONE);
+        } else if (string.equals(getString(R.string.all))) {
+            ownLivetickersLayout.setVisibility(View.VISIBLE);
+            recentlyVisitedLayout.setVisibility(View.VISIBLE);
+            subscriptionLayout.setVisibility(View.VISIBLE);
+        } else if (string.equals(getString(R.string.recently_visited_livetickers_spinner))) {
+            ownLivetickersLayout.setVisibility(View.GONE);
+            recentlyVisitedLayout.setVisibility(View.VISIBLE);
+            subscriptionLayout.setVisibility(View.GONE);
+        } else if (string.equals(getString(R.string.subscription_livetickers_spinner))) {
+            ownLivetickersLayout.setVisibility(View.GONE);
+            recentlyVisitedLayout.setVisibility(View.GONE);
+            subscriptionLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }

@@ -96,8 +96,8 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             ViewHolderImage viewHolderImage = (ViewHolderImage) holder;
             if (event.getThumbnail() != null) {
                 StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(event.getThumbnail());
-                DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 5, 0, RoundedCornersTransformation.CornerType.ALL));
-                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 5, 0, RoundedCornersTransformation.CornerType.ALL)).animate(android.R.anim.fade_in).into(viewHolderImage.image);
+                DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 3, 0, RoundedCornersTransformation.CornerType.ALL));
+                Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new RoundedCornersTransformation(ctx, 3, 0, RoundedCornersTransformation.CornerType.ALL)).animate(android.R.anim.fade_in).into(viewHolderImage.image);
                 //viewHolderImage.image.setOnClickListener(onImageClickListener);
             }
             //Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);
@@ -109,6 +109,10 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             if (event.getContent().equals("started")) {
                 ViewHolderText viewHolderText = (ViewHolderText) holder;
                 viewHolderText.content.setText(ctx.getString(R.string.started_liveticker));
+                viewHolderText.date.setText(dateFormat.format(event.getTimestamp()));
+            } else if (event.getContent().equals("created")) {
+                ViewHolderText viewHolderText = (ViewHolderText) holder;
+                viewHolderText.content.setText(ctx.getString(R.string.created_liveticker));
                 viewHolderText.date.setText(dateFormat.format(event.getTimestamp()));
             }
         }
@@ -127,6 +131,11 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
     public void addEvent(LivetickerEvent event) {
         data.add(event);
         notifyItemInserted(data.indexOf(event));
+    }
+
+    public void clear() {
+        data.clear();
+        notifyDataSetChanged();
     }
 
     @Override

@@ -1,20 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="30dp"
-    android:orientation="horizontal"
-    android:id="@+id/subscribe_button_layout"
+<com.sunilson.pro4.views.SubscribeButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="110dp"
+    android:layout_height="wrap_content"
+    android:id="@+id/subscribe_button_view"
     android:animateLayoutChanges="true">
         <Button
-            android:visibility="gone"
-            android:layout_width="100dp"
-            android:layout_height="30dp"
-            android:textSize="12sp"
-            android:text="@string/subscribe"
-            android:textColor="@color/white"
-            android:background="@drawable/subscribe_button_background"
-            android:foreground="?selectableItemBackground"
+            android:layout_width="110dp"
+            android:layout_height="35dp"
+            android:textSize="14sp"
             android:enabled="false"
             android:id="@+id/subscribe_button"
+            style="@style/SubscribeButton"
             />
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:animateLayoutChanges="true"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/subscribe_button_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:text="@string/subscribe"
+            />
+        <ProgressBar
+            android:id="@+id/subscribe_button_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="10dp"
+            android:translationZ="2dp"
+            android:theme="@style/WhiteProgressBar"
+            android:visibility="gone"
+            android:indeterminate="true"/>
+    </LinearLayout>
+
+</com.sunilson.pro4.views.SubscribeButton>

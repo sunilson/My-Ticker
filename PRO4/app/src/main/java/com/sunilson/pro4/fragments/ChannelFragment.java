@@ -2,9 +2,9 @@ package com.sunilson.pro4.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,15 +25,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.adapters.ChannelFragmentPagerAdapter;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
-import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.LivetickerPictureViewDialog;
-import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.utilities.Constants;
 import com.sunilson.pro4.utilities.Utilities;
-
-import java.util.ArrayList;
+import com.sunilson.pro4.views.ChannelViewPager;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,9 +44,10 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 public class ChannelFragment extends BaseFragment {
 
     private String authorID;
-    private DatabaseReference userRef, userLivetickerRef;
-    private ValueEventListener userListener, userLivetickerListener;
+    private DatabaseReference userRef;
+    private ValueEventListener userListener;
     private FeedRecyclerViewAdapter adapter;
+    private ChannelFragmentPagerAdapter fragmentPagerAdapter;
     private User user;
     private boolean started;
     private int loading = 0;
@@ -77,8 +76,14 @@ public class ChannelFragment extends BaseFragment {
     @BindView(R.id.fragment_channel_info)
     TextView info;
 
-    @BindView(R.id.fragment_channel_recycler_view)
-    RecyclerView recyclerView;
+    @BindView(R.id.fragment_channel_tab_layout)
+    TabLayout tabLayout;
+
+    @BindView(R.id.fragment_channel_viewpager)
+    ChannelViewPager viewPager;
+
+    @BindView(R.id.toolbar_channel)
+    Toolbar toolbar;
 
     public static ChannelFragment newInstance(String authorID) {
         Bundle args = new Bundle();
@@ -89,24 +94,12 @@ public class ChannelFragment extends BaseFragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        authorID = getArguments().getString("authorID");
-        userRef = FirebaseDatabase.getInstance().getReference("users/" + authorID);
-        userLivetickerRef = FirebaseDatabase.getInstance().getReference("liveticker/");
-        initializeUserListener();
-        initializeUserLivetickerListener();
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         if (!started) {
             started = true;
 
             userRef.addListenerForSingleValueEvent(userListener);
-            userLivetickerRef.orderByChild("authorID").equalTo(authorID).addListenerForSingleValueEvent(userLivetickerListener);
 
             titlePicture.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
@@ -128,13 +121,8 @@ public class ChannelFragment extends BaseFragment {
                 public void onGlobalLayout() {
 
 
-                    //getActivity().findViewById(R.id.fragment_channel_empty_view).setHe(0, height, 0, 0);
                 }
             });
-
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(adapter = new FeedRecyclerViewAdapter(recyclerView, getContext()));
-            recyclerView.setNestedScrollingEnabled(false);
         }
     }
 
@@ -144,40 +132,22 @@ public class ChannelFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_channel, container, false);
         unbinder = ButterKnife.bind(this, view);
 
+        authorID = getArguments().getString("authorID");
+        userRef = FirebaseDatabase.getInstance().getReference("users/" + authorID);
+        initializeUserListener();
+
+        viewPager.setAdapter(fragmentPagerAdapter = new ChannelFragmentPagerAdapter(getActivity().getSupportFragmentManager(), getActivity(), authorID));
+        tabLayout.setupWithViewPager(viewPager);
+
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
+
         return view;
-    }
-
-    private void initializeUserLivetickerListener() {
-        userLivetickerListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i(Constants.LOGGING_TAG, dataSnapshot.toString());
-                ArrayList<Liveticker> ownLivetickersData = new ArrayList<>();
-                if (dataSnapshot.getChildrenCount() > 0) {
-                    checkLoading();
-                    for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
-                        Liveticker tempLiveticker = childSnapshot.getValue(Liveticker.class);
-                        try {
-                            tempLiveticker.setLivetickerID(childSnapshot.getKey());
-                        } catch (LivetickerSetException e) {
-                            e.printStackTrace();
-                        }
-                        if (user != null) {
-                            tempLiveticker.setProfilePicture(user.getProfilePicture());
-                            tempLiveticker.setUserName(user.getUserName());
-                        }
-
-                        ownLivetickersData.add(tempLiveticker);
-                    }
-                }
-                adapter.setData(ownLivetickersData);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
     }
 
     private void initializeUserListener() {
@@ -201,7 +171,7 @@ public class ChannelFragment extends BaseFragment {
 
     private void checkLoading() {
         loading++;
-        if(loading == 2) {
+        if(loading >= 1) {
             container.setVisibility(View.VISIBLE);
             loadingContainer.setVisibility(View.GONE);
         }
@@ -240,7 +210,7 @@ public class ChannelFragment extends BaseFragment {
 
     /*
         if (user.getInfo() != null) {
-            info.setText(user.getInfo());
+            info.setContent(user.getInfo());
         }
 
         */

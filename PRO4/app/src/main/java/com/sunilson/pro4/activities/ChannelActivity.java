@@ -2,8 +2,7 @@ package com.sunilson.pro4.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -27,6 +26,9 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
     @BindView(R.id.content_channel)
     FrameLayout frameLayout;
 
+    @BindView(R.id.app_bar_layout)
+    AppBarLayout appBarLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,20 +51,12 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
         } else if (type.equals("view")) {
             String authorID = i.getStringExtra("authorID");
             if (authorID != null) {
+                appBarLayout.setVisibility(View.GONE);
                 replaceFragment(ChannelFragment.newInstance(authorID), "view");
             } else {
                 finish();
             }
         }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
     }
 
     @Override

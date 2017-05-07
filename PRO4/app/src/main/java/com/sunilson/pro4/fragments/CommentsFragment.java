@@ -3,7 +3,9 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,15 +21,17 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
-import com.sunilson.pro4.activities.LivetickerActivity;
+import com.sunilson.pro4.adapters.CommentsRecyclerViewAdapter;
+import com.sunilson.pro4.baseClasses.Comment;
+import com.sunilson.pro4.utilities.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,9 +47,10 @@ public class CommentsFragment extends BaseFragment {
 
     private FirebaseAuth.AuthStateListener authStateListener;
     private String livetickerID;
-    private DatabaseReference commentReference;
-    private ChildEventListener commentListener;
+    private DatabaseReference commentReference, currentResultReference, currentAddCommentResultReference;
+    private ValueEventListener commentListener, addCommentResultListener;
     private FirebaseUser user;
+    private CommentsRecyclerViewAdapter adapter;
 
     @BindView(R.id.fragment_comments_placeholder)
     TextView placeholder;
@@ -55,20 +61,30 @@ public class CommentsFragment extends BaseFragment {
     @BindView(R.id.fragment_comments_input)
     EditText commentInput;
 
+    @BindView(R.id.fragment_comments_loading_container)
+    LinearLayout loadingContainer;
+
+    @BindView(R.id.fragment_comments_container)
+    LinearLayout container;
+
     @OnClick(R.id.fragment_comments_send_button)
     public void sendComment() {
         String commentText = commentInput.getText().toString().trim();
         if (!commentText.isEmpty()) {
             if (user != null && user.isEmailVerified()) {
-                DatabaseReference dRef = commentReference.push();
+                final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/addComment").push();
                 Map<String, Object> map = new HashMap<>();
                 map.put("authorID", user.getUid());
                 map.put("content", commentText);
-                map.put("timestamp", ServerValue.TIMESTAMP);
+                map.put("livetickerID", livetickerID);
                 dRef.setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        commentInput.setText("");
+                        if (currentAddCommentResultReference != null) {
+                            currentAddCommentResultReference.removeEventListener(addCommentResultListener);
+                        }
+                        currentAddCommentResultReference = FirebaseDatabase.getInstance().getReference("result/" + user.getUid() + "/addComment/" + dRef.getKey());
+                        currentAddCommentResultReference.addValueEventListener(addCommentResultListener);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -105,30 +121,50 @@ public class CommentsFragment extends BaseFragment {
 
         initializeAuthListener();
         initializeCommentListener();
+        initializeAddCommentListener();
         setHasOptionsMenu(true);
-        ((LivetickerActivity) getActivity()).collapseToolbar(true);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        commentReference.addChildEventListener(commentListener);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter = new CommentsRecyclerViewAdapter(recyclerView, getContext()));
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
         if (commentListener != null) {
             commentReference.removeEventListener(commentListener);
-
         }
-
         if (authStateListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
 
         }
+    }
+
+    private void initializeAddCommentListener() {
+        addCommentResultListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    if (dataSnapshot.getChildrenCount() > 0) {
+                        Log.i(Constants.LOGGING_TAG, dataSnapshot.getValue().toString());
+                        if (dataSnapshot.child("state").getValue().toString().equals("success")) {
+                            commentInput.setText("");
+                            requestComments();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 
     private void initializeAuthListener() {
@@ -146,7 +182,6 @@ public class CommentsFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-
         inflater.inflate(R.menu.menu_main, menu);
     }
 
@@ -157,32 +192,27 @@ public class CommentsFragment extends BaseFragment {
                 //requestFeed();
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     private void initializeCommentListener() {
-        commentListener = new ChildEventListener() {
+        commentListener = new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-                    hasContent(true);
+                    loading(false);
+                    if(dataSnapshot.child("comments").getChildrenCount() > 0) {
+                        ArrayList<Comment> commentData = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.child("comments").getChildren()) {
+                            Comment comment = childSnapshot.getValue(Comment.class);
+                            commentData.add(comment);
+                        }
+                        adapter.setData(commentData);
+                        hasContent(true);
+                    } else {
+                        hasContent(false);
+                    }
                 }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
@@ -197,14 +227,44 @@ public class CommentsFragment extends BaseFragment {
             placeholder.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         } else {
+            placeholder.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
+    }
 
+    private void loading(boolean loading) {
+        if (loading) {
+            container.setVisibility(View.GONE);
+            loadingContainer.setVisibility(View.VISIBLE);
+        } else {
+            container.setVisibility(View.VISIBLE);
+            loadingContainer.setVisibility(View.GONE);
         }
     }
 
     private void requestComments() {
+
+        loading(true);
+
+        //Remove current result listener
+        if (currentResultReference != null && commentListener != null) {
+            currentResultReference.removeEventListener(commentListener);
+        }
+
         Map<String, String> data = new HashMap<>();
         data.put("livetickerID", livetickerID);
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + "/comments/").push();
-        ref.setValue(data);
+        ref.setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                currentResultReference = FirebaseDatabase.getInstance().getReference("/result/" + user.getUid() + "/comments/" + ref.getKey());
+                currentResultReference.addValueEventListener(commentListener);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //TODO Error Handling
+            }
+        });
     }
 }

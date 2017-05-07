@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -27,14 +28,23 @@
         android:visibility="gone"
         android:id="@+id/fragment_channel_container"
         >
-
-        <ImageView
-            android:id="@+id/fragment_channel_title_picture"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter" />
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/fragment_channel_title_picture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
 
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar_channel"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@drawable/background_toolbar_translucent"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+        </RelativeLayout>
         <ScrollView
             android:id="@+id/fragment_channel_scrollview"
             android:layout_width="match_parent"
@@ -44,7 +54,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                >
 
                 <LinearLayout
                     android:id="@+id/fragment_channel_empty_view"
@@ -54,36 +65,42 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
+                    android:animateLayoutChanges="true"
                     android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="50dp"
-                        android:background="@color/livetickerBackground"
+                        android:background="@color/white"
+                        android:animateLayoutChanges="true"
                         android:orientation="vertical">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
+                            android:gravity="center_horizontal"
                             android:paddingTop="70dp">
 
                             <TextView
                                 android:id="@+id/fragment_channel_username"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
                                 android:paddingBottom="10dp"
+                                android:textColor="@color/primary_text"
                                 android:textSize="22sp" />
 
                             <TextView
                                 android:id="@+id/fragment_channel_status"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
                                 android:text="@string/no_status"
+                                android:paddingBottom="15dp"
+                                android:textColor="@color/secondary_text"
                                 android:textSize="14sp" />
+
+                            <include layout="@layout/subscribe_button"/>
                         </LinearLayout>
 
                         <TextView
@@ -96,12 +113,22 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content" />
 
-                        <android.support.v7.widget.RecyclerView
-                            android:id="@+id/fragment_channel_recycler_view"
+                        <android.support.design.widget.TabLayout
+                            android:id="@+id/fragment_channel_tab_layout"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:background="@color/white"
+                            android:layout_height="?attr/actionBarSize"
+                            android:layout_gravity="bottom" />
 
-                        </android.support.v7.widget.RecyclerView>
+                        <com.sunilson.pro4.views.ChannelViewPager
+                            android:id="@+id/fragment_channel_viewpager"
+                            android:background="@color/livetickerBackground"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="15dp"
+                            android:background="@color/livetickerBackground"/>
                     </LinearLayout>
 
                     <ImageView

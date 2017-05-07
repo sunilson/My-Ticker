@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -43,6 +43,7 @@ import com.sunilson.pro4.dialogFragments.LivetickerPicktureCropDialog;
 import com.sunilson.pro4.dialogFragments.PickImageDialog;
 import com.sunilson.pro4.utilities.Constants;
 import com.sunilson.pro4.utilities.Utilities;
+import com.sunilson.pro4.views.SubmitButtonBig;
 
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
@@ -60,7 +61,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     private ValueEventListener loadUserDataListener, resultListener;
     private User tempUser;
     private String currentType;
-    private boolean started;
+    private boolean started, loading;
 
     @BindView(R.id.progress_overlay_progressbar)
     ProgressBar progressBar;
@@ -80,14 +81,17 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     @BindView(R.id.fragment_edit_channel_title)
     ImageView titleImage;
 
-    @BindView(R.id.fragment_edit_channel_save)
-    Button save;
+    @BindView(R.id.submit_button)
+    Button submitButton;
+
+    @BindView(R.id.submit_button_view)
+    SubmitButtonBig submitButtonBig;
 
     @BindView(R.id.fragment_edit_channel_pick_profile)
-    Button getProfileImage;
+    ImageButton getProfileImage;
 
     @BindView(R.id.fragment_edit_channel_pick_title)
-    Button getTitleImage;
+    ImageButton getTitleImage;
 
     @BindView(R.id.progress_overlay)
     View progressOverlay;
@@ -103,8 +107,8 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onStart() {
         super.onStart();
-        loading(true);
         if (!started) {
+            loading(true);
             started = true;
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
@@ -133,7 +137,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_channel, container, false);
         unbinder = ButterKnife.bind(this, view);
-        save.setOnClickListener(this);
+        submitButton.setOnClickListener(this);
         getProfileImage.setOnClickListener(this);
         getTitleImage.setOnClickListener(this);
         return view;
@@ -308,9 +312,19 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     private void storeImageToDatabase(final Bitmap bitmap) {
         loading(true);
 
-        if (!Utilities.checkImageForType(bitmap.getWidth(), bitmap.getHeight(), currentType)) {
+        Bitmap resultBitmap = bitmap;
+
+        if (checkImageToSmall(resultBitmap.getWidth(), resultBitmap.getHeight())) {
             Toast.makeText(getContext(), R.string.image_upload_failure_size, Toast.LENGTH_SHORT).show();
             loading(false);
+            return;
+        } else if (checkImageTooBig(resultBitmap.getWidth(), resultBitmap.getHeight())) {
+            Toast.makeText(getContext(), R.string.image_too_big_resize, Toast.LENGTH_SHORT).show();
+            if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_PROFILE)) {
+                resultBitmap = resizeProfileImage(resultBitmap);
+            } else if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_TITLE)) {
+                resultBitmap = resizeTitleImage(resultBitmap);
+            }
         }
 
         String uniqueId = UUID.randomUUID().toString();
@@ -320,17 +334,12 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
         //Get Full Image
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream);
+        resultBitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream);
         final byte[] data = byteArrayOutputStream.toByteArray();
-
-        //Generate Thumbnail of Image
-        final Bitmap thumbMap = ThumbnailUtils.extractThumbnail(bitmap, 320, 180);
-        ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream();
-        thumbMap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream2);
 
         progressBar.setProgress(30);
 
-        final Bitmap finalBitmap = bitmap;
+        final Bitmap uploadBitmap = resultBitmap;
         imageRef.putBytes(data).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
@@ -342,10 +351,10 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
                 if (currentType.equals("profile")) {
                     tempUser.setProfilePicture(fullSnapshot.getDownloadUrl().toString());
-                    profileImage.setImageBitmap(bitmap);
+                    profileImage.setImageBitmap(uploadBitmap);
                 } else if (currentType.equals("title")) {
                     tempUser.setTitlePicture(fullSnapshot.getDownloadUrl().toString());
-                    titleImage.setImageBitmap(bitmap);
+                    titleImage.setImageBitmap(uploadBitmap);
                 }
                 loading(false);
             }
@@ -358,11 +367,51 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         });
     }
 
+    private boolean checkImageToSmall(int width, int height) {
+        if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_PROFILE)) {
+            if (width >= Constants.PROFILE_IMAGE_MIN_SIZE && height >= Constants.PROFILE_IMAGE_MIN_SIZE) {
+                return false;
+            }
+            return true;
+        } else if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_TITLE)) {
+            if (width >= Constants.TITLE_IMAGE_MIN_WIDTH && height >= Constants.TITLE_IMAGE_MIN_HEIGHT) {
+                return false;
+            }
+            return true;
+        }
+
+        return true;
+    }
+
+    private boolean checkImageTooBig(int width, int height) {
+        if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_PROFILE)) {
+            if (width > Constants.PROFILE_IMAGE_MAX_SIZE || height > Constants.PROFILE_IMAGE_MAX_SIZE) {
+                return true;
+            }
+            return false;
+        } else if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_TITLE)) {
+            if (width > Constants.TITLE_IMAGE_MAX_WIDTH || height > Constants.TITLE_IMAGE_MAX_HEIGHT) {
+                return true;
+            }
+            return false;
+        }
+
+        return false;
+    }
+
+    private Bitmap resizeProfileImage(Bitmap image) {
+        return Bitmap.createScaledBitmap(image, Constants.PROFILE_IMAGE_MAX_SIZE, Constants.PROFILE_IMAGE_MAX_SIZE, true);
+    }
+
+    private Bitmap resizeTitleImage(Bitmap image) {
+        return Bitmap.createScaledBitmap(image, Constants.TITLE_IMAGE_MAX_WIDTH, Constants.TITLE_IMAGE_MAX_HEIGHT, true);
+    }
+
     /**
      * Save Updated Channel to Server Queue for further processing
      */
     private void saveChannel() {
-        loading(true);
+        loadingSubmit(true);
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -404,7 +453,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), R.string.editing_channel_failure, Toast.LENGTH_LONG).show();
-                loading(false);
+                loadingSubmit(false);
             }
         });
 
@@ -417,7 +466,22 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         dialogFragment.show(getActivity().getSupportFragmentManager(), "dialog");
     }
 
+    private void loadingSubmit(boolean loading) {
+        this.loading = true;
+
+        if (loading) {
+            getProfileImage.setEnabled(false);
+            getTitleImage.setEnabled(false);
+            submitButtonBig.loading(true);
+        } else {
+            submitButtonBig.loading(false);
+            getProfileImage.setEnabled(true);
+            getTitleImage.setEnabled(true);
+        }
+    }
+
     private void loading(boolean loading) {
+        this.loading = loading;
         if (loading) {
             Utilities.animateView(progressOverlay, View.VISIBLE, 0.4f, 200);
         } else {
@@ -428,17 +492,20 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.fragment_edit_channel_save:
-                saveChannel();
-                break;
-            case R.id.fragment_edit_channel_pick_profile:
-                getImage("profile");
-                break;
-            case R.id.fragment_edit_channel_pick_title:
-                getImage("title");
-                break;
+        if (!this.loading) {
+            switch (view.getId()) {
+                case R.id.submit_button:
+                    saveChannel();
+                    break;
+                case R.id.fragment_edit_channel_pick_profile:
+                    getImage("profile");
+                    break;
+                case R.id.fragment_edit_channel_pick_title:
+                    getImage("title");
+                    break;
+            }
         }
+
     }
 
     private void initializeResultListener() {

@@ -19,7 +19,7 @@ public class Liveticker {
     private String authorID;
     private String userName;
     private String profilePicture;
-    private int commentCount;
+    private int commentCount, likeCount;
     private Long startDate;
 
     public Liveticker() {
@@ -77,10 +77,7 @@ public class Liveticker {
         return description;
     }
 
-    public void setDescription(String description) throws LivetickerSetException {
-        if (description == null || description.isEmpty()) {
-            throw new LivetickerSetException("Description is empty");
-        }
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -121,10 +118,7 @@ public class Liveticker {
         return status;
     }
 
-    public void setStatus(String status) throws LivetickerSetException {
-        if (status == null || status.isEmpty()) {
-            throw new LivetickerSetException("Status is not valid");
-        }
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -142,5 +136,13 @@ public class Liveticker {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
     }
 }

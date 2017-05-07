@@ -6,9 +6,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.MainActivityFragmentPagerAdapter;
+import com.sunilson.pro4.fragments.SearchFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +38,18 @@ public class MainActivity extends BaseActivity {
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
+
+    @BindView(R.id.search_bar)
+    EditText searchBar;
+
+    @BindView(R.id.search_bar_layout)
+    LinearLayout searchBarLayout;
+
+    @BindView(R.id.feed_bar)
+    LinearLayout feedBarLayout;
+
+    @BindView(R.id.feed_bar_spinner)
+    Spinner feedBarSpinner;
 
     private MenuItem loginButton, logoutButton;
 
@@ -52,6 +72,7 @@ public class MainActivity extends BaseActivity {
         viewPager = (ViewPager) findViewById(R.id.mainActivityViewPager);
         tabLayout = (TabLayout) findViewById(R.id.mainActivityTabLayout);
         viewPager.setAdapter(adapter = new MainActivityFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this));
+        viewPager.setOffscreenPageLimit(2);
         tabLayout.setupWithViewPager(viewPager);
 
         //Listener to change title on fragment swap
@@ -87,6 +108,22 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(MainActivity.this, AddLivetickerActivity.class));
             }
         });
+
+        searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_DONE) {
+                    ((SearchFragment)adapter.getRegisteredFragment(1)).startSearch(searchBar.getText().toString());
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this, R.array.feed_spinner_values, R.layout.spinner_item);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        feedBarSpinner.setAdapter(arrayAdapter);
     }
 
     @Override
@@ -95,13 +132,16 @@ public class MainActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         if (viewPager.getCurrentItem() == 0) {
             menu.findItem(R.id.feed_menu_refresh).setVisible(true);
-            menu.findItem(R.id.feed_menu_search).setVisible(false);
+            searchBarLayout.setVisibility(View.GONE);
+            feedBarLayout.setVisibility(View.VISIBLE);
         } else if (viewPager.getCurrentItem() == 1) {
             menu.findItem(R.id.feed_menu_refresh).setVisible(false);
-            menu.findItem(R.id.feed_menu_search).setVisible(true);
+            searchBarLayout.setVisibility(View.VISIBLE);
+            feedBarLayout.setVisibility(View.GONE);
         } else if (viewPager.getCurrentItem() == 2) {
             menu.findItem(R.id.feed_menu_refresh).setVisible(false);
-            menu.findItem(R.id.feed_menu_search).setVisible(false);
+            searchBarLayout.setVisibility(View.GONE);
+            feedBarLayout.setVisibility(View.GONE);
         }
 
         loginButton = menu.findItem(R.id.main_menu_login);

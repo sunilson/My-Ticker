@@ -10,9 +10,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -30,10 +28,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
-import com.sunilson.pro4.utilities.Utilities;
+import com.sunilson.pro4.views.SubmitButtonBig;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -64,9 +65,6 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
     @BindView(R.id.add_liveticker_status_edittext)
     EditText statusEditText;
 
-    @BindView(R.id.add_liveticker_loading_spinner)
-    ProgressBar progressBar;
-
     @BindView(R.id.add_liveticker_start_switch)
     Switch dateSwitch;
 
@@ -76,10 +74,13 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
     @BindView(R.id.add_liveticker_date_layout)
     LinearLayout dateLayout;
 
-    @BindView(R.id.progress_overlay)
-    FrameLayout progressOverlay;
+    @BindView(R.id.add_liveticker_privacy_title)
+    TextView privacyTitle;
 
-    @OnClick(R.id.add_liveticker_submit_button)
+    @BindView(R.id.submit_button_view)
+    SubmitButtonBig submitButtonBig;
+
+    @OnClick(R.id.submit_button)
     public void submit(View view) {
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -191,9 +192,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
 
     private void loading(boolean loading) {
         if (loading) {
-            Utilities.animateView(progressOverlay, View.VISIBLE, 0.4f, 200);
+            submitButtonBig.loading(true);
         } else {
-            Utilities.animateView(progressOverlay, View.GONE, 0, 200);
+            submitButtonBig.loading(false);
         }
     }
 
@@ -242,8 +243,11 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
     }
 
     private void updateDateTime() {
-        dateTextView.setText(calendar.get(Calendar.DAY_OF_MONTH) + "." + calendar.get(Calendar.MONTH) + "." + calendar.get(Calendar.YEAR));
-        timeTextView.setText(calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
+        Date date = calendar.getTime();
+        SimpleDateFormat formatDate = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        dateTextView.setText(formatDate.format(date));
+        timeTextView.setText(formatTime.format(date));
     }
 
     @Override
@@ -260,8 +264,10 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
             case R.id.add_liveticker_privacy_switch:
                 if (b) {
                     privacy = "public";
+                    privacyTitle.setText(getString(R.string.add_liveticker_public_title));
                 } else {
                     privacy = "private";
+                    privacyTitle.setText(getString(R.string.add_liveticker_public_title_private));
                 }
                 break;
         }

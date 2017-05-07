@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +43,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
 
     private class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView title, author, state, status;
+        TextView title, author, state, status, commentCount, likeCount;
         ImageView profilePicture, stateImage;
 
         public ViewHolder(View itemView) {
@@ -53,6 +52,8 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             author = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_author);
             state = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_state);
             status = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_status);
+            commentCount = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_comment_count);
+            likeCount = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_like_count);
             stateImage = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_state_image);
             profilePicture = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_image);
         }
@@ -87,9 +88,10 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         vh.status.setText(liveticker.getStatus());
+        vh.commentCount.setText(Integer.toString(liveticker.getCommentCount()));
+        vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
 
         if (liveticker.getProfilePicture() != null) {
-            Log.i(Constants.LOGGING_TAG, "Profile picture");
             DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
             StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(liveticker.getProfilePicture());
             Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(ctx)).crossFade().into(vh.profilePicture);

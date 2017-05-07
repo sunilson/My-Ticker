@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,13 +21,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
-import com.sunilson.pro4.exceptions.LivetickerSetException;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * @author Linus Weiss
@@ -38,9 +35,7 @@ public class SearchFragment extends BaseFragment {
 
     private ValueEventListener searchResultListener;
     private FeedRecyclerViewAdapter adapter;
-
-    @BindView(R.id.fragment_search_input)
-    EditText searchInput;
+    private boolean started;
 
     @BindView(R.id.fragment_search_recycler_view)
     RecyclerView recyclerView;
@@ -51,11 +46,10 @@ public class SearchFragment extends BaseFragment {
     @BindView(R.id.fragment_search_placeholder)
     TextView placeholder;
 
-    @OnClick(R.id.fragment_search_submit)
-    public void startSearch() {
+    public void startSearch(String searchValue) {
         loading(true);
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/search/tasks").push();
-        dRef.child("searchValue").setValue(searchInput.getText().toString()).addOnFailureListener(new OnFailureListener() {
+        dRef.child("searchValue").setValue(searchValue).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 loading(false);
@@ -79,10 +73,6 @@ public class SearchFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(adapter = new FeedRecyclerViewAdapter(recyclerView, getContext()));
-        recyclerView.setNestedScrollingEnabled(false);
     }
 
     @Nullable
@@ -90,6 +80,13 @@ public class SearchFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         unbinder = ButterKnife.bind(this, view);
+        if (!started) {
+            started = true;
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setAdapter(adapter = new FeedRecyclerViewAdapter(recyclerView, getContext()));
+            recyclerView.setNestedScrollingEnabled(false);
+
+        }
         return view;
     }
 
@@ -109,19 +106,15 @@ public class SearchFragment extends BaseFragment {
                     } else if (dataSnapshot.child("_state").getValue() != null
                             && dataSnapshot.child("_state").getValue().equals("success")) {
 
-                        if(dataSnapshot.child("searchResults").getChildrenCount() == 0) {
+                        if (dataSnapshot.child("searchResults").getChildrenCount() == 0) {
+                            placeholder.setText(getString(R.string.no_search_results));
                             placeholder.setVisibility(View.VISIBLE);
                         } else {
                             placeholder.setVisibility(View.GONE);
                             ArrayList<Liveticker> livetickerData = new ArrayList<>();
                             for (DataSnapshot childSnapshot : dataSnapshot.child("searchResults").getChildren()) {
                                 Liveticker liveticker = childSnapshot.getValue(Liveticker.class);
-                                try {
-                                    liveticker.setLivetickerID(childSnapshot.getKey());
-                                    livetickerData.add(liveticker);
-                                } catch (LivetickerSetException e) {
-                                    e.printStackTrace();
-                                }
+                                livetickerData.add(liveticker);
                             }
                             loading(false);
                             adapter.setData(livetickerData);

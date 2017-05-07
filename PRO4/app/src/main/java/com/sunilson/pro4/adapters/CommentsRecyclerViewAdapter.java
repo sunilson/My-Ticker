@@ -8,11 +8,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by linus_000 on 03.05.2017.
@@ -35,16 +42,16 @@ public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
 
         public ViewHolder(View itemView) {
             super(itemView);
-            content = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_title);
-            username = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_author);
-            timestamp = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_state);
-            profilePicture = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_image);
+            content = (TextView) itemView.findViewById(R.id.comment_content);
+            username = (TextView) itemView.findViewById(R.id.comment_username);
+            timestamp = (TextView) itemView.findViewById(R.id.comment_timestamp);
+            profilePicture = (ImageView) itemView.findViewById(R.id.comment_profile_picture);
         }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_recyclerview_element, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_recyclerview_element, parent, false);
         return new CommentsRecyclerViewAdapter.ViewHolder(v);
     }
 
@@ -53,13 +60,29 @@ public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
         CommentsRecyclerViewAdapter.ViewHolder vh = (CommentsRecyclerViewAdapter.ViewHolder) holder;
         Comment comment = data.get(position);
 
-        vh.content.setText(comment.getText());
+        vh.content.setText(comment.getContent());
         vh.timestamp.setText(comment.getTimestamp().toString());
+
+        if (comment.getUserName() != null) {
+            vh.username.setText(comment.getUserName());
+        }
+
+        if (comment.getProfilePicture() != null) {
+            DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
+            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(comment.getProfilePicture());
+            Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(ctx)).crossFade().into(vh.profilePicture);
+        }
+
     }
 
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public void add(Comment comment) {
+        this.data.add(comment);
+        notifyItemInserted(data.indexOf(comment));
     }
 
     public void setData(ArrayList<Comment> list) {

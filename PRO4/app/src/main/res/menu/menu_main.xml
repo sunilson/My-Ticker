@@ -9,12 +9,6 @@
         android:icon="@drawable/ic_refresh_white_24dp"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/feed_menu_search"
-        android:orderInCategory="200"
-        android:title="Search"
-        android:icon="@drawable/ic_check_white_24dp"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/main_menu_login"
         android:orderInCategory="300"
         android:title="Login"
