@@ -77,4 +77,8 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     public Fragment getRegisteredFragment(int position) {
         return registeredFragments.get(position);
     }
+
+    public SparseArray<Fragment> getRegisteredFragments() {
+        return registeredFragments;
+    }
 }

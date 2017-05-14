@@ -21,7 +21,6 @@ import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.utilities.Constants;
-import com.sunilson.pro4.views.ChannelViewPager;
 
 import java.util.ArrayList;
 
@@ -38,7 +37,6 @@ public class ChannelLiveFragment extends ChannelBaseFragment {
     private DatabaseReference livetickerRef;
     private FeedRecyclerViewAdapter adapter;
     private String authorID;
-    private ChannelViewPager channelViewPager;
 
     @BindView(R.id.fragment_channel_live_recycler_view)
     RecyclerView recyclerView;
@@ -77,7 +75,6 @@ public class ChannelLiveFragment extends ChannelBaseFragment {
         recyclerView.setAdapter(adapter = new FeedRecyclerViewAdapter(recyclerView, getContext()));
         recyclerView.setNestedScrollingEnabled(false);
 
-        channelViewPager = (ChannelViewPager) getActivity().findViewById(R.id.fragment_channel_viewpager);
         return view;
     }
 

@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
+import com.sunilson.pro4.utilities.Constants;
 import com.sunilson.pro4.views.SubmitButtonBig;
 
 import java.text.SimpleDateFormat;
@@ -96,7 +97,7 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
             liveticker.setTitle(titleEditText.getText().toString());
             liveticker.setDescription(descriptionEditText.getText().toString());
             liveticker.setAuthorID(user.getUid());
-            liveticker.setStartDate(calendar.getTimeInMillis());
+            liveticker.setStateTimestamp(calendar.getTimeInMillis());
             liveticker.setPrivacy(privacy);
             liveticker.setStatus(statusEditText.getText().toString());
         } catch (LivetickerSetException e) {
@@ -145,6 +146,8 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
         timeTextView.setOnClickListener(this);
         dateSwitch.setOnCheckedChangeListener(this);
         privacySwitch.setOnCheckedChangeListener(this);
+
+        submitButtonBig.setText(getString(R.string.channel_edit_save), getString(R.string.loading));
     }
 
     @Override
@@ -174,6 +177,7 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
                     if (dataSnapshot.child("state").getValue() != null) {
                         if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                             finished = true;
+                            setResult(Constants.ADD_LIVETICKER_RESULT_CODE);
                             finish();
                         } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
                             loading(false);

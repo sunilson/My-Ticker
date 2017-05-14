@@ -5,9 +5,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +42,8 @@ public class SearchFragment extends BaseFragment {
     private ValueEventListener searchResultListener;
     private FeedRecyclerViewAdapter adapter;
     private boolean started;
+    private ImageView closeSearch;
+    private EditText searchBar;
 
     @BindView(R.id.fragment_search_recycler_view)
     RecyclerView recyclerView;
@@ -46,10 +54,10 @@ public class SearchFragment extends BaseFragment {
     @BindView(R.id.fragment_search_placeholder)
     TextView placeholder;
 
-    public void startSearch(String searchValue) {
+    public void startSearch() {
         loading(true);
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/search/tasks").push();
-        dRef.child("searchValue").setValue(searchValue).addOnFailureListener(new OnFailureListener() {
+        dRef.child("searchValue").setValue(searchBar.getText().toString()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 loading(false);
@@ -80,6 +88,17 @@ public class SearchFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        initializeSearchBar();
+
+        closeSearch = (ImageView) getActivity().findViewById(R.id.search_bar_close);
+        closeSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchBar.setText("");
+            }
+        });
+
         if (!started) {
             started = true;
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -89,6 +108,43 @@ public class SearchFragment extends BaseFragment {
         }
         return view;
     }
+
+    public void initializeSearchBar() {
+        searchBar = (EditText) getActivity().findViewById(R.id.search_bar);
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (searchBar.getText().length() == 0) {
+                    closeSearch.setVisibility(View.INVISIBLE);
+                } else {
+                    closeSearch.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_DONE) {
+                    startSearch();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+    }
+
 
     @Override
     public void onDestroyView() {
@@ -102,7 +158,7 @@ public class SearchFragment extends BaseFragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
                     if (dataSnapshot.child("error_state").getValue() != null) {
-                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
                     } else if (dataSnapshot.child("_state").getValue() != null
                             && dataSnapshot.child("_state").getValue().equals("success")) {
 

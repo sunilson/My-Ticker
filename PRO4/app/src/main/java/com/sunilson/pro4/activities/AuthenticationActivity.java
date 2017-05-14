@@ -1,12 +1,9 @@
 package com.sunilson.pro4.activities;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import com.google.firebase.database.DatabaseReference;
@@ -23,6 +20,7 @@ public class AuthenticationActivity extends AppCompatActivity implements CanChan
     @BindView(R.id.authentication_frameLayout)
     FrameLayout frameLayout;
 
+    private String currentFragment;
     private DatabaseReference mReference;
     private BaseFragment activeFragment;
 
@@ -35,26 +33,27 @@ public class AuthenticationActivity extends AppCompatActivity implements CanChan
 
         ButterKnife.bind(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.authentication_frameLayout, LoginFragment.newInstance()).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).add(R.id.authentication_frameLayout, LoginFragment.newInstance()).commit();
         }
     }
 
     @Override
     public void replaceFragment(Fragment fragment, String tag) {
+        currentFragment = tag;
         if (tag.equals("register")) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.authentication_frameLayout, fragment).addToBackStack(tag).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.authentication_frameLayout, fragment).commit();
         } else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.authentication_frameLayout, fragment).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right).replace(R.id.authentication_frameLayout, fragment).commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentFragment.equals("register")) {
+            replaceFragment(LoginFragment.newInstance(), "login");
+        } else {
+            super.onBackPressed();
         }
     }
 }

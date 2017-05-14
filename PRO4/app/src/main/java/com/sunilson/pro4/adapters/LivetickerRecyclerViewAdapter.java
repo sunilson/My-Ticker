@@ -114,6 +114,10 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
                 ViewHolderText viewHolderText = (ViewHolderText) holder;
                 viewHolderText.content.setText(ctx.getString(R.string.created_liveticker));
                 viewHolderText.date.setText(dateFormat.format(event.getTimestamp()));
+            } else if (event.getContent().equals("finished")) {
+                ViewHolderText viewHolderText = (ViewHolderText) holder;
+                viewHolderText.content.setText(ctx.getString(R.string.finished_liveticker));
+                viewHolderText.date.setText(dateFormat.format(event.getTimestamp()));
             }
         }
     }

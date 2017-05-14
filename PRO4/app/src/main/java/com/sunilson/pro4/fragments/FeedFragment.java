@@ -3,17 +3,17 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,6 +30,7 @@ import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
+import com.sunilson.pro4.interfaces.FragmentAuthInterface;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
@@ -43,17 +44,15 @@ import butterknife.ButterKnife;
  * @author Linus Weiss
  */
 
-public class FeedFragment extends BaseFragment implements AdapterView.OnItemSelectedListener {
+public class FeedFragment extends BaseFragment implements AdapterView.OnItemSelectedListener, FragmentAuthInterface {
 
     private FeedRecyclerViewAdapter ownLivetickersAdapter, recentlyVisitedAdapter, subscriptionLivetickersAdapter;
     private ValueEventListener resultListener;
+    private FirebaseUser currentUser;
     private DatabaseReference currentResultReference;
     private FirebaseAuth.AuthStateListener authStateListener;
     private boolean started;
     private Spinner spinner;
-
-    @BindView(R.id.feed_fragment_progress)
-    ProgressBar progressBar;
 
     @BindView(R.id.feed_fragment_ownLivetickers_layout)
     LinearLayout ownLivetickersLayout;
@@ -76,9 +75,17 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
     @BindView(R.id.feed_fragment_content_container)
     LinearLayout content_container;
 
-    @BindView(R.id.feed_fragment_loading_container)
-    LinearLayout loading_container;
+    @BindView(R.id.fragment_feed_swipe_container)
+    SwipeRefreshLayout swipeRefreshLayout;
 
+    @BindView(R.id.feed_fragment_ownLivetickers_placeholder)
+    TextView ownPlaceholder;
+
+    @BindView(R.id.feed_fragment_recentlyVisted_placeholder)
+    TextView recentPlaceholder;
+
+    @BindView(R.id.feed_fragment_subscriptionLIvetickers_placeholder)
+    TextView subPlaceholder;
 
     public static FeedFragment newInstance() {
         return new FeedFragment();
@@ -88,7 +95,6 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initializeResultListener();
-        initializeAuthListener();
         setHasOptionsMenu(true);
     }
 
@@ -96,7 +102,10 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
     public void onStart() {
         super.onStart();
 
-        FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+        if (!started) {
+            requestFeed();
+            started = true;
+        }
     }
 
     @Override
@@ -106,16 +115,17 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
         if (currentResultReference != null && resultListener != null) {
             currentResultReference.removeEventListener(resultListener);
         }
-
-        if (authStateListener != null) {
-            FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
-        }
     }
 
-    private void requestFeed() {
+    public void requestFeed() {
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             Toast.makeText(getContext(), R.string.feed_load_failure, Toast.LENGTH_SHORT).show();
+            loading(false);
+            return;
+        } else if (user.isAnonymous() || !user.isEmailVerified()) {
+            clearFeeds();
+            loading(false);
             return;
         }
 
@@ -174,6 +184,14 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
         recentlyVisited.setNestedScrollingEnabled(false);
         subscriptionLivetickers.setNestedScrollingEnabled(false);
 
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.colorAccent, R.color.colorPrimary);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestFeed();
+            }
+        });
+
         spinner = (Spinner) getActivity().findViewById(R.id.feed_bar_spinner);
         spinner.setOnItemSelectedListener(this);
         return view;
@@ -184,7 +202,6 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("state").getValue() != null) {
-                    Log.i(Constants.LOGGING_TAG, dataSnapshot.getValue().toString());
                     if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                         ArrayList<Liveticker> ownLivetickersData = new ArrayList<>();
                         ArrayList<Liveticker> recentLivetickersData = new ArrayList<>();
@@ -202,6 +219,25 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
                         recentlyVisitedAdapter.setData(recentLivetickersData);
                         ownLivetickersAdapter.setData(ownLivetickersData);
                         subscriptionLivetickersAdapter.setData(subscriptionLivetickersData);
+
+                        if (ownLivetickersData.size() == 0) {
+                            ownPlaceholder.setVisibility(View.VISIBLE);
+                        } else {
+                            ownPlaceholder.setVisibility(View.GONE);
+                        }
+
+                        if (subscriptionLivetickersData.size() == 0) {
+                            subPlaceholder.setVisibility(View.VISIBLE);
+                        } else {
+                            subPlaceholder.setVisibility(View.GONE);
+                        }
+
+                        if (recentLivetickersData.size() == 0) {
+                            recentPlaceholder.setVisibility(View.VISIBLE);
+                        } else {
+                            recentPlaceholder.setVisibility(View.GONE);
+                        }
+
                         loading(false);
                     } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
                         if (dataSnapshot.child("errorDetails").getValue() != null) {
@@ -240,15 +276,14 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
     }
 
     private void loading(boolean loading) {
-        if (loading_container != null) {
             if (loading) {
-                loading_container.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(true);
                 content_container.setVisibility(View.GONE);
             } else {
-                loading_container.setVisibility(View.GONE);
                 content_container.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
             }
-        }
+
     }
 
     @Override
@@ -266,25 +301,6 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-    }
-
-    private void initializeAuthListener() {
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    if (user.isAnonymous()) {
-                        requestFeed();
-                    } else if (user.isEmailVerified()) {
-                        if (!started) {
-                            requestFeed();
-                            started = true;
-                        }
-                    }
-                }
-            }
-        };
     }
 
     @Override
@@ -313,5 +329,20 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public void authChanged(FirebaseUser user) {
+        if (user != null) {
+            if(!started) {
+                requestFeed();
+                started = true;
+            } else {
+                if (currentUser != null && !currentUser.getUid().equals(user.getUid())) {
+                    requestFeed();
+                }
+            }
+            currentUser = user;
+        }
     }
 }

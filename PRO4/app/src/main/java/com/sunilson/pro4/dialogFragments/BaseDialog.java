@@ -8,6 +8,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 
+import com.sunilson.pro4.R;
+
 /**
  * @author Linus Weiss
  */
@@ -21,6 +23,11 @@ public class BaseDialog extends DialogFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        //Apply open and close animation to Dialog
+        if (getDialog().getWindow() != null) {
+            getDialog().getWindow().getAttributes().windowAnimations = R.style.dialogAnimation;
+        }
     }
 
     @NonNull

@@ -11,6 +11,7 @@
         android:id="@+id/fragment_liveticker_input"
         style="@style/LivetickerInput"
         android:layout_width="match_parent"
+        android:imeOptions="actionNone"
         android:layout_height="wrap_content" />
 
     <FrameLayout

@@ -24,21 +24,47 @@
                 android:layout_height="match_parent"
                 android:id="@+id/feed_bar"
                 >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:id="@+id/main_bar_author_image"
+                    android:layout_gravity="center_vertical|left"
+                    android:visibility="gone"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    />
                 <TextView
-                    android:id="@+id/feed_bar_title"
-                    android:layout_gravity="center_vertical"
-                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/main_bar_author_name"
+                    android:paddingLeft="10dp"
+                    android:layout_gravity="center_vertical|left"
+                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                    android:background="@android:color/transparent"
+                    android:maxLines="1"
+                    android:gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:maxEms="6"
+                    android:singleLine="true"
+                    android:visibility="gone"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/main_bar_title"
+                    android:layout_gravity="center_vertical"
+                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                     android:background="@android:color/transparent"
                     android:maxLines="1"
                     android:gravity="center_vertical"
                     android:singleLine="true"
+                    android:visibility="visible"
                     android:text="@string/app_name" />
 
                 <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     >
@@ -64,11 +90,12 @@
                 </RelativeLayout>
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/search_bar_layout"
                 android:visibility="gone"
+                android:animateLayoutChanges="true"
                 android:orientation="horizontal">
 
                 <EditText
@@ -82,7 +109,7 @@
                     android:textColor="@color/primary_text"
                     android:textColorHint="@color/secondary_text"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingRight="25dp"
                     android:hint="@string/search_hint"
                     android:drawablePadding="10dp"
                     android:drawableLeft="@drawable/search_icon"
@@ -92,7 +119,19 @@
                     android:maxLines="1"
                     android:singleLine="true"
                      />
-            </LinearLayout>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:visibility="invisible"
+                    android:id="@+id/search_bar_close"
+                    android:src="@drawable/ic_close_black_24dp"
+                    android:tint="@color/icon_tint_color"
+                    />
+            </RelativeLayout>
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout

@@ -4,19 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,25 +29,27 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.MainActivityFragmentPagerAdapter;
-import com.sunilson.pro4.fragments.SearchFragment;
+import com.sunilson.pro4.fragments.FeedFragment;
+import com.sunilson.pro4.interfaces.FragmentAuthInterface;
+import com.sunilson.pro4.utilities.Constants;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import static android.view.View.GONE;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
-    @BindView(R.id.search_bar)
-    EditText searchBar;
-
     @BindView(R.id.search_bar_layout)
-    LinearLayout searchBarLayout;
+    RelativeLayout searchBarLayout;
 
     @BindView(R.id.feed_bar)
     LinearLayout feedBarLayout;
@@ -51,9 +57,20 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.feed_bar_spinner)
     Spinner feedBarSpinner;
 
+    @BindView(R.id.main_bar_author_image)
+    ImageView authorImage;
+
+    @BindView(R.id.main_bar_title)
+    TextView title;
+
+    @BindView(R.id.main_bar_author_name)
+    TextView authorName;
+
     private MenuItem loginButton, logoutButton;
 
     private ViewPager viewPager;
+    private ValueEventListener userListener;
+    private DatabaseReference currentUserReference;
     private TabLayout tabLayout;
     private MainActivityFragmentPagerAdapter adapter;
 
@@ -102,28 +119,13 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, AddLivetickerActivity.class));
-            }
-        });
-
-        searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (i == EditorInfo.IME_ACTION_DONE) {
-                    ((SearchFragment)adapter.getRegisteredFragment(1)).startSearch(searchBar.getText().toString());
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
+        fab.setOnClickListener(this);
 
         ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this, R.array.feed_spinner_values, R.layout.spinner_item);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         feedBarSpinner.setAdapter(arrayAdapter);
+
+        initializeUserListener();
     }
 
     @Override
@@ -172,9 +174,38 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (currentUserReference != null) {
+            currentUserReference.removeEventListener(userListener);
+        }
+    }
+
+    @Override
     protected void authChanged(FirebaseUser user) {
         checkLoginStatus(user);
         if (user != null) {
+
+
+            if (currentUserReference != null) {
+                currentUserReference.removeEventListener(userListener);
+            }
+
+            currentUserReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
+            currentUserReference.addValueEventListener(userListener);
+
+            SparseArray<Fragment> sparseArray = adapter.getRegisteredFragments();
+            for (int i = 0; i < sparseArray.size(); i++) {
+                int key = sparseArray.keyAt(i);
+                // get the object by the key.
+                Object obj = sparseArray.get(key);
+
+                if (obj instanceof FragmentAuthInterface) {
+                    ((FragmentAuthInterface) obj).authChanged(user);
+                }
+            }
+
             if (!user.isAnonymous() && user.isEmailVerified()) {
                 //Check for first login
                 final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("firstLogin/" + user.getUid());
@@ -218,5 +249,61 @@ public class MainActivity extends BaseActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case Constants.ADD_LIVETICKER_REQUEST_CODE:
+                if (resultCode == Constants.ADD_LIVETICKER_RESULT_CODE) {
+                    Fragment fragment = adapter.getRegisteredFragment(0);
+                    if (fragment != null) {
+                        ((FeedFragment) fragment).requestFeed();
+                    }
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.fab:
+                startActivityForResult(new Intent(MainActivity.this, AddLivetickerActivity.class), Constants.ADD_LIVETICKER_REQUEST_CODE);
+                break;
+        }
+    }
+
+    private void initializeUserListener() {
+        userListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null) {
+                    if (dataSnapshot.child("userName") != null && dataSnapshot.child("profilePicture") != null) {
+                        title.setVisibility(GONE);
+                        authorImage.setVisibility(View.VISIBLE);
+                        authorName.setVisibility(View.VISIBLE);
+                        String profilePicture = dataSnapshot.child("profilePicture").getValue(String.class);
+
+                        if (profilePicture != null && !profilePicture.isEmpty()) {
+                            DrawableRequestBuilder<Integer> placeholder = Glide.with(MainActivity.this).load(R.drawable.profile_placeholder).bitmapTransform(new CropCircleTransformation(MainActivity.this));
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(profilePicture);
+                            Glide.with(MainActivity.this).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(MainActivity.this)).crossFade().into(authorImage);
+                        } else {
+                            Glide.with(MainActivity.this).load(R.drawable.profile_placeholder).bitmapTransform(new CropCircleTransformation(MainActivity.this)).crossFade().into(authorImage);
+
+                        }
+                        authorName.setText(dataSnapshot.child("userName").getValue(String.class));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 }

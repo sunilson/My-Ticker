@@ -79,6 +79,7 @@ public abstract class BaseActivity extends AppCompatActivity{
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+                    authChanged(user);
                     if (!user.isAnonymous()) {
                         if (!user.isEmailVerified()) {
                             mAuth.signOut();
@@ -89,8 +90,6 @@ public abstract class BaseActivity extends AppCompatActivity{
                 } else {
                     signInAnonymously();
                 }
-
-                authChanged(user);
             }
         };
     }

@@ -1,182 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_liveticker_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/livetickerBackground">
+    android:animateLayoutChanges="true"
+    >
 
-
-    <LinearLayout
-        android:id="@+id/fragment_liveticker_loading_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <ProgressBar
-            android:id="@+id/feed_fragment_progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <ScrollView
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:id="@+id/fragment_liveticker_container"
+        android:visibility="gone"
+        android:animateLayoutChanges="true"
+        android:clickable="false"
+        android:background="@color/livetickerBackground">
 
-        <LinearLayout
-            android:id="@+id/fragment_liveticker_container"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingBottom="20dp"
-            android:visibility="gone">
+            android:layout_height="200dp"
+            android:id="@+id/container_author"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:background="@color/white">
 
-            <RelativeLayout
+            <ImageView
+                android:id="@+id/fragment_liveticker_title_image"
                 android:layout_width="match_parent"
-                android:background="@color/white"
-                android:layout_height="200dp">
+                android:layout_height="match_parent"
+                android:foreground="@drawable/image_darken"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:id="@+id/fragment_liveticker_info_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:animateLayoutChanges="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="20dp">
 
                 <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:foreground="@drawable/image_darken"
-                    android:id="@+id/fragment_liveticker_title_image"
-                    />
+                    android:id="@+id/fragment_liveticker_profile_picture"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/rounded_image_border_background"
+                    android:padding="3dp" />
 
                 <LinearLayout
-                    android:id="@+id/fragment_liveticker_info_box"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:layout_centerInParent="true"
-                    android:padding="20dp">
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/fragment_liveticker_profile_picture"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_gravity="center_vertical"
-                        android:background="@drawable/rounded_image_border_background"
-                        android:padding="3dp"
-                        android:layout_marginRight="10dp" />
+                    <TextView
+                        android:id="@+id/fragment_liveticker_username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0px"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:gravity="bottom"
+                        android:paddingBottom="10dp"
+                        android:textColor="@color/primary_text_dark"
+                        android:textSize="20sp" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
+                        android:layout_height="0px"
+                        android:layout_weight="1"
+                        android:gravity="top">
 
-                        <TextView
-                            android:id="@+id/fragment_liveticker_username"
-                            android:layout_width="wrap_content"
-                            android:layout_height="0px"
-                            android:layout_marginEnd="20dp"
-                            android:layout_marginRight="20dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom"
-                            android:paddingBottom="10dp"
-                            android:textColor="@color/primary_text_dark"
-                            android:textSize="20sp" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0px"
-                            android:layout_weight="1"
-                            android:gravity="top">
-
-                            <include layout="@layout/subscribe_button" />
-                        </LinearLayout>
+                        <include layout="@layout/subscribe_button" />
                     </LinearLayout>
                 </LinearLayout>
-            </RelativeLayout>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/fragment_liveticker_scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
+            android:focusable="false"
+            android:animateLayoutChanges="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:orientation="horizontal"
-                android:background="@color/white"
-                android:id="@+id/fragment_liveticker_social_box"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingBottom="20dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:id="@+id/fragment_liveticker_placeholder"
+                    />
+
                 <LinearLayout
-                    android:layout_width="0px"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="?selectableItemBackground"
-                    android:animateLayoutChanges="true"
-                    android:layout_height="match_parent">
-                    <ImageButton
-                        android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/livetickerBackground"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/fragment_liveticker_social_box"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:background="@color/white"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:animateLayoutChanges="true"
+                            android:background="?selectableItemBackground"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:id="@+id/fragment_liveticker_like_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?selectableItemBackground"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:id="@+id/fragment_liveticker_comment_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/comment_icon" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?selectableItemBackground"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:id="@+id/fragment_liveticker_share_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/share_icon" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/fragment_liveticker_author_box"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:background="@color/colorAccent"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:animateLayoutChanges="true"
+                            android:background="?selectableItemBackground"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:id="@+id/fragment_liveticker_edit_state"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/ic_flag_white_24dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?selectableItemBackground"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:id="@+id/fragment_liveticker_edit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/ic_mode_edit_white_24dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?selectableItemBackground"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:id="@+id/fragment_liveticker_edit_delete"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/ic_delete_forever_white_24dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@color/livetickerBackground" />
+
+                    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/fragment_liveticker_state_layout"
+                        style="@style/RecyclerViewElement"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:id="@+id/fragment_liveticker_like_icon"
-                        />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0px"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="?selectableItemBackground"
-                    android:layout_height="match_parent">
-                    <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/comment_icon"
-                        android:background="@android:color/transparent"
-                        android:id="@+id/fragment_liveticker_comment_icon"
-                        />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0px"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:background="?selectableItemBackground"
-                    android:layout_height="match_parent">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/share_icon"
-                        />
+                        android:orientation="horizontal"
+                        android:padding="15dp">
+
+                        <TextView
+                            android:id="@+id/fragment_liveticker_state_text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18sp" />
+
+                    </LinearLayout>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/fragment_liveticker_recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
+        </android.support.v4.widget.NestedScrollView>
 
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/fragment_liveticker_recyclerView"
-                android:layout_width="match_parent"
-                android:paddingTop="20dp"
-                android:layout_height="0px"
-                android:layout_weight="1" />
-        </LinearLayout>
-    </ScrollView>
-
-    <!-- Layout for Author Input -->
-    <LinearLayout
-        android:id="@+id/fragment_liveticker_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/livetickerBackground"
-        android:clipToPadding="false"
-        android:orientation="horizontal"
-        android:paddingBottom="5dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="3dp"
-        android:visibility="gone">
-
-        <include layout="@layout/liveticker_input" />
-
-        <ImageButton
-            android:id="@+id/fragment_liveticker_send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/liveticker_input_send_button_background"
-            android:elevation="6dp" />
-    </LinearLayout>
-    <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/progress_overlay" />
-</RelativeLayout>
+        <!-- Progress bar overlay; shown while login is in progress -->
+        <include layout="@layout/progress_overlay" />
+    </RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

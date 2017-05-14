@@ -37,13 +37,6 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter" />
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar_channel"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/background_toolbar_translucent"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
         </RelativeLayout>
         <ScrollView
             android:id="@+id/fragment_channel_scrollview"
@@ -100,7 +93,7 @@
                                 android:textColor="@color/secondary_text"
                                 android:textSize="14sp" />
 
-                            <include layout="@layout/subscribe_button"/>
+                             <include layout="@layout/subscribe_button"/>
                         </LinearLayout>
 
                         <TextView

@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical|right"
-    android:textSize="16sp"
     android:textColor="@color/primary_text_dark"
+    android:textSize="16sp"
     android:ellipsize="end"
     android:singleLine="true"
     />

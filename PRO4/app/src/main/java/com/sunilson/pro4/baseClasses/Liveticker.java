@@ -20,7 +20,7 @@ public class Liveticker {
     private String userName;
     private String profilePicture;
     private int commentCount, likeCount;
-    private Long startDate;
+    private Long stateTimestamp;
 
     public Liveticker() {
 
@@ -103,15 +103,15 @@ public class Liveticker {
         this.commentCount = commentCount;
     }
 
-    public Long getStartDate() {
-        return startDate;
+    public Long getStateTimestamp() {
+        return stateTimestamp;
     }
 
-    public void setStartDate(Long startDate) throws LivetickerSetException {
-        if (startDate < 0) {
+    public void setStateTimestamp(Long stateTimestamp) throws LivetickerSetException {
+        if (stateTimestamp < 0) {
             throw new LivetickerSetException("Start Date not valid");
         }
-        this.startDate = startDate;
+        this.stateTimestamp = stateTimestamp;
     }
 
     public String getStatus() {

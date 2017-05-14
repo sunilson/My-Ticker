@@ -1,6 +1,5 @@
 package com.sunilson.pro4.fragments;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,9 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +48,8 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.view.View.GONE;
+
 /**
  * @author Linus Weiss
  */
@@ -61,10 +60,14 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     private ValueEventListener loadUserDataListener, resultListener;
     private User tempUser;
     private String currentType;
+    private ProgressBar progressBar = null;
     private boolean started, loading;
 
-    @BindView(R.id.progress_overlay_progressbar)
-    ProgressBar progressBar;
+    @BindView(R.id.fragment_edit_channel_profile_picture_progress)
+    ProgressBar profileProgress;
+
+    @BindView(R.id.fragment_edit_channel_title_picture_progress)
+    ProgressBar titleProgress;
 
     @BindView(R.id.fragment_edit_channel_username)
     EditText userName;
@@ -140,6 +143,8 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         submitButton.setOnClickListener(this);
         getProfileImage.setOnClickListener(this);
         getTitleImage.setOnClickListener(this);
+
+        submitButtonBig.setText(getString(R.string.channel_edit_save), getString(R.string.saving));
         return view;
     }
 
@@ -264,13 +269,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
      * Take picture from camera on generated URI
      */
     public void dispatchTakePictureIntent() {
-        if (ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-                    Constants.REQUEST_CAMERA_PERMISSION);
-        } else {
+        if (Utilities.requestCameraPermission(getActivity())) {
             startCamera();
         }
     }
@@ -310,7 +309,24 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
      * Store Bitmap to Firebase Storage with unique Name. Then delete local image.
      */
     private void storeImageToDatabase(final Bitmap bitmap) {
-        loading(true);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null || user.isAnonymous()) {
+            Toast.makeText(getContext(), R.string.no_access_permission, Toast.LENGTH_SHORT).show();
+            getActivity().finish();
+            return;
+        }
+
+        if (currentType.equals("profile")) {
+            profileProgress.setVisibility(View.VISIBLE);
+            progressBar = profileProgress;
+        } else {
+            titleProgress.setVisibility(View.VISIBLE);
+            progressBar = titleProgress;
+        }
+
+        submitButtonBig.setEnabled(false);
 
         Bitmap resultBitmap = bitmap;
 
@@ -319,7 +335,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             loading(false);
             return;
         } else if (checkImageTooBig(resultBitmap.getWidth(), resultBitmap.getHeight())) {
-            Toast.makeText(getContext(), R.string.image_too_big_resize, Toast.LENGTH_SHORT).show();
             if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_PROFILE)) {
                 resultBitmap = resizeProfileImage(resultBitmap);
             } else if (currentType.equals(Constants.EDIT_CHANNEL_IMAGE_TYPE_TITLE)) {
@@ -330,7 +345,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         String uniqueId = UUID.randomUUID().toString();
 
         //Create references to Storage
-        final StorageReference imageRef = FirebaseStorage.getInstance().getReference().child("livetickerImages/" + uniqueId + ".jpg");
+        final StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(currentType + "/" + user.getUid() + "/" + uniqueId + ".jpg");
 
         //Get Full Image
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -356,13 +371,15 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                     tempUser.setTitlePicture(fullSnapshot.getDownloadUrl().toString());
                     titleImage.setImageBitmap(uploadBitmap);
                 }
-                loading(false);
+                submitButtonBig.setEnabled(true);
+                progressBar.setVisibility(GONE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_SHORT).show();
-                loading(false);
+                submitButtonBig.setEnabled(true);
+                progressBar.setVisibility(GONE);
             }
         });
     }
@@ -411,7 +428,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
      * Save Updated Channel to Server Queue for further processing
      */
     private void saveChannel() {
-        loadingSubmit(true);
+        loading(true);
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -453,7 +470,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), R.string.editing_channel_failure, Toast.LENGTH_LONG).show();
-                loadingSubmit(false);
+                loading(false);
             }
         });
 
@@ -466,27 +483,27 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         dialogFragment.show(getActivity().getSupportFragmentManager(), "dialog");
     }
 
-    private void loadingSubmit(boolean loading) {
-        this.loading = true;
+    private void loading(boolean loading) {
+
+        this.loading = loading;
 
         if (loading) {
             getProfileImage.setEnabled(false);
             getTitleImage.setEnabled(false);
+            userName.setEnabled(false);
+            status.setEnabled(false);
+            info.setEnabled(false);
             submitButtonBig.loading(true);
         } else {
             submitButtonBig.loading(false);
             getProfileImage.setEnabled(true);
             getTitleImage.setEnabled(true);
-        }
-    }
-
-    private void loading(boolean loading) {
-        this.loading = loading;
-        if (loading) {
-            Utilities.animateView(progressOverlay, View.VISIBLE, 0.4f, 200);
-        } else {
-            Utilities.animateView(progressOverlay, View.GONE, 0, 200);
-            progressBar.setProgress(0);
+            userName.setEnabled(true);
+            status.setEnabled(true);
+            info.setEnabled(true);
+            if (progressBar != null) {
+                progressBar.setVisibility(GONE);
+            }
         }
     }
 

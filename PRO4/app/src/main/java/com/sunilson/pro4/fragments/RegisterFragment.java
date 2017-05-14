@@ -3,7 +3,6 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,20 +41,9 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @BindView(R.id.registerFragment_password2)
     EditText passwordEditText2;
 
-    @BindView(R.id.registerFragment_email_layout)
-    TextInputLayout emailEditTextLayout;
-
-    @BindView(R.id.registerFragment_password_layout)
-    TextInputLayout passwordEditTextLayout;
-
-    @BindView(R.id.registerFragment_password2_layout)
-    TextInputLayout passwordEditText2Layout;
-
-    @BindView(R.id.registerFragment_submit)
+    @BindView(R.id.submit_button)
     Button registerButton;
 
-    @BindView(R.id.progress_overlay)
-    View progressOverlay;
 
     private String registerUsername = "Default Username";
     private FirebaseAuth mAuth;
@@ -88,7 +76,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.registerFragment_submit:
+            case R.id.submit_button:
                 loading(true);
                 createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText2.getText().toString());
                 break;
@@ -108,13 +96,13 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         //TODO Test Username and Password/Email
 
         if (password.isEmpty()) {
-            passwordEditTextLayout.setError(getString(R.string.password_empty));
+            //passwordEditTextLayout.setError(getString(R.string.password_empty));
             loading(false);
         } else if (password2.isEmpty()) {
-            passwordEditText2Layout.setError(getString(R.string.password_empty));
+            //passwordEditText2Layout.setError(getString(R.string.password_empty));
             loading(false);
         } else if (!password.equals(password2)) {
-            passwordEditText2Layout.setError(getString(R.string.password_match));
+            //passwordEditText2Layout.setError(getString(R.string.password_match));
             loading(false);
         } else {
             AuthCredential credential = EmailAuthProvider.getCredential(email, password);
@@ -179,9 +167,9 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
 
     private void loading(boolean loading){
         if (loading) {
-            progressOverlay.setVisibility(View.VISIBLE);
+            //progressOverlay.setVisibility(View.VISIBLE);
         } else {
-            progressOverlay.setVisibility(View.GONE);
+            //progressOverlay.setVisibility(View.GONE);
         }
     }
 }

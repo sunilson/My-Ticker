@@ -23,11 +23,15 @@ public class Constants {
     public static final String USERS_PATH = "users";
     public static final String EDIT_CHANNEL_IMAGE_TYPE_PROFILE = "profile";
     public static final String EDIT_CHANNEL_IMAGE_TYPE_TITLE = "title";
+    public static final String SHARED_PREF_TAG = "prefs";
+    public static final String SHARED_PREF_KEY_EMAILS = "emails";
     public static final int PICK_IMAGE_DIALOG_REQUEST_CODE = 2;
     public static final int PICK_IMAGE_DIALOG_RESULT_CAMERA = 3;
     public static final int PICK_IMAGE_DIALOG_RESULT_GALLERY = 4;
     public static final int PICTURE_DIALOG_REQUEST_CODE = 5;
     public static final int PICTURE_DIALOG_CROP_REQUEST_CODE = 23;
+    public static final int CONFIRM_DIALOG_REQUEST = 30;
+    public static final int CONFIRM_DIALOG_SUCCESS = 31;
     public static final int PICTURE_DIALOG_RESULT_CODE_SUCCESS = 6;
     public static final int PICTURE_DIALOG_RESULT_CODE_FAILURE = 7;
     public static final int PICTURE_DIALOG__CROP_RESULT_CODE_FAILURE = 24;
@@ -43,4 +47,6 @@ public class Constants {
     public static final int TITLE_IMAGE_MIN_WIDTH = 720;
     public static final int TITLE_IMAGE_MAX_HEIGHT= 900;
     public static final int TITLE_IMAGE_MIN_HEIGHT = 281;
+    public static final int ADD_LIVETICKER_REQUEST_CODE = 40;
+    public static final int ADD_LIVETICKER_RESULT_CODE = 41;
 }

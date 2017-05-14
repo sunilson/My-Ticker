@@ -2,20 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunilson.pro4">
 
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <application
-        android:allowBackup="true"
         android:name="com.sunilson.pro4.BaseApplication"
-        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -32,6 +31,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,6 +42,7 @@
         <activity
             android:name=".activities.AddLivetickerActivity"
             android:label="@string/title_activity_add_liveticker"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activities.BaseActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -51,40 +52,55 @@
         <activity
             android:name=".activities.AuthenticationActivity"
             android:label="@string/title_activity_authentication"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.LivetickerActivity"
             android:label="@string/title_activity_liveticker"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="firenote.at"/>
-                <data android:pathPattern="/.*"/>
+
+                <data
+                    android:host="firenote.at"
+                    android:scheme="https" />
+                <data android:pathPattern="/liveticker/.*" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activities.ChannelActivity"
             android:label="@string/title_activity_channel"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
-        <service
-            android:name=".services.MyFirebaseInstanceIDService">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="firenote.at"
+                    android:scheme="https" />
+                <data android:pathPattern="/channel/.*" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Base.Theme.AppCompat" />
+
+        <service android:name=".services.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".services.MyFirebaseMessagingService">
+        <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
     </application>
-
-
-
-
 </manifest>

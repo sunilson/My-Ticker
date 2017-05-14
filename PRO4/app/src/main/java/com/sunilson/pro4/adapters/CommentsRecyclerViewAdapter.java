@@ -68,7 +68,7 @@ public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
         }
 
         if (comment.getProfilePicture() != null) {
-            DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
+            DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.profile_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
             StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(comment.getProfilePicture());
             Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(ctx)).crossFade().into(vh.profilePicture);
         }

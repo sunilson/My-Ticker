@@ -1,22 +1,27 @@
 package com.sunilson.pro4.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +37,7 @@ import com.sunilson.pro4.dialogFragments.LivetickerPictureViewDialog;
 import com.sunilson.pro4.utilities.Constants;
 import com.sunilson.pro4.utilities.Utilities;
 import com.sunilson.pro4.views.ChannelViewPager;
+import com.sunilson.pro4.views.SubscribeButton;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,15 +47,17 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
  * @author Linus Weiss
  */
 
-public class ChannelFragment extends BaseFragment {
+public class ChannelFragment extends BaseFragment implements View.OnClickListener {
 
     private String authorID;
-    private DatabaseReference userRef;
-    private ValueEventListener userListener;
+    private DatabaseReference userRef, subscriptionReference;
+    private ValueEventListener userListener, subscriptionListener;
+    private FirebaseAuth.AuthStateListener authStateListener;
     private FeedRecyclerViewAdapter adapter;
     private ChannelFragmentPagerAdapter fragmentPagerAdapter;
     private User user;
-    private boolean started;
+    private FirebaseUser firebaseUser;
+    private boolean started, subscribed;
     private int loading = 0;
 
     @BindView(R.id.fragment_channel_container)
@@ -82,8 +90,11 @@ public class ChannelFragment extends BaseFragment {
     @BindView(R.id.fragment_channel_viewpager)
     ChannelViewPager viewPager;
 
-    @BindView(R.id.toolbar_channel)
-    Toolbar toolbar;
+    @BindView(R.id.subscribe_button_view)
+    SubscribeButton subscribeButtonView;
+
+    @BindView(R.id.subscribe_button)
+    Button subscribeButton;
 
     public static ChannelFragment newInstance(String authorID) {
         Bundle args = new Bundle();
@@ -100,6 +111,7 @@ public class ChannelFragment extends BaseFragment {
             started = true;
 
             userRef.addListenerForSingleValueEvent(userListener);
+            FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
 
             titlePicture.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
@@ -126,6 +138,15 @@ public class ChannelFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (authStateListener != null) {
+            FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -135,19 +156,55 @@ public class ChannelFragment extends BaseFragment {
         authorID = getArguments().getString("authorID");
         userRef = FirebaseDatabase.getInstance().getReference("users/" + authorID);
         initializeUserListener();
+        initializeSubscriptionListener();
+        initializeAuthListener();
+
+        subscribeButton.setOnClickListener(this);
 
         viewPager.setAdapter(fragmentPagerAdapter = new ChannelFragmentPagerAdapter(getActivity().getSupportFragmentManager(), getActivity(), authorID));
         tabLayout.setupWithViewPager(viewPager);
 
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().finish();
-            }
-        });
-
         return view;
+    }
+
+    private void initializeSubscriptionListener() {
+        subscriptionListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    subscribeButtonView.updateStatus(true);
+                    subscribed = true;
+                } else {
+                    subscribeButtonView.updateStatus(false);
+                    subscribed = false;
+                }
+                //checkLoading();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
+    private void initializeAuthListener() {
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                if (firebaseUser != null && !firebaseUser.isAnonymous() && !firebaseUser.getUid().equals(authorID)) {
+                    if (subscriptionReference != null && subscriptionListener != null) {
+                        subscriptionReference.removeEventListener(subscriptionListener);
+                    }
+
+                    //Start new listener
+                    subscriptionReference = FirebaseDatabase.getInstance().getReference("subscriptions/" + authorID + "/" + firebaseUser.getUid());
+                    subscriptionReference.addValueEventListener(subscriptionListener);
+                }
+            }
+        };
     }
 
     private void initializeUserListener() {
@@ -187,7 +244,6 @@ public class ChannelFragment extends BaseFragment {
         if (user.getProfilePicture() != null) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.getProfilePicture());
             Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference).bitmapTransform(new CropCircleTransformation(getContext())).crossFade().into(profilePicture);
-
             profilePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -199,7 +255,6 @@ public class ChannelFragment extends BaseFragment {
         }
 
         if (user.getUserName() != null) {
-            getActivity().setTitle(user.getUserName());
             userName.setText(user.getUserName());
         }
 
@@ -214,5 +269,39 @@ public class ChannelFragment extends BaseFragment {
         }
 
         */
+    }
+
+    public void subscribeToAuthor() {
+        if (firebaseUser != null && authorID != null) {
+            subscribeButtonView.loading(true);
+            if (!subscribed) {
+                DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("subscribedTo/" + firebaseUser.getUid() + "/" + authorID);
+                dRef.setValue(true).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), R.string.subscribe_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("subscribedTo/" + firebaseUser.getUid() + "/" + authorID);
+                dRef.removeValue().addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), R.string.unsubscribe_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.subscribe_button:
+                if (firebaseUser != null && !firebaseUser.isAnonymous()) {
+                    subscribeToAuthor();
+                }
+                break;
+        }
     }
 }

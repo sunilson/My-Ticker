@@ -1,11 +1,11 @@
 package com.sunilson.pro4.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -14,6 +14,8 @@ import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.ChannelFragment;
 import com.sunilson.pro4.fragments.EditChannelFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,6 +38,7 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle(getString(R.string.channel));
 
         ButterKnife.bind(this);
 
@@ -43,7 +46,20 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
         String type = i.getStringExtra("type");
 
         if (type == null) {
-
+            Uri data = i.getData();
+            List<String> params = data.getPathSegments();
+            if (params != null) {
+                if (params.get(1) != null) {
+                    String id = params.get(1);
+                    if (!id.isEmpty()) {
+                        replaceFragment(ChannelFragment.newInstance(id), "view");
+                    } else {
+                        finish();
+                    }
+                } else {
+                    finish();
+                }
+            }
         } else if (type.equals("editChannel")) {
             replaceFragment(EditChannelFragment.newInstance(), "edit");
         } else if (type.equals("firstLogin")) {
@@ -51,7 +67,6 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
         } else if (type.equals("view")) {
             String authorID = i.getStringExtra("authorID");
             if (authorID != null) {
-                appBarLayout.setVisibility(View.GONE);
                 replaceFragment(ChannelFragment.newInstance(authorID), "view");
             } else {
                 finish();
@@ -61,7 +76,6 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
     @Override
     protected void authChanged(FirebaseUser user) {
-
         if (user != null) {
             if (currentFragment.equals("edit")) {
                 if (user.isAnonymous()) {

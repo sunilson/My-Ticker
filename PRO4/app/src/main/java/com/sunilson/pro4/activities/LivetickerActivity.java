@@ -7,6 +7,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,6 +22,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.view.View.GONE;
 
 public class LivetickerActivity extends BaseActivity implements CanChangeFragment, View.OnClickListener {
 
@@ -59,15 +62,25 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
                 Uri data = i.getData();
                 List<String> params = data.getPathSegments();
                 if (params != null) {
-                    if (params.get(1) != null) {
+                    if (params.get(1) != null && !params.get(1).isEmpty()) {
                         String id = params.get(1);
                         this.livetickerID = id;
+                    } else {
+                        finish();
                     }
+                } else {
+                    finish();
                 }
             }
 
-            replaceFragment(LivetickerFragment.newInstance(livetickerID), Constants.FRAGMENT_LIVETICKER_TAG);
+            currentFragment = Constants.FRAGMENT_LIVETICKER_TAG;
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, LivetickerFragment.newInstance(livetickerID), Constants.FRAGMENT_LIVETICKER_TAG).commit();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -84,19 +97,15 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     public void replaceFragment(Fragment fragment, String tag) {
         currentFragment = tag;
 
-        if (tag.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).addToBackStack(null).commit();
-        } else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, fragment, tag).commit();
-        }
+        findViewById(R.id.fragment_liveticker_input_layout).setVisibility(GONE);
+        findViewById(R.id.fragment_comments_input_layout).setVisibility(GONE);
 
-        if (tag.equals(Constants.FRAGMENT_LIVETICKER_TAG)) {
-            //fab.setVisibility(View.VISIBLE);
+        if (tag.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).add(R.id.content_liveticker, fragment, tag).addToBackStack(null).commit();
         } else {
-            //fab.setVisibility(View.GONE);
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right).replace(R.id.content_liveticker, fragment, tag).commit();
         }
     }
-
 
     public void updateLivetickerState(String value) {
         if (value.equals(Constants.LIVETICKER_NOT_STARTED_STATE)) {
@@ -104,7 +113,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         } else if (value.equals(Constants.LIVETICKER_STARTED_STATE)) {
             statusImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.state_started));
         } else {
-
+            statusImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.state_finished));
         }
     }
 
@@ -112,9 +121,15 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         this.title.setText(title);
     }
 
+
     @Override
     public void onBackPressed() {
+        if (currentFragment.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
+            findViewById(R.id.fragment_comments_input_layout).setVisibility(GONE);
+        }
+
         super.onBackPressed();
+
     }
 
     @Override

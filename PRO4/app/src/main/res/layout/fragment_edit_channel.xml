@@ -5,9 +5,15 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <!-- Progress bar overlay; shown while login is in progress -->
+    <include layout="@layout/progress_overlay" />
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -133,6 +139,16 @@
                     android:layout_marginBottom="-15dp"
                     android:layout_marginRight="-15dp" />
             </RelativeLayout>
+            <ProgressBar
+                android:id="@+id/fragment_edit_channel_profile_picture_progress"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:theme="@style/LinearProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_marginBottom="10dp"
+                android:progress="0" />
 
             <TextView
                 style="@style/DescriptionTitle"
@@ -173,13 +189,20 @@
                     android:layout_marginBottom="-15dp"
                     android:layout_marginRight="-15dp" />
             </RelativeLayout>
+            <ProgressBar
+                android:id="@+id/fragment_edit_channel_title_picture_progress"
+                android:theme="@style/LinearProgress"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="visible"
+                android:layout_marginBottom="20dp"
+                android:progress="0" />
 
             <include layout="@layout/big_submit_button_with_progress" />
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/progress_overlay" />
 
 </RelativeLayout>

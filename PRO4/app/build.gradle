@@ -41,6 +41,7 @@ dependencies {
     compile 'jp.wasabeef:glide-transformations:2.0.2'
     compile 'com.github.chrisbanes:PhotoView:+'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile 'jp.wasabeef:recyclerview-animators:2.2.6'
 
     testCompile 'junit:junit:4.12'
 }

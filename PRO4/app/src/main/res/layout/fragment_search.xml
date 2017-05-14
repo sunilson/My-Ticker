@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:background="@color/livetickerBackground"
     android:fillViewport="true">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -30,11 +31,8 @@
             android:layout_height="0px"
             android:layout_weight="1"
             android:text="@string/start_search"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:gravity="center"
+            style="@style/placeholder_text"
             android:layout_marginBottom="?actionBarSize"
-            android:textColor="@color/text_background"
             />
 
         <android.support.v7.widget.RecyclerView

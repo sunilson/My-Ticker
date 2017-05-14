@@ -1,12 +1,15 @@
 package com.sunilson.pro4.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -21,6 +24,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
+import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.views.SubmitButtonBig;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,26 +42,22 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    @BindView(R.id.loginFragment_email_layout)
-    TextInputLayout emailLayout;
-
-    @BindView(R.id.loginFragment_password_layout)
-    TextInputLayout passwordLayout;
 
     @BindView(R.id.loginFragment_email)
-    EditText emailEditText;
+    AutoCompleteTextView emailEditText;
 
     @BindView(R.id.loginFragment_password)
     EditText passwordEditText;
 
-    @BindView(R.id.loginFragment_Submit)
+    @BindView(R.id.submit_button)
     Button loginButton;
+
+    @BindView(R.id.submit_button_view)
+    SubmitButtonBig loginButtonView;
 
     @BindView(R.id.loginFragment_register)
     Button registerButton;
 
-    @BindView(R.id.progress_overlay)
-    View progressOverlay;
 
     /**
      * Create new Login Fragment
@@ -69,9 +73,20 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         unbinder = ButterKnife.bind(this, view);
+        loginButtonView.setText(getString(R.string.login), getString(R.string.logging_in));
         loginButton.setOnClickListener(this);
         registerButton.setOnClickListener(this);
         loading(false);
+
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
+
+        Set<String> set = sharedPreferences.getStringSet(Constants.SHARED_PREF_KEY_EMAILS, null);
+        if (set != null) {
+            String[] array = set.toArray(new String[set.size()]);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, array);
+            emailEditText.setAdapter(adapter);
+        }
+
         return view;
     }
 
@@ -87,7 +102,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.loginFragment_Submit:
+            case R.id.submit_button:
                 loading(true);
                 emailLogin(emailEditText.getText().toString(), passwordEditText.getText().toString());
                 break;
@@ -143,12 +158,24 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
         //TODO Passwort und Email prüfen
 
         if (email.isEmpty()) {
-            emailLayout.setError("Email can't be empty");
+            //emailLayout.setError("Email can't be empty");
             loading(false);
         } else if (password.isEmpty()) {
-            passwordLayout.setError("Password can't be empty!");
+            //passwordLayout.setError("Password can't be empty!");
             loading(false);
         } else {
+
+            SharedPreferences sharedPreferences = getContext().getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            Set<String> set = sharedPreferences.getStringSet(Constants.SHARED_PREF_KEY_EMAILS, null);
+            if (set == null) {
+                set = new HashSet<>();
+            }
+
+            set.add(email);
+            editor.putStringSet(Constants.SHARED_PREF_KEY_EMAILS, set).commit();
+
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -163,9 +190,9 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener{
 
     private void loading(boolean loading) {
         if (loading) {
-            progressOverlay.setVisibility(View.VISIBLE);
+            loginButtonView.loading(true);
         } else {
-            progressOverlay.setVisibility(View.GONE);
+            loginButtonView.loading(false);
         }
     }
 }

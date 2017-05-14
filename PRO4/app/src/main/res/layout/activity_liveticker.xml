@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
+    android:animateLayoutChanges="true"
     android:fitsSystemWindows="false">
 
     <android.support.design.widget.AppBarLayout
@@ -18,7 +19,7 @@
             android:id="@+id/liveticker_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <LinearLayout
@@ -64,16 +65,74 @@
                         android:background="@android:color/transparent"
                         android:ellipsize="end"
                         android:maxLines="1"
+                        android:text="@string/no_status"
                         android:textSize="12sp"
                         android:gravity="center_vertical"
                         android:visibility="gone"
                         android:singleLine="true"
                         />
                 </LinearLayout>
-
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_liveticker" />
+
+
+
+    <LinearLayout
+        android:id="@+id/fragment_liveticker_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/livetickerBackground"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="3dp"
+        android:visibility="gone">
+
+        <include layout="@layout/liveticker_input" />
+
+        <ImageButton
+            android:id="@+id/fragment_liveticker_send_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/liveticker_input_send_button_background"
+            android:elevation="6dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fragment_comments_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:background="@color/livetickerBackground"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:visibility="gone"
+        android:paddingTop="3dp">
+
+        <EditText
+            android:id="@+id/fragment_comments_input"
+            style="@style/LivetickerInputWithoutCamera"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:minHeight="50dp" />
+
+        <ImageButton
+            android:id="@+id/fragment_comments_send_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/liveticker_input_send_button_background"
+            android:elevation="6dp" />
+
+    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

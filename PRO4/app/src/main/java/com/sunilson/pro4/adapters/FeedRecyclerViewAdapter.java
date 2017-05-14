@@ -16,6 +16,7 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.activities.ChannelActivity;
 import com.sunilson.pro4.activities.LivetickerActivity;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.utilities.Constants;
@@ -34,6 +35,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     private List<Liveticker> data = new ArrayList<>();
     private Context ctx;
     private final View.OnClickListener mOnclickListener = new FeedClickListener();
+    private final View.OnClickListener authorClickListener = new AuthorClickListener();
     private RecyclerView recyclerView;
 
     public FeedRecyclerViewAdapter(RecyclerView recyclerView, Context context) {
@@ -62,6 +64,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_recyclerview_element, parent, false);
+        v.findViewById(R.id.feed_recyclerview_element_author_container).setOnClickListener(authorClickListener);
         v.setOnClickListener(mOnclickListener);
         return new ViewHolder(v);
     }
@@ -92,7 +95,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
         vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
 
         if (liveticker.getProfilePicture() != null) {
-            DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.default_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
+            DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.profile_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
             StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(liveticker.getProfilePicture());
             Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(ctx)).crossFade().into(vh.profilePicture);
         }
@@ -109,7 +112,6 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     }
 
     private class FeedClickListener implements View.OnClickListener {
-
         @Override
         public void onClick(View view) {
             int pos = recyclerView.getChildLayoutPosition(view);
@@ -117,6 +119,22 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             Intent i = new Intent(ctx, LivetickerActivity.class);
             i.putExtra("livetickerID", element.getLivetickerID());
             ctx.startActivity(i);
+        }
+    }
+
+    private class AuthorClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            View parent =  (View)(view.getParent()).getParent();
+            int pos = recyclerView.getChildLayoutPosition(parent);
+            Liveticker element = data.get(pos);
+            if (element.getAuthorID() != null) {
+                Intent i = new Intent(ctx, ChannelActivity.class);
+                i.putExtra("type", "view");
+                i.putExtra("authorID", element.getAuthorID());
+                ctx.startActivity(i);
+            }
         }
     }
 

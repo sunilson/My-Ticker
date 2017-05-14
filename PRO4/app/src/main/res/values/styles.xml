@@ -29,6 +29,15 @@
 
     </style>
 
+    <style name="dialog">
+        <item name="android:windowAnimationStyle">@style/dialogAnimation</item>
+    </style>
+
+    <style name="dialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/anim_in</item>
+        <item name="android:windowExitAnimation">@anim/anim_out</item>
+    </style>
+
     <style name="WhiteProgressBar" parent="ThemeOverlay.AppCompat.Light">
         <item name="colorAccent">@color/white</item>
     </style>
@@ -67,6 +76,7 @@
         <item name="android:textColorHint">@color/disabled_text</item>
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:drawablePadding">10dp</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="BigEditText">
@@ -79,6 +89,7 @@
         <item name="android:textColorHint">@color/disabled_text</item>
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:paddingLeft">15dp</item>
+        <item name="android:scrollbars">vertical</item>
     </style>
 
     <style name="LivetickerInput">
@@ -87,7 +98,9 @@
         <item name="android:drawableLeft">@drawable/input_drawable_left</item>
         <item name="android:drawableStart">@drawable/input_drawable_left</item>
         <item name="android:paddingLeft">10dp</item>
+        <item name="android:maxLines">5</item>
         <item name="android:paddingRight">50dp</item>
+        <item name="android:scrollbars">vertical</item>
         <item name="android:background">@drawable/liveticker_input_background</item>
         <item name="android:hint">@string/liveticker_input_placeholder</item>
         <item name="android:textColorHint">@color/disabled_text</item>
@@ -100,6 +113,18 @@
 
     <style name="expandedAppBar" parent="@android:style/TextAppearance">
         <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="LinearProgress" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:progressBackgroundTint">@color/white</item>
+    </style>
+
+    <style name="placeholder_text">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/disabled_text</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

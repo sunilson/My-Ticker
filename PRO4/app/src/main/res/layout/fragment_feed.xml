@@ -1,30 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_feed_swipe_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:background="@color/livetickerBackground">
+    android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:id="@+id/feed_fragment_loading_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ProgressBar
-                android:id="@+id/feed_fragment_progress"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+        android:animateLayoutChanges="true"
+        android:background="@color/livetickerBackground">
 
         <LinearLayout
             android:id="@+id/feed_fragment_content_container"
@@ -53,6 +37,16 @@
                     android:id="@+id/feed_fragment_ownLivetickers_recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="@string/nothing_here"
+                    style="@style/placeholder_text"
+                    android:id="@+id/feed_fragment_ownLivetickers_placeholder"
+                    android:visibility="gone"
+                    />
 
             </LinearLayout>
 
@@ -74,6 +68,16 @@
                     android:id="@+id/feed_fragment_recentlyVisited_recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    style="@style/placeholder_text"
+                    android:text="@string/nothing_here"
+                    android:id="@+id/feed_fragment_recentlyVisted_placeholder"
+                    android:visibility="gone"
+                    />
             </LinearLayout>
 
             <LinearLayout
@@ -94,7 +98,18 @@
                     android:id="@+id/feed_fragment_subscriptionLivetickers_recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/feed_fragment_subscriptionLIvetickers_placeholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/placeholder_text"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="@string/nothing_here"
+                    android:visibility="gone"
+                    />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+
+    </android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

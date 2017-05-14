@@ -5,17 +5,17 @@
     <item
         android:id="@+id/feed_menu_refresh"
         android:orderInCategory="100"
-        android:title="Refresh"
+        android:title="@string/refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/main_menu_login"
         android:orderInCategory="300"
-        android:title="Login"
+        android:title="@string/login"
         app:showAsAction="never" />
     <item
         android:id="@+id/main_menu_logOut"
         android:orderInCategory="400"
-        android:title="Log out"
+        android:title="@string/logout"
         app:showAsAction="never" />
 </menu>

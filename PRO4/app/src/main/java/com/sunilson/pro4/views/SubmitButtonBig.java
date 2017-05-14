@@ -18,9 +18,14 @@ public class SubmitButtonBig extends RelativeLayout {
     private ProgressBar progressBar;
     private TextView textView;
     private Button button;
+    private String textNormal, textLoading;
+    private boolean loadingState = false;
 
     public SubmitButtonBig(Context context) {
         super(context);
+
+        this.textNormal = context.getString(R.string.channel_edit_save);
+        this.textLoading = context.getString(R.string.loading);
     }
 
     public SubmitButtonBig(Context context, AttributeSet attrs) {
@@ -40,7 +45,23 @@ public class SubmitButtonBig extends RelativeLayout {
         button = (Button) findViewById(R.id.submit_button);
     }
 
+    public void setText(String textNormal, String textLoading) {
+        this.textNormal = textNormal;
+        this.textLoading = textLoading;
+        setTextView();
+    }
+
+    private void setTextView () {
+        if(loadingState) {
+            textView.setText(this.textLoading);
+        } else {
+            textView.setText(this.textNormal);
+        }
+    }
+
     public void loading(boolean loading) {
+        loadingState = loading;
+        setTextView();
         if(loading) {
             progressBar.setVisibility(VISIBLE);
             button.setEnabled(false);

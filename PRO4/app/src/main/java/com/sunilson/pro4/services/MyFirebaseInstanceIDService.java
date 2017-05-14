@@ -2,6 +2,10 @@ package com.sunilson.pro4.services;
 
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.sunilson.pro4.utilities.Constants;
@@ -17,6 +21,12 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         super.onTokenRefresh();
 
         String token = FirebaseInstanceId.getInstance().getToken();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && !user.isAnonymous() && user.isEmailVerified()) {
+            DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("registrationTokens/" + user.getUid()).push();
+            dRef.setValue(token);
+        }
+
         Log.i(Constants.LOGGING_TAG, token);
     }
 }
