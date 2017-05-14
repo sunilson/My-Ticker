@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +57,7 @@ public class CommentsFragment extends BaseFragment {
     private CommentsRecyclerViewAdapter adapter;
     private EditText commentInput;
     private ImageButton sendButton;
+    private RelativeLayout commentInputLoading;
 
     @BindView(R.id.fragment_comments_placeholder)
     TextView placeholder;
@@ -85,6 +87,7 @@ public class CommentsFragment extends BaseFragment {
         unbinder = ButterKnife.bind(this, view);
 
         commentInput = (EditText) getActivity().findViewById(R.id.fragment_comments_input);
+        commentInputLoading = (RelativeLayout) getActivity().findViewById(R.id.fragment_comments_input_loading_container);
         getActivity().findViewById(R.id.fragment_liveticker_input_layout).setVisibility(View.GONE);
         getActivity().findViewById(R.id.fragment_comments_input_layout).setVisibility(View.VISIBLE);
         sendButton = (ImageButton) getActivity().findViewById(R.id.fragment_comments_send_button);
@@ -154,6 +157,7 @@ public class CommentsFragment extends BaseFragment {
                     if (dataSnapshot.getChildrenCount() > 0) {
                         Log.i(Constants.LOGGING_TAG, dataSnapshot.getValue().toString());
                         if (dataSnapshot.child("state").getValue().toString().equals("success")) {
+                            loadAddingComment(false);
                             commentInput.setText("");
                             ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
                             requestComments();
@@ -238,11 +242,22 @@ public class CommentsFragment extends BaseFragment {
 
     private void loading(boolean loading) {
         if (loading) {
+
             container.setVisibility(View.GONE);
             swipeRefreshLayout.setRefreshing(true);
         } else {
             container.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void loadAddingComment(boolean loading) {
+        if (loading) {
+            commentInputLoading.setVisibility(View.VISIBLE);
+            commentInput.setEnabled(false);
+        } else {
+            commentInputLoading.setVisibility(View.GONE);
+            commentInput.setEnabled(true);
         }
     }
 
@@ -276,6 +291,7 @@ public class CommentsFragment extends BaseFragment {
         String commentText = commentInput.getText().toString().trim();
         if (!commentText.isEmpty()) {
             if (user != null && user.isEmailVerified()) {
+                loadAddingComment(true);
                 final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/addComment").push();
                 Map<String, Object> map = new HashMap<>();
                 map.put("authorID", user.getUid());
@@ -293,6 +309,7 @@ public class CommentsFragment extends BaseFragment {
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        loadAddingComment(false);
                         Toast.makeText(getContext(), R.string.comment_post_failure, Toast.LENGTH_SHORT).show();
                     }
                 });
