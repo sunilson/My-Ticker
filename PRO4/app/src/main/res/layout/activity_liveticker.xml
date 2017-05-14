@@ -118,14 +118,43 @@
         android:visibility="gone"
         android:paddingTop="3dp">
 
-        <EditText
-            android:id="@+id/fragment_comments_input"
-            style="@style/LivetickerInputWithoutCamera"
+        <RelativeLayout
             android:layout_width="0px"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:minHeight="50dp" />
+            android:animateLayoutChanges="true"
+            >
+            <EditText
+                android:id="@+id/fragment_comments_input"
+                style="@style/LivetickerInputWithoutCamera"
+                android:layout_width="match_parent"
+                android:layout_centerInParent="true"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/fragment_comments_input_loading_container"
+                android:visibility="gone"
+                >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/disabled_edittext_overlay"
+                    />
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="15dp"
+                    android:indeterminate="true"/>
+            </RelativeLayout>
+        </RelativeLayout>
+
 
         <ImageButton
             android:id="@+id/fragment_comments_send_button"
