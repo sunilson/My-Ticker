@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.ChannelArchiveFragment;
+import com.sunilson.pro4.fragments.ChannelInfoFragment;
 import com.sunilson.pro4.fragments.ChannelLiveFragment;
 import com.sunilson.pro4.views.ChannelViewPager;
 
@@ -39,7 +40,7 @@ public class ChannelFragmentPagerAdapter extends FragmentPagerAdapter {
             case 1:
                 return ChannelArchiveFragment.newInstance(authorID);
             case 2:
-                return ChannelLiveFragment.newInstance(authorID);
+                return ChannelInfoFragment.newInstance(authorID);
             default:
                 return ChannelLiveFragment.newInstance(authorID);
         }
