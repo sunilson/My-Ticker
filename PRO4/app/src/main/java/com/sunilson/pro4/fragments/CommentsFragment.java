@@ -255,9 +255,11 @@ public class CommentsFragment extends BaseFragment {
         if (loading) {
             commentInputLoading.setVisibility(View.VISIBLE);
             commentInput.setEnabled(false);
+            sendButton.setEnabled(false);
         } else {
             commentInputLoading.setVisibility(View.GONE);
             commentInput.setEnabled(true);
+            sendButton.setEnabled(true);
         }
     }
 

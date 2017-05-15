@@ -88,13 +88,9 @@ import static android.view.View.VISIBLE;
 
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
-    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference, authorReference, likeReference;
+    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference, likeReference, eventResultReference;
     private ChildEventListener livetickerContentListener;
-    private ValueEventListener livetickerListener;
-    private ValueEventListener authorListener;
-    private ValueEventListener subscriptionListener;
-    private ValueEventListener likedListener;
-    private FirebaseAuth.AuthStateListener authStateListener;
+    private ValueEventListener livetickerListener, authorListener, subscriptionListener, likedListener, eventResultListener;
     private Liveticker liveticker;
     private User author;
     private FirebaseStorage storage;
@@ -108,6 +104,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private ImageButton cameraButton, sendButton;
     private TextView commentCount;
     private FrameLayout redCircle;
+    private RelativeLayout textInputLoading;
 
 
     @BindView(R.id.fragment_liveticker_recyclerView)
@@ -196,6 +193,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         initializeAuthorListener();
         initializeSubscriptionListener();
         initializeLikedListener();
+        initializeEventResultListener();
         setHasOptionsMenu(true);
     }
 
@@ -233,6 +231,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             likeReference.removeEventListener(likedListener);
         }
 
+        if (eventResultReference != null && eventResultListener != null) {
+            eventResultReference.removeEventListener(eventResultListener);
+        }
+
         loading(false);
     }
 
@@ -246,6 +248,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         inputLayout = (LinearLayout) getActivity().findViewById(R.id.fragment_liveticker_input_layout);
         cameraButton = (ImageButton) getActivity().findViewById(R.id.fragment_liveticker_camera_button);
         sendButton = (ImageButton) getActivity().findViewById(R.id.fragment_liveticker_send_button);
+        textInputLoading = (RelativeLayout) getActivity().findViewById(R.id.fragment_liveticker_input_loading_container);
 
         setupClickListeners();
 
@@ -322,7 +325,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        ;
         switch (requestCode) {
             //Result from Camera Activity with the captured picture
             case Constants.PICTURE_DIALOG_REQUEST_CODE:
@@ -454,14 +458,16 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private void createTextEvent() {
         //TODO Text important?
 
-        LivetickerEvent event = new LivetickerEvent();
-        event.setType("text");
-        try {
-            event.setContent(textInput.getText().toString());
-        } catch (LivetickerEventSetException e) {
-            e.printStackTrace();
+        if (!textInput.getText().toString().isEmpty() && !liveticker.getState().equals(Constants.LIVETICKER_NOT_STARTED_STATE)) {
+            LivetickerEvent event = new LivetickerEvent();
+            event.setType("text");
+            try {
+                event.setContent(textInput.getText().toString());
+            } catch (LivetickerEventSetException e) {
+                e.printStackTrace();
+            }
+            addEventToDatabase(event);
         }
-        addEventToDatabase(event);
     }
 
     /**
@@ -470,6 +476,14 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
      * @param event Finished Event
      */
     private void addEventToDatabase(final LivetickerEvent event) {
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        loadingAddingNewEvent(true);
+
+        if (user == null) {
+            return;
+        }
+
         Map<String, Object> map = new HashMap<>();
 
         map.put("authorID", liveticker.getAuthorID());
@@ -483,19 +497,23 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             map.put("caption", event.getCaption());
         }
 
-        final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("contents/" + liveticker.getLivetickerID()).push();
+        final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/addLivetickerEvent/").push();
         dRef.setValue(map).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                loadingAddingNewEvent(false);
                 Toast.makeText(getActivity(), R.string.add_liveticker_event_failure, Toast.LENGTH_LONG).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                if (event.getType().equals("text")) {
-                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(textInput.getWindowToken(), 0);
-                    textInput.setText("");
+
+                if (eventResultReference != null) {
+                    eventResultReference.removeEventListener(eventResultListener);
                 }
+
+                eventResultReference = FirebaseDatabase.getInstance().getReference("result/" + user.getUid() + "/addLivetickerEvent/" + dRef.getKey());
+                eventResultReference.addValueEventListener(eventResultListener);
             }
         });
     }
@@ -522,9 +540,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     private void loadingAddingNewEvent(boolean loading) {
         if (loading) {
-            Utilities.animateView(progressOverlay, View.VISIBLE, 0.4f, 200);
+            textInputLoading.setVisibility(VISIBLE);
+            sendButton.setEnabled(false);
         } else {
-            Utilities.animateView(progressOverlay, View.GONE, 0, 200);
+            textInputLoading.setVisibility(GONE);
+            sendButton.setEnabled(true);
         }
     }
 
@@ -635,6 +655,24 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         };
     }
 
+    private void initializeEventResultListener() {
+        eventResultListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null && dataSnapshot.child("state") != null && dataSnapshot.child("state").getValue().toString().equals("success")) {
+                    loadingAddingNewEvent(false);
+                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(textInput.getWindowToken(), 0);
+                    textInput.setText("");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
     private void initializeLivetickerListener() {
         livetickerListener = new ValueEventListener() {
             @Override
@@ -653,7 +691,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     }
 
                     if (oldCommentCount != liveticker.getCommentCount()) {
-                        updateCommentIcon(liveticker.getCommentCount()-oldCommentCount);
+                        updateCommentIcon(liveticker.getCommentCount() - oldCommentCount);
                     }
 
                     //Start subscription listener
@@ -861,6 +899,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         switch (item.getItemId()) {
             case R.id.liveticker_menu_comments:
                 openCommentSection();
+                break;
+            case R.id.liveticker_menu_share:
+                DialogFragment dialog = ShareDialog.newInstance("https://firenote.at/liveticker/" + liveticker.getLivetickerID());
+                dialog.show(getFragmentManager(), "dialog");
                 break;
         }
         return super.onOptionsItemSelected(item);

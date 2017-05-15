@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/livetickerBackground"
     android:id="@+id/fragment_comments_refresh_layout"
+    android:paddingBottom="50dp"
     >
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
