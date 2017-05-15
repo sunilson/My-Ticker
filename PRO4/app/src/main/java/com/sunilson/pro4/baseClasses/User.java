@@ -12,9 +12,18 @@ public class User {
     private String profilePicture;
     private String titlePicture;
     private String userID;
+    private int subscriberCount;
 
     public User() {
 
+    }
+
+    public int getSubscriberCount() {
+        return subscriberCount;
+    }
+
+    public void setSubscriberCount(int subscriberCount) {
+        this.subscriberCount = subscriberCount;
     }
 
     public String getUserID() {
