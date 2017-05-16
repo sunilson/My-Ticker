@@ -124,28 +124,25 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:animateLayoutChanges="true"
-                            android:background="?selectableItemBackground"
                             android:gravity="center">
 
                             <ImageButton
                                 android:id="@+id/fragment_liveticker_like_icon"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent" />
+                                android:background="?selectableItemBackgroundBorderless" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0px"
                             android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="?selectableItemBackground"
-                            android:gravity="center">
-
+                            android:gravity="center"
+                            android:layout_weight="1">
                             <ImageButton
                                 android:id="@+id/fragment_liveticker_comment_icon"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
+                                android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/comment_icon" />
                         </LinearLayout>
 
@@ -153,14 +150,13 @@
                             android:layout_width="0px"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="?selectableItemBackground"
                             android:gravity="center">
 
                             <ImageButton
                                 android:id="@+id/fragment_liveticker_share_icon"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
+                                android:background="?selectableItemBackgroundBorderless"
                                 android:src="@drawable/share_icon" />
                         </LinearLayout>
                     </LinearLayout>

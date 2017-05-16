@@ -25,6 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text"
+            android:text="@string/no_status"
             android:paddingRight="10dp"
              />
         <ImageView

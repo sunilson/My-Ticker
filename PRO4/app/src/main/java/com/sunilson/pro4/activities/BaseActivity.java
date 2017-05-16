@@ -1,9 +1,14 @@
 package com.sunilson.pro4.activities;
 
+import android.app.ActivityManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,6 +39,14 @@ public abstract class BaseActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icontransparent);
+            ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(getString(R.string.app_name), icon, ContextCompat.getColor(this, R.color.colorPrimary));
+            setTaskDescription(taskDescription);
+        }
+
+
         mAuth = FirebaseAuth.getInstance();
 
         mReference = FirebaseDatabase.getInstance().getReference();

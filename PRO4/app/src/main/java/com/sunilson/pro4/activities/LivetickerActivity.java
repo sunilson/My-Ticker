@@ -7,6 +7,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,9 +29,10 @@ import static android.view.View.GONE;
 public class LivetickerActivity extends BaseActivity implements CanChangeFragment, View.OnClickListener {
 
     private String livetickerID;
-    private String currentFragment;
+    public String currentFragment;
     private boolean started;
     private FirebaseUser user;
+    private Menu menu;
 
     @BindView(R.id.liveticker_appbar)
     AppBarLayout appBarLayout;
@@ -79,11 +81,6 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     protected void authChanged(FirebaseUser user) {
         this.user = user;
         if (user != null && livetickerID != null) {
@@ -91,6 +88,16 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
                 started = true;
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (menu != null) {
+            this.menu = menu;
+            Log.i(Constants.LOGGING_TAG, menu.toString());
+            Log.i(Constants.LOGGING_TAG, String.valueOf(menu.hasVisibleItems()));
+        }
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -105,6 +112,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         } else {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right).replace(R.id.content_liveticker, fragment, tag).commit();
         }
+
     }
 
     public void updateLivetickerState(String value) {
@@ -125,6 +133,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     @Override
     public void onBackPressed() {
         if (currentFragment.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
+            currentFragment = Constants.FRAGMENT_LIVETICKER_TAG;
             findViewById(R.id.fragment_comments_input_layout).setVisibility(GONE);
         }
 
