@@ -60,6 +60,7 @@ import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.baseClasses.LivetickerEvent;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.ConfirmDialog;
+import com.sunilson.pro4.dialogFragments.InfoDialog;
 import com.sunilson.pro4.dialogFragments.LivetickerPictureCaptionDialog;
 import com.sunilson.pro4.dialogFragments.ShareDialog;
 import com.sunilson.pro4.exceptions.LivetickerEventSetException;
@@ -236,6 +237,13 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
 
         loading(false);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        getActivity().invalidateOptionsMenu();
     }
 
     @Nullable
@@ -871,8 +879,20 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+
         inflater.inflate(R.menu.menu_liveticker, menu);
+        if (menu != null) {
+            if (((LivetickerActivity) getActivity()).currentFragment.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
+                menu.findItem(R.id.liveticker_menu_comments).setVisible(false);
+                menu.findItem(R.id.liveticker_menu_share).setVisible(false);
+                menu.findItem(R.id.liveticker_menu_info).setVisible(false);
+            } else {
+                menu.findItem(R.id.liveticker_menu_comments).setVisible(true);
+                menu.findItem(R.id.liveticker_menu_share).setVisible(true);
+                menu.findItem(R.id.liveticker_menu_info).setVisible(true);
+            }
+        }
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -903,6 +923,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             case R.id.liveticker_menu_share:
                 DialogFragment dialog = ShareDialog.newInstance("https://firenote.at/liveticker/" + liveticker.getLivetickerID());
                 dialog.show(getFragmentManager(), "dialog");
+                break;
+            case R.id.liveticker_menu_info:
+                DialogFragment dialog2 = InfoDialog.newInstance(liveticker.getDescription());
+                dialog2.show(getFragmentManager(), "dialog");
                 break;
         }
         return super.onOptionsItemSelected(item);

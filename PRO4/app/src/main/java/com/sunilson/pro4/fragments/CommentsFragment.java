@@ -105,6 +105,8 @@ public class CommentsFragment extends BaseFragment {
                 requestComments();
             }
         });
+
+        getActivity().invalidateOptionsMenu();
         return view;
     }
 
@@ -112,13 +114,14 @@ public class CommentsFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setHasOptionsMenu(true);
+
         livetickerID = getArguments().getString("livetickerID");
         commentReference = FirebaseDatabase.getInstance().getReference("comments/" + livetickerID);
 
         initializeAuthListener();
         initializeCommentListener();
         initializeAddCommentListener();
-        setHasOptionsMenu(true);
     }
 
     @Override
