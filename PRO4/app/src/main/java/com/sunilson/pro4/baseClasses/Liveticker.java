@@ -19,11 +19,21 @@ public class Liveticker {
     private String authorID;
     private String userName;
     private String profilePicture;
-    private int commentCount, likeCount;
+    private int commentCount, likeCount, viewerCount;
     private Long stateTimestamp;
 
     public Liveticker() {
+        commentCount = 0;
+        likeCount = 0;
+        viewerCount = 0;
+    }
 
+    public int getViewerCount() {
+        return viewerCount;
+    }
+
+    public void setViewerCount(int viewerCount) {
+        this.viewerCount = viewerCount;
     }
 
     public String getPrivacy() {

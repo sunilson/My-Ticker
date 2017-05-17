@@ -69,6 +69,7 @@
     <string name="add_liveticker_subtitle">Here you can create a new Liveticker. All your subscribers will be noticed once it is created!</string>
     <string name="no_status">No status yet!</string>
     <string name="close">Close</string>
+    <string name="viewers">viewers</string>
     <string name="no_description">No description yet!</string>
     <string name="subscription_amount">Subscribers: </string>
     <string name="add_liveticker_public_title">Liveticker is public</string>
