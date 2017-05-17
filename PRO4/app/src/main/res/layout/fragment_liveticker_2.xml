@@ -12,7 +12,7 @@
         android:animateLayoutChanges="true"
         android:background="@color/livetickerBackground"
         android:clickable="false"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/fragment_liveticker_scrollView"
@@ -78,12 +78,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
-                        android:orientation="vertical">
+                        android:orientation="horizontal">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/secondary_text"
-                            android:text="231 Zuschauer" />
+                            android:id="@+id/fragment_liveticker_viewer_count"
+                            android:text="0"
+                            />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/secondary_text"
+                            android:text="@string/viewers"
+                            />
                     </LinearLayout>
                 </LinearLayout>
 

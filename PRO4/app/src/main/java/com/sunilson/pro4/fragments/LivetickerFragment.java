@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -72,6 +73,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -88,7 +91,7 @@ import static android.view.View.VISIBLE;
 
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
-    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference, likeReference, eventResultReference;
+    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference, likeReference, eventResultReference, viewerRef;
     private ChildEventListener livetickerContentListener;
     private ValueEventListener livetickerListener, authorListener, subscriptionListener, likedListener, eventResultListener;
     private Liveticker liveticker;
@@ -105,6 +108,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private TextView commentCount;
     private FrameLayout redCircle;
     private RelativeLayout textInputLoading;
+    private Timer timer;
 
 
     @BindView(R.id.fragment_liveticker_recyclerView)
@@ -158,6 +162,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @BindView(R.id.fragment_liveticker_scrollView)
     NestedScrollView scrollView;
+
+    @BindView(R.id.fragment_liveticker_viewer_count)
+    TextView viewerCount;
 
     public static LivetickerFragment newInstance(String livetickerID) {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
@@ -222,6 +229,14 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         if (eventResultReference != null && eventResultListener != null) {
             eventResultReference.removeEventListener(eventResultListener);
         }
+
+        if (viewerRef != null) {
+            viewerRef.removeValue();
+            viewerRef = null;
+        }
+
+        timer.cancel();
+        timer.purge();
 
         loading(false);
     }
@@ -709,6 +724,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                             }
                         }
 
+                        registerAsViewer();
+
                         if (likeReference != null && likedListener != null) {
                             likeReference.removeEventListener(likedListener);
                         }
@@ -765,6 +782,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     status.setText(liveticker.getStatus());
                     status.setVisibility(View.VISIBLE);
                 }
+
+                viewerCount.setText(Integer.toString(liveticker.getViewerCount()) + " ");
 
                 if (liveticker.getState() != null) {
                     ((LivetickerActivity) getActivity()).updateLivetickerState(liveticker.getState());
@@ -857,6 +876,38 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                 addedToRecent = true;
             }
         });
+    }
+
+    private void refreshViewer() {
+        final Handler handler = new Handler();
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
+        timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        registerAsViewer();
+                    }
+                });
+            }
+        };
+
+        timer.schedule(doAsynchronousTask, 300000, 300000);
+    }
+
+    private void registerAsViewer() {
+        if (viewerRef == null) {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            viewerRef = FirebaseDatabase.getInstance().getReference("viewer/" + liveticker.getLivetickerID() + "/" + user.getUid());
+            refreshViewer();
+        }
+
+        viewerRef.setValue(ServerValue.TIMESTAMP);
     }
 
     @Override
