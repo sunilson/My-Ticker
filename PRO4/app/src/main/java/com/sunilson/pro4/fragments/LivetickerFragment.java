@@ -19,7 +19,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -130,9 +129,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @BindView(R.id.fragment_liveticker_profile_picture)
     ImageView profilePicture;
 
-    @BindView(R.id.fragment_liveticker_title_image)
-    ImageView titleImage;
-
     @BindView(R.id.subscribe_button)
     Button subscribeButton;
 
@@ -141,9 +137,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @BindView(R.id.fragment_liveticker_like_icon)
     ImageButton likeIcon;
-
-    @BindView(R.id.fragment_liveticker_comment_icon)
-    ImageButton commentIcon;
 
     @BindView(R.id.fragment_liveticker_share_icon)
     ImageButton shareIcon;
@@ -163,14 +156,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @BindView(R.id.fragment_liveticker_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
 
-    @BindView(R.id.container_author)
-    RelativeLayout authorContainer;
-
     @BindView(R.id.fragment_liveticker_scrollView)
     NestedScrollView scrollView;
-
-    @BindView(R.id.fragment_liveticker_placeholder)
-    View placeHolder;
 
     public static LivetickerFragment newInstance(String livetickerID) {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
@@ -249,7 +236,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_liveticker, container, false);
+        View view = inflater.inflate(R.layout.fragment_liveticker_2, container, false);
         unbinder = ButterKnife.bind(this, view);
 
         textInput = (EditText) getActivity().findViewById(R.id.fragment_liveticker_input);
@@ -825,11 +812,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     userName.setText(author.getUserName());
                 }
 
-                if (author.getTitlePicture() != null) {
-                    StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(author.getTitlePicture());
-                    Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference).placeholder(R.drawable.default_placeholder).crossFade().into(titleImage);
-                }
-
                 if (author.getProfilePicture() != null) {
                     DrawableRequestBuilder<Integer> placeholder = Glide.with(getContext()).load(R.drawable.profile_placeholder).bitmapTransform(new CropCircleTransformation(getContext()));
                     StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(author.getProfilePicture());
@@ -980,18 +962,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         subscribeButton.setOnClickListener(this);
         likeIcon.setOnClickListener(this);
         shareIcon.setOnClickListener(this);
-        commentIcon.setOnClickListener(this);
         userName.setOnClickListener(this);
         profilePicture.setOnClickListener(this);
         deleteIcon.setOnClickListener(this);
         editState.setOnClickListener(this);
-        placeHolder.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                authorContainer.dispatchTouchEvent(motionEvent);
-                return true;
-            }
-        });
     }
 
     private void checkDoneLoading() {

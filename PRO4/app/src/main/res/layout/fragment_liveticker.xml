@@ -23,6 +23,8 @@
             android:focusableInTouchMode="true"
             android:background="@color/white">
 
+
+
             <ImageView
                 android:id="@+id/fragment_liveticker_title_image"
                 android:layout_width="match_parent"
