@@ -19,6 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +43,7 @@ import butterknife.ButterKnife;
 public class SearchFragment extends BaseFragment {
 
     private ValueEventListener searchResultListener;
+    private DatabaseReference resultReference;
     private FeedRecyclerViewAdapter adapter;
     private boolean started;
     private ImageView closeSearch;
@@ -55,16 +59,31 @@ public class SearchFragment extends BaseFragment {
     TextView placeholder;
 
     public void startSearch() {
-        loading(true);
-        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/search/tasks").push();
-        dRef.child("searchValue").setValue(searchBar.getText().toString()).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                loading(false);
-                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+
+            if (resultReference != null && searchResultListener != null) {
+                resultReference.removeEventListener(searchResultListener);
             }
-        });
-        dRef.addValueEventListener(searchResultListener);
+
+            loading(true);
+            final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/search").push();
+            dRef.setValue(searchBar.getText().toString()).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    loading(false);
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    resultReference = FirebaseDatabase.getInstance().getReference("result/" + user.getUid() + "/search/" + dRef.getKey());
+                    resultReference.addValueEventListener(searchResultListener);
+                }
+            });
+        }
     }
 
     public static SearchFragment newInstance() {
@@ -81,6 +100,15 @@ public class SearchFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (resultReference != null && searchResultListener != null) {
+            resultReference.removeEventListener(searchResultListener);
+        }
     }
 
     @Nullable
@@ -157,23 +185,27 @@ public class SearchFragment extends BaseFragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
-                    if (dataSnapshot.child("error_state").getValue() != null) {
-                        Toast.makeText(getContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
-                    } else if (dataSnapshot.child("_state").getValue() != null
-                            && dataSnapshot.child("_state").getValue().equals("success")) {
-
-                        if (dataSnapshot.child("searchResults").getChildrenCount() == 0) {
-                            placeholder.setText(getString(R.string.no_search_results));
-                            placeholder.setVisibility(View.VISIBLE);
-                        } else {
-                            placeholder.setVisibility(View.GONE);
-                            ArrayList<Liveticker> livetickerData = new ArrayList<>();
-                            for (DataSnapshot childSnapshot : dataSnapshot.child("searchResults").getChildren()) {
-                                Liveticker liveticker = childSnapshot.getValue(Liveticker.class);
-                                livetickerData.add(liveticker);
+                    if (dataSnapshot.child("state").getValue() != null) {
+                        if (dataSnapshot.child("state").getValue().equals("success")) {
+                            if (dataSnapshot.child("searchResults").getChildrenCount() == 0) {
+                                loading(false);
+                                placeholder.setText(getString(R.string.no_search_results));
+                                placeholder.setVisibility(View.VISIBLE);
+                            } else {
+                                placeholder.setVisibility(View.GONE);
+                                ArrayList<Liveticker> livetickerData = new ArrayList<>();
+                                for (DataSnapshot childSnapshot : dataSnapshot.child("searchResults").getChildren()) {
+                                    Liveticker liveticker = childSnapshot.getValue(Liveticker.class);
+                                    livetickerData.add(liveticker);
+                                }
+                                loading(false);
+                                adapter.setData(livetickerData);
                             }
+                        } else if (dataSnapshot.child("state").getValue().equals("error")) {
+                            Toast.makeText(getContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
+                            placeholder.setText(getString(R.string.start_search));
+                            placeholder.setVisibility(View.VISIBLE);
                             loading(false);
-                            adapter.setData(livetickerData);
                         }
                     }
                 }

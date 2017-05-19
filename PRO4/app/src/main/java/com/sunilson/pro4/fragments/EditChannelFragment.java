@@ -345,7 +345,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         String uniqueId = UUID.randomUUID().toString();
 
         //Create references to Storage
-        final StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(currentType + "/" + user.getUid() + "/" + uniqueId + ".jpg");
+        final StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(currentType + "/" + user.getUid() + "/" + currentType + ".jpg");
 
         //Get Full Image
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

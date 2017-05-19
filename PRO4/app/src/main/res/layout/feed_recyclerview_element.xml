@@ -58,23 +58,8 @@
         android:gravity="center_vertical"
         >
         <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/eye_icon"
-            android:paddingRight="5dp"
-            />
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="123"
-            android:textColor="@color/primary_text"
-            android:textSize="12sp"
-            android:paddingRight="10dp"
-            android:id="@+id/feed_recyclerview_element_viewer_count"
-            />
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
             android:src="@drawable/like_icon"
             android:paddingRight="5dp"
             />
@@ -83,13 +68,12 @@
             android:layout_height="wrap_content"
             android:text="123"
             android:textColor="@color/primary_text"
-            android:textSize="12sp"
-            android:paddingRight="10dp"
+            android:paddingRight="15dp"
             android:id="@+id/feed_recyclerview_element_like_count"
             />
         <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/comment_icon"
             android:paddingRight="5dp"
             />
@@ -98,8 +82,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text"
             android:id="@+id/feed_recyclerview_element_comment_count"
-            android:textSize="12sp"
-            android:paddingRight="10dp"
+            android:paddingRight="15dp"
             android:text="456"
             />
         <LinearLayout

@@ -45,7 +45,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
 
     private class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView title, author, state, status, commentCount, likeCount, viewerCount;
+        TextView title, author, state, status, commentCount, likeCount;
         ImageView profilePicture, stateImage;
 
         public ViewHolder(View itemView) {
@@ -56,7 +56,6 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             status = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_status);
             commentCount = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_comment_count);
             likeCount = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_like_count);
-            viewerCount = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_viewer_count);
             stateImage = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_state_image);
             profilePicture = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_image);
         }
@@ -102,12 +101,6 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             vh.likeCount.setText("9999+");
         } else {
             vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
-        }
-
-        if (liveticker.getViewerCount() > 9999) {
-            vh.viewerCount.setText("9999+");
-        } else {
-            vh.viewerCount.setText(Integer.toString(liveticker.getViewerCount()));
         }
 
         if (liveticker.getProfilePicture() != null) {

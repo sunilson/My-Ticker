@@ -34,8 +34,6 @@ import com.sunilson.pro4.interfaces.FragmentAuthInterface;
 import com.sunilson.pro4.utilities.Constants;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -139,10 +137,8 @@ public class FeedFragment extends BaseFragment implements AdapterView.OnItemSele
 
         //Request Feed from Database
         loading(true);
-        Map<String, String> data = new HashMap<>();
-        data.put("userID", user.getUid());
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + "/feed/").push();
-        ref.setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+        ref.setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 //Reassign result listeners

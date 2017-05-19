@@ -235,8 +235,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             viewerRef = null;
         }
 
-        timer.cancel();
-        timer.purge();
+
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
 
         loading(false);
     }
@@ -291,7 +294,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                 }
                 break;
             case R.id.fragment_liveticker_like_icon:
-                if (liveticker != null && user != null && !user.isAnonymous()) {
+                if (liveticker != null && liveticker.getLivetickerID() != null && user != null && !user.isAnonymous()) {
                     if (liked) {
                         FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid()).removeValue();
                     } else {
@@ -392,8 +395,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         String uniqueId = UUID.randomUUID().toString();
 
         //Create references to Storage
-        final StorageReference imageRef = storage.getReference().child("livetickerImages/" + liveticker.getLivetickerID() + "/" + uniqueId + ".jpg");
-        final StorageReference thumbRef = storage.getReference().child("livetickerImages/" + liveticker.getLivetickerID() + "/thumbs/" + uniqueId + "_thumb.jpg");
+        final StorageReference imageRef = storage.getReference().child("livetickerImages/" + liveticker.getAuthorID() + "/" + liveticker.getLivetickerID() + "/" + uniqueId + ".jpg");
+        final StorageReference thumbRef = storage.getReference().child("livetickerImages/" + liveticker.getAuthorID() + "/" + liveticker.getLivetickerID() + "/thumbs/" + uniqueId + "_thumb.jpg");
 
         //Get Full Image
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -738,6 +741,19 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                         //Start author listener
                         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("users/" + liveticker.getAuthorID());
                         dRef.addListenerForSingleValueEvent(authorListener);
+
+                        DatabaseReference dRef2 = FirebaseDatabase.getInstance().getReference("viewerCount/" + liveticker.getLivetickerID());
+                        dRef2.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                viewerCount.setText(Integer.toString(dataSnapshot.getValue(Integer.class)));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
 
                     checkDoneLoading();
@@ -782,8 +798,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     status.setText(liveticker.getStatus());
                     status.setVisibility(View.VISIBLE);
                 }
-
-                viewerCount.setText(Integer.toString(liveticker.getViewerCount()) + " ");
 
                 if (liveticker.getState() != null) {
                     ((LivetickerActivity) getActivity()).updateLivetickerState(liveticker.getState());
@@ -866,11 +880,8 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     private void addToRecentlyVisited() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/addToRecentlyVisited").push();
-        Map<String, Object> map = new HashMap<>();
-        map.put("timestamp", ServerValue.TIMESTAMP);
-        map.put("livetickerID", liveticker.getLivetickerID());
-        dRef.setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("recentlyVisited/" + user.getUid() + "/" + liveticker.getLivetickerID());
+        dRef.setValue(ServerValue.TIMESTAMP).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 addedToRecent = true;
