@@ -16,8 +16,11 @@ import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.baseClasses.Comment;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -29,22 +32,26 @@ public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
     private List<Comment> data = new ArrayList<>();
     private Context ctx;
     private RecyclerView recyclerView;
+    private DateFormat dateFormat, timeFormat;
 
     public CommentsRecyclerViewAdapter(RecyclerView recyclerView, Context context) {
         this.recyclerView = recyclerView;
         this.ctx = context;
+        this.dateFormat = new SimpleDateFormat("dd.MM.YY", Locale.getDefault());
+        this.timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView content, timestamp, username;
+        TextView content, time, date, username;
         ImageView profilePicture;
 
         public ViewHolder(View itemView) {
             super(itemView);
             content = (TextView) itemView.findViewById(R.id.comment_content);
             username = (TextView) itemView.findViewById(R.id.comment_username);
-            timestamp = (TextView) itemView.findViewById(R.id.comment_timestamp);
+            time = (TextView) itemView.findViewById(R.id.comment_time);
+            date = (TextView) itemView.findViewById(R.id.comment_date);
             profilePicture = (ImageView) itemView.findViewById(R.id.comment_profile_picture);
         }
     }
@@ -61,7 +68,9 @@ public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
         Comment comment = data.get(position);
 
         vh.content.setText(comment.getContent());
-        vh.timestamp.setText(comment.getTimestamp().toString());
+
+        vh.date.setText(dateFormat.format(comment.getTimestamp()));
+        vh.time.setText(timeFormat.format(comment.getTimestamp()));
 
         if (comment.getUserName() != null) {
             vh.username.setText(comment.getUserName());

@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +29,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sunilson.pro4.BaseApplication;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.ChannelFragmentPagerAdapter;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.LivetickerPictureViewDialog;
-import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.dialogFragments.RegisterDialog;
 import com.sunilson.pro4.utilities.Utilities;
 import com.sunilson.pro4.views.ChannelViewPager;
 import com.sunilson.pro4.views.SubscribeButton;
@@ -63,8 +64,8 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
     @BindView(R.id.fragment_channel_container)
     FrameLayout container;
 
-    @BindView(R.id.fragment_channel_loading_container)
-    LinearLayout loadingContainer;
+    @BindView(R.id.fragment_channel_swipe_layout)
+    SwipeRefreshLayout swipeLayout;
 
     @BindView(R.id.fragment_channel_status)
     TextView status;
@@ -107,17 +108,17 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onStart() {
         super.onStart();
+        if (!((BaseApplication) getActivity().getApplication()).getInternetConnected()) {
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!started) {
             started = true;
-
-            userRef.addListenerForSingleValueEvent(userListener);
-            FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
 
             titlePicture.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
                     float height = Utilities.dpFromPx(getContext(), titlePicture.getHeight()) - 50;
-                    Log.i(Constants.LOGGING_TAG, Float.toString(height));
                     if (height > 0) {
                         LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.fragment_channel_empty_view);
                         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) linearLayout.getLayoutParams();
@@ -135,7 +136,11 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
 
                 }
             });
+
+            loadChannel();
         }
+
+        FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
     }
 
     @Override
@@ -158,6 +163,13 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
         initializeUserListener();
         initializeSubscriptionListener();
         initializeAuthListener();
+
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadChannel();
+            }
+        });
 
         subscribeButton.setOnClickListener(this);
 
@@ -194,7 +206,7 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-                if (firebaseUser != null && !firebaseUser.isAnonymous() && !firebaseUser.getUid().equals(authorID)) {
+                if (firebaseUser != null && !firebaseUser.getUid().equals(authorID)) {
                     if (subscriptionReference != null && subscriptionListener != null) {
                         subscriptionReference.removeEventListener(subscriptionListener);
                     }
@@ -230,7 +242,7 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
         loading++;
         if(loading >= 1) {
             container.setVisibility(View.VISIBLE);
-            loadingContainer.setVisibility(View.GONE);
+            swipeLayout.setRefreshing(false);
         }
     }
 
@@ -247,7 +259,7 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
             profilePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    DialogFragment dialogFragment = LivetickerPictureViewDialog.newInstance(user.getProfilePicture());
+                    DialogFragment dialogFragment = LivetickerPictureViewDialog.newInstance(user.getProfilePicture(), user.getUserName());
                     dialogFragment.show(getActivity().getSupportFragmentManager(), "dialog");
                 }
             });
@@ -294,12 +306,20 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
+    private void loadChannel() {
+        swipeLayout.setRefreshing(true);
+        userRef.addListenerForSingleValueEvent(userListener);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.subscribe_button:
                 if (firebaseUser != null && !firebaseUser.isAnonymous()) {
                     subscribeToAuthor();
+                } else {
+                    DialogFragment registerDialog = RegisterDialog.newInstance();
+                    registerDialog.show(getFragmentManager(), "dialog");
                 }
                 break;
         }

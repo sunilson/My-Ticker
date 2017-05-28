@@ -3,7 +3,6 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
-import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.utilities.Utilities;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -93,16 +92,14 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
      */
     private void createUser(String email, String password, String password2) {
 
-        //TODO Test Username and Password/Email
-
-        if (password.isEmpty()) {
-            //passwordEditTextLayout.setError(getString(R.string.password_empty));
+        if (password.isEmpty() || password2.isEmpty() || email.isEmpty()) {
+            Toast.makeText(getContext(), R.string.fields_empty, Toast.LENGTH_SHORT).show();
             loading(false);
-        } else if (password2.isEmpty()) {
-            //passwordEditText2Layout.setError(getString(R.string.password_empty));
+        } else if (!Utilities.isValidEmail(email)) {
+            Toast.makeText(getContext(), R.string.email_invalid, Toast.LENGTH_SHORT).show();
             loading(false);
         } else if (!password.equals(password2)) {
-            //passwordEditText2Layout.setError(getString(R.string.password_match));
+            Toast.makeText(getContext(), R.string.passwords_must_match, Toast.LENGTH_SHORT).show();
             loading(false);
         } else {
             AuthCredential credential = EmailAuthProvider.getCredential(email, password);
@@ -110,7 +107,6 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                     .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            Log.d(Constants.LOGGING_TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
                             if (!task.isSuccessful()) {
                                 Toast.makeText(getContext(), task.getResult().toString(),
                                         Toast.LENGTH_SHORT).show();
@@ -165,7 +161,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         }
     }
 
-    private void loading(boolean loading){
+    private void loading(boolean loading) {
         if (loading) {
             //progressOverlay.setVisibility(View.VISIBLE);
         } else {

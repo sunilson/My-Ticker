@@ -14,11 +14,20 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.view.View;
+import android.widget.ImageView;
+
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by linus_000 on 12.04.2017.
@@ -94,6 +103,24 @@ public class Utilities {
             return false;
         } else {
             return true;
+        }
+    }
+
+    public static void setupRoundImageViewWithPlaceholder(ImageView imageView, Context context, String image, int placeholderDrawable) {
+        DrawableRequestBuilder<Integer> placeholder = Glide.with(context).load(placeholderDrawable).bitmapTransform(new CropCircleTransformation(context));
+        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(image);
+        Glide.with(context).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(context)).crossFade().into(imageView);
+    }
+
+    public static void setupRoundImageViewOnlyPlaceholder(ImageView imageView, Context context, int placeholderDrawable) {
+        Glide.with(context).load(placeholderDrawable).bitmapTransform(new CropCircleTransformation(context)).crossFade().into(imageView);
+    }
+
+    public static boolean isValidEmail(CharSequence target) {
+        if (target == null) {
+            return false;
+        } else {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
         }
     }
 }

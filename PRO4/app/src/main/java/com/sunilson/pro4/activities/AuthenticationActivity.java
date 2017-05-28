@@ -11,6 +11,7 @@ import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.BaseFragment;
 import com.sunilson.pro4.fragments.LoginFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
+import com.sunilson.pro4.utilities.Constants;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,14 +35,16 @@ public class AuthenticationActivity extends AppCompatActivity implements CanChan
         ButterKnife.bind(this);
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).add(R.id.authentication_frameLayout, LoginFragment.newInstance()).commit();
+            replaceFragment(LoginFragment.newInstance(), Constants.FRAGMENT_LOGIN_TAG);
         }
     }
 
     @Override
     public void replaceFragment(Fragment fragment, String tag) {
         currentFragment = tag;
-        if (tag.equals("register")) {
+        if (tag.equals(Constants.FRAGMENT_REGISTER_TAG)) {
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.authentication_frameLayout, fragment).commit();
+        } else if (tag.equals(Constants.FRAGMENT_RESET_PASSWORD_TAG)) {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left).replace(R.id.authentication_frameLayout, fragment).commit();
         } else {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right).replace(R.id.authentication_frameLayout, fragment).commit();
@@ -50,8 +53,10 @@ public class AuthenticationActivity extends AppCompatActivity implements CanChan
 
     @Override
     public void onBackPressed() {
-        if (currentFragment.equals("register")) {
-            replaceFragment(LoginFragment.newInstance(), "login");
+        if (currentFragment.equals(Constants.FRAGMENT_REGISTER_TAG)) {
+            replaceFragment(LoginFragment.newInstance(), Constants.FRAGMENT_LOGIN_TAG);
+        } else if (currentFragment.equals(Constants.FRAGMENT_RESET_PASSWORD_TAG)) {
+            replaceFragment(LoginFragment.newInstance(), Constants.FRAGMENT_LOGIN_TAG);
         } else {
             super.onBackPressed();
         }

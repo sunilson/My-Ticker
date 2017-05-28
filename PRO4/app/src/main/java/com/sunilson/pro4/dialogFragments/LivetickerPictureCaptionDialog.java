@@ -183,7 +183,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
                         getDialog().dismiss();
                     }
                 }
-                return true;
+                return false;
             }
         });
 

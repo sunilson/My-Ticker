@@ -1,13 +1,14 @@
 package com.sunilson.pro4.activities;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,8 +19,6 @@ import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.LivetickerFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,21 +58,18 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
             if (i.getStringExtra(Constants.LIVETICKER_ID) != null) {
                 //Started from within app
                 livetickerID = i.getStringExtra(Constants.LIVETICKER_ID);
-            } else {
-                //Started from external URL
-                Uri data = i.getData();
-                List<String> params = data.getPathSegments();
-                if (params != null) {
-                    if (params.get(1) != null && !params.get(1).isEmpty()) {
-                        String id = params.get(1);
-                        this.livetickerID = id;
-                    } else {
-                        finish();
-                    }
-                } else {
-                    finish();
-                }
             }
+
+            getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+                    FragmentManager manager = getSupportFragmentManager();
+                    if (manager != null && currentFragment != null && currentFragment.equals(Constants.FRAGMENT_LIVETICKER_TAG)) {
+                        LivetickerFragment fragment = (LivetickerFragment) manager.findFragmentByTag(currentFragment);
+                        fragment.onFragmentResumeFromBackstack();
+                    }
+                }
+            });
 
             currentFragment = Constants.FRAGMENT_LIVETICKER_TAG;
             getSupportFragmentManager().beginTransaction().replace(R.id.content_liveticker, LivetickerFragment.newInstance(livetickerID), Constants.FRAGMENT_LIVETICKER_TAG).commit();
@@ -94,8 +90,6 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         if (menu != null) {
             this.menu = menu;
-            Log.i(Constants.LOGGING_TAG, menu.toString());
-            Log.i(Constants.LOGGING_TAG, String.valueOf(menu.hasVisibleItems()));
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -108,7 +102,7 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         findViewById(R.id.fragment_comments_input_layout).setVisibility(GONE);
 
         if (tag.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left).add(R.id.content_liveticker, fragment, tag).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_to_bottom, R.anim.exit_to_bottom, R.anim.exit_to_bottom).add(R.id.content_liveticker, fragment, tag).addToBackStack(null).commit();
         } else {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right).replace(R.id.content_liveticker, fragment, tag).commit();
         }
@@ -129,7 +123,6 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         this.title.setText(title);
     }
 
-
     @Override
     public void onBackPressed() {
         if (currentFragment.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
@@ -138,7 +131,16 @@ public class LivetickerActivity extends BaseActivity implements CanChangeFragmen
         }
 
         super.onBackPressed();
+    }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && currentFragment.equals(Constants.FRAGMENT_LIVETICKER_TAG)) {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("livetickerID", livetickerID);
+            setResult(Activity.RESULT_OK, returnIntent);
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override

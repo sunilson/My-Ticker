@@ -5,10 +5,18 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/progress_overlay" />
+    <Button
+        android:id="@+id/fragment_edit_channel_refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="@string/refresh"
+        android:visibility="gone"
+        />
 
     <ScrollView
+        android:id="@+id/fragment_edit_channel_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
@@ -141,8 +149,8 @@
             </RelativeLayout>
             <ProgressBar
                 android:id="@+id/fragment_edit_channel_profile_picture_progress"
-                style="@android:style/Widget.ProgressBar.Horizontal"
                 android:theme="@style/LinearProgress"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -168,12 +176,14 @@
             <RelativeLayout
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="20dp"
-                android:layout_width="250dp"
-                android:layout_height="250dp">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/fragment_edit_channel_title"
-                    android:layout_width="200dp"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="30dp"
                     android:adjustViewBounds="true"
                     android:layout_centerInParent="true"
                     android:src="@drawable/default_placeholder"
@@ -186,7 +196,7 @@
                     android:background="@drawable/edit_picture_button_drawable"
                     android:layout_alignBottom="@+id/fragment_edit_channel_title"
                     android:layout_alignRight="@id/fragment_edit_channel_title"
-                    android:layout_marginBottom="-15dp"
+                    android:layout_marginBottom="15dp"
                     android:layout_marginRight="-15dp" />
             </RelativeLayout>
             <ProgressBar
@@ -196,7 +206,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_marginBottom="20dp"
                 android:progress="0" />
 

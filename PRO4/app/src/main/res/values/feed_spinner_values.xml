@@ -2,7 +2,7 @@
 <resources>
     <string-array name="feed_spinner_values">
         <item>@string/all</item>
-        <item>@string/own_livetickers_spinner</item>
+      <!--  <item>@string/own_livetickers_spinner</item> -->
         <item>@string/recently_visited_livetickers_spinner</item>
         <item>@string/subscription_livetickers_spinner</item>
     </string-array>

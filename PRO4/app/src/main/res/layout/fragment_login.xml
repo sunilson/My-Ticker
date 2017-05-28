@@ -1,48 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    android:clipToPadding="false"
-    android:padding="25dp">
+    android:background="@color/loginBackgroundColor"
+    >
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@drawable/login_background"
-        android:elevation="6dp"
         android:orientation="vertical"
-        android:padding="25dp">
+        android:layout_gravity="center"
+        android:padding="30dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="30dp"
             android:gravity="center"
-            android:text="@string/login"
+            android:text="@string/app_name"
             android:textColor="@color/primary_text"
             android:textSize="30sp" />
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+            <Button
+                android:id="@+id/loginFragment_google"
+                style="@style/SubmitButtonWhite"
+                android:layout_width="match_parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/google_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:id="@+id/loginFragment_google_text"
+                    android:text="@string/register_button_google"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="30dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0px"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/disabled_text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/or"
+                android:textColor="@color/secondary_text"
+                android:textSize="18sp" />
+
+            <FrameLayout
+                android:layout_width="0px"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/disabled_text" />
+        </LinearLayout>
 
         <AutoCompleteTextView
             android:id="@+id/loginFragment_email"
             style="@style/BasicEditText"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="10dp"
+            android:completionThreshold="1"
             android:drawableLeft="@drawable/email_icon"
             android:ems="10"
             android:hint="Email"
             android:inputType="textEmailAddress" />
-
 
         <EditText
             android:id="@+id/loginFragment_password"
             style="@style/BasicEditText"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:drawableLeft="@drawable/lock_icon"
             android:ems="10"
@@ -50,33 +107,45 @@
             android:hint="Password"
             android:inputType="textPassword" />
 
-        <include layout="@layout/big_submit_button_with_progress" />
+        <include layout="@layout/login_button" />
 
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:animateLayoutChanges="true">
-            <Button
-                style="@style/SubmitButtonLarge"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="20dp"
+            >
+            <TextView
                 android:id="@+id/loginFragment_register"
-                android:layout_width="match_parent" />
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center|right"
+                android:textColor="@color/secondary_text"
+                android:text="@string/register_text"
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/register_button"
-                android:textColor="@color/primary_text_dark"
-                android:textSize="20sp" />
-        </RelativeLayout>
+                android:textColor="@color/secondary_text"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="|"
+                />
 
-        <TextView
-            android:id="@+id/loginFragment_resetPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="@string/reset_password" />
+            <TextView
+                android:id="@+id/loginFragment_resetPassword"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center|left"
+                android:textColor="@color/secondary_text"
+                android:text="@string/reset_password"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+
     </LinearLayout>
-</RelativeLayout>
+</ScrollView>

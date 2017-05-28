@@ -56,7 +56,10 @@ public class SearchFragment extends BaseFragment {
     LinearLayout loadingContainer;
 
     @BindView(R.id.fragment_search_placeholder)
-    TextView placeholder;
+    LinearLayout placeholder;
+
+    @BindView(R.id.fragment_search_placeholder_text)
+    TextView placeholderText;
 
     public void startSearch() {
 
@@ -189,7 +192,7 @@ public class SearchFragment extends BaseFragment {
                         if (dataSnapshot.child("state").getValue().equals("success")) {
                             if (dataSnapshot.child("searchResults").getChildrenCount() == 0) {
                                 loading(false);
-                                placeholder.setText(getString(R.string.no_search_results));
+                                placeholderText.setText(getString(R.string.no_search_results));
                                 placeholder.setVisibility(View.VISIBLE);
                             } else {
                                 placeholder.setVisibility(View.GONE);
@@ -203,7 +206,7 @@ public class SearchFragment extends BaseFragment {
                             }
                         } else if (dataSnapshot.child("state").getValue().equals("error")) {
                             Toast.makeText(getContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
-                            placeholder.setText(getString(R.string.start_search));
+                            placeholderText.setText(getString(R.string.start_search));
                             placeholder.setVisibility(View.VISIBLE);
                             loading(false);
                         }

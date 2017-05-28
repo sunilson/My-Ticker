@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.FeedFragment;
+import com.sunilson.pro4.fragments.LiveFragment;
 import com.sunilson.pro4.fragments.ProfileFragment;
 import com.sunilson.pro4.fragments.SearchFragment;
 
@@ -21,7 +22,7 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
     private Context context;
-    final int PAGE_COUNT = 3;
+    final int PAGE_COUNT = 4;
 
     public MainActivityFragmentPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
@@ -32,10 +33,12 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return FeedFragment.newInstance();
+                return LiveFragment.newInstance();
             case 1:
-                return SearchFragment.newInstance();
+                return FeedFragment.newInstance();
             case 2:
+                return SearchFragment.newInstance();
+            case 3:
                 return ProfileFragment.newInstance();
             default:
                 return FeedFragment.newInstance();
@@ -59,10 +62,12 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return context.getString(R.string.feed_fragment_title);
+                return context.getString(R.string.live_fragment_title);
             case 1:
-                return context.getString(R.string.search_fragment_title);
+                return context.getString(R.string.feed_fragment_title);
             case 2:
+                return context.getString(R.string.search_fragment_title);
+            case 3:
                 return context.getString(R.string.profile_fragment_title);
             default:
                 return context.getString(R.string.feed_fragment_title);

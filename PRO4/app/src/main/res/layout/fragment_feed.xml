@@ -8,108 +8,136 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/livetickerBackground">
+        android:background="@color/livetickerBackground"
+        android:fillViewport="true"
+        >
 
         <LinearLayout
-            android:id="@+id/feed_fragment_content_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:animateLayoutChanges="true"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="20dp"
-            android:visibility="gone">
-
+            android:animateLayoutChanges="true"
+            >
             <LinearLayout
-                android:id="@+id/feed_fragment_ownLivetickers_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginBottom="?actionBarSize"
+                android:visibility="visible"
+                android:gravity="center"
+                android:id="@+id/fragment_feed_anonymous">
                 <TextView
-                    style="@style/RecyclerViewElement"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:text="Own Livetickers" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/feed_fragment_ownLivetickers_recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/nothing_here"
-                    style="@style/placeholder_text"
-                    android:id="@+id/feed_fragment_ownLivetickers_placeholder"
-                    android:visibility="gone"
+                    android:text="@string/account_needed_profile"
                     />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/feed_fragment_recentlyVisited_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/RecyclerViewElement"
-                    android:layout_width="match_parent"
+                <Button
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:text="Recently Visited" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/feed_fragment_recentlyVisited_recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    style="@style/placeholder_text"
-                    android:text="@string/nothing_here"
-                    android:id="@+id/feed_fragment_recentlyVisted_placeholder"
-                    android:visibility="gone"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/fragment_feed_anonymous_button"
+                    android:text="@string/register_button"
                     />
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/feed_fragment_subscriptionLIvetickers_layout"
+                android:id="@+id/feed_fragment_content_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical"
+                android:paddingBottom="20dp"
+                android:visibility="gone">
 
-                <TextView
-                    style="@style/RecyclerViewElement"
+                <LinearLayout
+                    android:id="@+id/feed_fragment_recentlyVisited_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:text="Subscriptions" />
+                    android:orientation="vertical">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/feed_fragment_subscriptionLivetickers_recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/feed_fragment_subscriptionLIvetickers_placeholder"
+                    <TextView
+                        style="@style/FeedHeadline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Recently Visited" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/feed_fragment_recentlyVisited_recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        style="@style/placeholder_text"
+                        android:text="@string/nothing_here"
+                        android:id="@+id/feed_fragment_recentlyVisted_placeholder"
+                        android:visibility="gone"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/feed_fragment_subscriptionLivetickers_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/placeholder_text"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/nothing_here"
-                    android:visibility="gone"
-                    />
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/FeedHeadline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Subscriptions" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/feed_fragment_subscriptionLivetickers_recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/feed_fragment_subscriptionLIvetickers_placeholder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/placeholder_text"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:text="@string/nothing_here"
+                        android:visibility="gone"
+                        />
+                </LinearLayout>
+
+                <!--
+
+                <LinearLayout
+                    android:id="@+id/feed_fragment_ownLivetickers_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/FeedHeadline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Own Livetickers" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/feed_fragment_ownLivetickers_recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:text="@string/nothing_here"
+                        style="@style/placeholder_text"
+                        android:id="@+id/feed_fragment_ownLivetickers_placeholder"
+                        android:visibility="gone"
+                        />
+
+                </LinearLayout>
+
+                -->
             </LinearLayout>
         </LinearLayout>
-
     </android.support.v4.widget.NestedScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>

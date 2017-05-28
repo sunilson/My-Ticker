@@ -19,7 +19,7 @@
             android:id="@+id/submit_button_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textColor="@color/primary_text_dark"
             android:layout_gravity="center_vertical"
             android:text="@string/channel_edit_save"

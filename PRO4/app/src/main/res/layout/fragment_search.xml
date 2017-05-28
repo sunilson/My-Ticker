@@ -26,15 +26,30 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/fragment_search_placeholder"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="1"
-            android:text="@string/start_search"
-            style="@style/placeholder_text"
+            android:layout_height="match_parent"
             android:layout_marginBottom="?actionBarSize"
-            />
+            android:gravity="center"
+            android:orientation="vertical"
+            android:id="@+id/fragment_search_placeholder"
+            >
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/search_icon"
+                android:layout_marginBottom="15dp"
+                />
+            <TextView
+                android:id="@+id/fragment_search_placeholder_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/start_search"
+                style="@style/placeholder_text"
+                />
+        </LinearLayout>
+
+
 
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"

@@ -14,19 +14,40 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splashscreen</item>
+    </style>
+
     <style name="SubmitButton" parent="@style/Widget.AppCompat.Button.Borderless">
-        <item name="android:background">@drawable/submit_button_drawable</item>
         <item name="android:foreground">?selectableItemBackground</item>
         <item name="android:textColor">@color/primary_text_dark</item>
     </style>
 
     <style name="SubmitButtonLarge" parent="SubmitButton">
-        <item name="android:textSize">16sp</item>
+        <item name="android:background">@drawable/submit_button_drawable</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:layout_height">50dp</item>
     </style>
 
-    <style name="SubscribeButton" parent="SubmitButton">
+    <style name="SubmitButtonWhite" parent="SubmitButton">
+        <item name="android:background">@drawable/submit_button_white_drawable</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textColor">@color/primary_text</item>
+    </style>
 
+    <style name="LoginButton" parent="SubmitButton">
+        <item name="android:background">@drawable/submit_button_drawable</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="ShareButton" parent="SubmitButton">
+        <item name="android:background">@drawable/submit_button_drawable</item>
+    </style>
+
+    <style name="SubscribeButton" parent="SubmitButton">
+        <item name="android:background">@drawable/submit_button_drawable</item>
     </style>
 
     <style name="dialog">
@@ -42,12 +63,52 @@
         <item name="colorAccent">@color/white</item>
     </style>
 
+    <style name="DateText">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0px</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
     <style name="RecyclerViewElement">
         <item name="android:layout_marginBottom">0dp</item>
         <item name="android:layout_marginLeft">15dp</item>
         <item name="android:layout_marginRight">15dp</item>
         <item name="android:layout_marginTop">15dp</item>
         <item name="android:background">@drawable/liveticker_content_element_background</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+    </style>
+
+    <style name="CaptionEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:colorControlNormal">@color/white</item>
+        <item name="android:colorControlHighlight">@color/white</item>
+    </style>
+
+    <style name="FeedHeadline">
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginLeft">15dp</item>
+        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:background">@drawable/liveticker_content_element_background</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/primary_text</item>
+    </style>
+
+    <style name="TimeText">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0px</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingRight">10dp</item>
     </style>
 
     <style name="dialog_spinner" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
@@ -62,6 +123,52 @@
         <item name="android:textColor">@color/primary_text</item>
     </style>
 
+    <style name="SocialCounter">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:layout_marginRight">5dp</item>
+    </style>
+
+    <style name="SocialBoxButton">
+        <item name="android:layout_width">0px</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:animateLayoutChanges">true</item>
+        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="SettingsElement">
+        <item name="android:layout_height">60dp</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">?selectableItemBackground</item>
+    </style>
+
+    <style name="SettingsElementText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:layout_width">0px</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="SettingsElementIcon">
+        <item name="android:layout_width">35dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_marginRight">20dp</item>
+    </style>
+
+    <style name="SettingsElementDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/darkDividerColor</item>
+    </style>
+
     <style name="DescriptionSubtitle">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/secondary_text</item>
@@ -71,6 +178,7 @@
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
         <item name="android:minHeight">50dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:maxLines">1</item>
         <item name="android:background">@drawable/edittext_background</item>
         <item name="android:textColorHint">@color/disabled_text</item>
@@ -89,6 +197,7 @@
         <item name="android:textColorHint">@color/disabled_text</item>
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:paddingLeft">15dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:scrollbars">vertical</item>
     </style>
 

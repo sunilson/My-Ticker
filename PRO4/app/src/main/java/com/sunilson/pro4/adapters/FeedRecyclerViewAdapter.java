@@ -1,5 +1,6 @@
 package com.sunilson.pro4.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
@@ -10,21 +11,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.DrawableRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.activities.ChannelActivity;
 import com.sunilson.pro4.activities.LivetickerActivity;
 import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.utilities.Utilities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * @author Linus Weiss
@@ -46,7 +42,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
     private class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView title, author, state, status, commentCount, likeCount;
-        ImageView profilePicture, stateImage;
+        ImageView profilePicture, stateImage, likeIcon;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -58,6 +54,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             likeCount = (TextView) itemView.findViewById(R.id.feed_recyclerview_element_like_count);
             stateImage = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_state_image);
             profilePicture = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_image);
+            likeIcon = (ImageView) itemView.findViewById(R.id.feed_recyclerview_element_like_icon);
         }
     }
 
@@ -90,7 +87,10 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
                 break;
         }
 
-        vh.status.setText(liveticker.getStatus());
+        if (!liveticker.getStatus().isEmpty()) {
+            vh.status.setText(liveticker.getStatus());
+        }
+
         if (liveticker.getCommentCount() > 9999) {
             vh.commentCount.setText("9999+");
         } else {
@@ -99,14 +99,16 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
 
         if (liveticker.getLikeCount() > 9999) {
             vh.likeCount.setText("9999+");
+            vh.likeIcon.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.like_icon_liked));
+        } else if (liveticker.getLikeCount() > 0) {
+            vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
+            vh.likeIcon.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.like_icon_liked));
         } else {
             vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
         }
 
         if (liveticker.getProfilePicture() != null) {
-            DrawableRequestBuilder<Integer> placeholder = Glide.with(ctx).load(R.drawable.profile_placeholder).bitmapTransform(new CropCircleTransformation(ctx));
-            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(liveticker.getProfilePicture());
-            Glide.with(ctx).using(new FirebaseImageLoader()).load(storageReference).thumbnail(placeholder).bitmapTransform(new CropCircleTransformation(ctx)).crossFade().into(vh.profilePicture);
+            Utilities.setupRoundImageViewWithPlaceholder(vh.profilePicture, ctx, liveticker.getProfilePicture(), R.drawable.profile_placeholder);
         }
     }
 
@@ -117,6 +119,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
 
     public void setData(ArrayList<Liveticker> list) {
         this.data = list;
+        Collections.reverse(this.data);
         notifyDataSetChanged();
     }
 
@@ -127,7 +130,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
             Liveticker element = data.get(pos);
             Intent i = new Intent(ctx, LivetickerActivity.class);
             i.putExtra("livetickerID", element.getLivetickerID());
-            ctx.startActivity(i);
+            ((Activity) ctx).startActivityForResult(i, Constants.LIVETICKER_ACTIVITY_REQUEST);
         }
     }
 

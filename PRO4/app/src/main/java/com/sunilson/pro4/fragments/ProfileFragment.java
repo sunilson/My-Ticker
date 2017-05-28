@@ -3,10 +3,10 @@ package com.sunilson.pro4.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.activities.AuthenticationActivity;
 import com.sunilson.pro4.activities.ChannelActivity;
+import com.sunilson.pro4.dialogFragments.SettingsDialog;
 import com.sunilson.pro4.interfaces.FragmentAuthInterface;
 
 import butterknife.BindView;
@@ -25,9 +26,6 @@ import butterknife.OnClick;
  */
 
 public class ProfileFragment extends BaseFragment implements FragmentAuthInterface {
-
-    @BindView(R.id.fragment_profile_view_channel)
-    Button profileButton;
 
     @BindView(R.id.fragment_profile_anonymous)
     LinearLayout profileAnonymous;
@@ -51,6 +49,12 @@ public class ProfileFragment extends BaseFragment implements FragmentAuthInterfa
         i.putExtra("type", "view");
         i.putExtra("authorID", FirebaseAuth.getInstance().getCurrentUser().getUid());
         startActivity(i);
+    }
+
+    @OnClick(R.id.fragment_profile_settings)
+    public void openSettings() {
+        DialogFragment dialogFragment = SettingsDialog.newInstance();
+        dialogFragment.show(getFragmentManager(), "dialog");
     }
 
     public static ProfileFragment newInstance() {

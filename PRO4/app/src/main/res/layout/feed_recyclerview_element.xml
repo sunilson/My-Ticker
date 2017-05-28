@@ -4,7 +4,11 @@
     android:layout_height="wrap_content"
     style="@style/RecyclerViewElement"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,6 +21,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingRight="10dp"
             android:textColor="@color/primary_text"
             android:textSize="20sp" />
 
@@ -24,31 +32,35 @@
             android:id="@+id/feed_recyclerview_element_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
-            android:text="@string/no_status"
-            android:paddingRight="10dp"
+            android:textColor="@color/secondary_text"
+            android:textSize="12sp"
+            android:paddingRight="5dp"
              />
         <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
             android:layout_gravity="center_vertical"
             android:id="@+id/feed_recyclerview_element_state_image"
             android:src="@drawable/state_not_started" />
     </LinearLayout>
 
     <TextView
-        android:paddingTop="10dp"
         android:id="@+id/feed_recyclerview_element_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/primary_text"
+        android:textColor="@color/secondary_text"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="@string/no_status"
+        android:paddingRight="10dp"
         android:textSize="12sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
         android:background="@color/dividerColor"/>
 
     <LinearLayout
@@ -58,8 +70,9 @@
         android:gravity="center_vertical"
         >
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/feed_recyclerview_element_like_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:src="@drawable/like_icon"
             android:paddingRight="5dp"
             />
@@ -72,8 +85,8 @@
             android:id="@+id/feed_recyclerview_element_like_count"
             />
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:src="@drawable/comment_icon"
             android:paddingRight="5dp"
             />
@@ -83,7 +96,7 @@
             android:textColor="@color/primary_text"
             android:id="@+id/feed_recyclerview_element_comment_count"
             android:paddingRight="15dp"
-            android:text="456"
+            android:text="0"
             />
         <LinearLayout
             android:layout_width="0dp"
@@ -102,7 +115,8 @@
                 android:id="@+id/feed_recyclerview_element_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/primary_text"
+                android:maxWidth="100dp"
+                android:textColor="@color/secondary_text"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:singleLine="true"

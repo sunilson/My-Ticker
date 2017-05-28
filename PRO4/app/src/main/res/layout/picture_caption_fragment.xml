@@ -36,6 +36,7 @@
                 android:hint="Enter caption here"
                 android:id="@+id/picture_dialog_caption"
                 android:textColorHint="@color/white"
+                style="@style/CaptionEditText"
                 />
             <ImageButton
                 android:layout_marginLeft="10dp"

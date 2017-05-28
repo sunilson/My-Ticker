@@ -31,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.sunilson.pro4.BaseApplication;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.CommentsRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Comment;
@@ -127,7 +128,10 @@ public class CommentsFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter = new CommentsRecyclerViewAdapter(recyclerView, getContext()));
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
     }
@@ -138,6 +142,11 @@ public class CommentsFragment extends BaseFragment {
         if (commentListener != null) {
             commentReference.removeEventListener(commentListener);
         }
+
+        if (addCommentResultListener != null && currentAddCommentResultReference != null) {
+            currentAddCommentResultReference.removeEventListener(addCommentResultListener);
+        }
+
         if (authStateListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
 
@@ -149,7 +158,6 @@ public class CommentsFragment extends BaseFragment {
         super.onDestroy();
 
         getActivity().findViewById(R.id.fragment_comments_input_layout).setVisibility(View.GONE);
-        getActivity().findViewById(R.id.fragment_liveticker_input_layout).setVisibility(View.VISIBLE);
     }
 
     private void initializeAddCommentListener() {
@@ -183,7 +191,7 @@ public class CommentsFragment extends BaseFragment {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 user = firebaseAuth.getCurrentUser();
-                if (user != null && user.isEmailVerified()) {
+                if (user != null) {
                     requestComments();
                 }
             }
@@ -245,7 +253,6 @@ public class CommentsFragment extends BaseFragment {
 
     private void loading(boolean loading) {
         if (loading) {
-
             container.setVisibility(View.GONE);
             swipeRefreshLayout.setRefreshing(true);
         } else {
@@ -268,6 +275,11 @@ public class CommentsFragment extends BaseFragment {
 
     private void requestComments() {
 
+        if (!((BaseApplication) getActivity().getApplication()).getInternetConnected()) {
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         loading(true);
 
         //Remove current result listener
@@ -278,13 +290,13 @@ public class CommentsFragment extends BaseFragment {
         Map<String, String> data = new HashMap<>();
         data.put("livetickerID", livetickerID);
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + "/comments/").push();
-        ref.setValue(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+        ref.setValue(data).addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 currentResultReference = FirebaseDatabase.getInstance().getReference("/result/" + user.getUid() + "/comments/" + ref.getKey());
                 currentResultReference.addValueEventListener(commentListener);
             }
-        }).addOnFailureListener(new OnFailureListener() {
+        }).addOnFailureListener(getActivity(), new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getContext(), R.string.fetch_comments_failure, Toast.LENGTH_SHORT).show();
@@ -295,7 +307,7 @@ public class CommentsFragment extends BaseFragment {
     private void sendComment() {
         String commentText = commentInput.getText().toString().trim();
         if (!commentText.isEmpty()) {
-            if (user != null && user.isEmailVerified()) {
+            if (user != null) {
                 loadAddingComment(true);
                 final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/addComment").push();
                 Map<String, Object> map = new HashMap<>();

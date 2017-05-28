@@ -49,9 +49,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.sunilson.pro4.BaseApplication;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.activities.BaseActivity;
 import com.sunilson.pro4.activities.LivetickerActivity;
@@ -62,6 +62,7 @@ import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.ConfirmDialog;
 import com.sunilson.pro4.dialogFragments.InfoDialog;
 import com.sunilson.pro4.dialogFragments.LivetickerPictureCaptionDialog;
+import com.sunilson.pro4.dialogFragments.RegisterDialog;
 import com.sunilson.pro4.dialogFragments.ShareDialog;
 import com.sunilson.pro4.exceptions.LivetickerEventSetException;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
@@ -72,6 +73,7 @@ import com.sunilson.pro4.views.SubscribeButton;
 import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -80,10 +82,12 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.sunilson.pro4.R.string.loading;
 
 /**
  * @author Linus Weiss
@@ -91,13 +95,16 @@ import static android.view.View.VISIBLE;
 
 public class LivetickerFragment extends BaseFragment implements View.OnClickListener {
 
-    private DatabaseReference livetickerContentReference, livetickerReference, subscriptionReference, likeReference, eventResultReference, viewerRef;
+    private DatabaseReference livetickerContentReference, viewerCountRef, livetickerReference, subscriptionReference, likeReference, eventResultReference, viewerRef;
     private ChildEventListener livetickerContentListener;
-    private ValueEventListener livetickerListener, authorListener, subscriptionListener, likedListener, eventResultListener;
+    private ValueEventListener livetickerListener, viewerListener, authorListener, subscriptionListener, likedListener, eventResultListener;
+    private StorageReference imageRef, thumbRef;
+    private byte[] image, thumbnail;
     private Liveticker liveticker;
     private User author;
+    private MenuItem notificationMenuItem;
     private FirebaseStorage storage;
-    private boolean owner, subscribed, addedToRecent, liked, started;
+    private boolean owner, subscribed, liked, started, notificationsOn, loadedFirstItem;
     private LivetickerRecyclerViewAdapter livetickerAdapter;
     private TextView status;
     private int loaded = 0;
@@ -105,11 +112,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private EditText textInput;
     private LinearLayout inputLayout;
     private ImageButton cameraButton, sendButton;
-    private TextView commentCount;
-    private FrameLayout redCircle;
     private RelativeLayout textInputLoading;
     private Timer timer;
-
+    private String caption, thumbnailUrl, livetickerID;
+    private Bundle savedReferences;
 
     @BindView(R.id.fragment_liveticker_recyclerView)
     RecyclerView livetickerContents;
@@ -119,7 +125,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @BindView(R.id.progress_overlay_progressbar)
     ProgressBar progressBarImageUpload;
-
 
     @BindView(R.id.fragment_liveticker_author_box)
     LinearLayout authorBox;
@@ -140,10 +145,13 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     SubscribeButton subscribeButtonView;
 
     @BindView(R.id.fragment_liveticker_like_icon)
-    ImageButton likeIcon;
+    ImageView likeIcon;
 
-    @BindView(R.id.fragment_liveticker_share_icon)
-    ImageButton shareIcon;
+    @BindView(R.id.fragment_liveticker_like_button)
+    LinearLayout likeButton;
+
+    @BindView(R.id.fragment_liveticker_comment_button)
+    LinearLayout commentButton;
 
     @BindView(R.id.fragment_liveticker_edit_delete)
     ImageButton deleteIcon;
@@ -166,6 +174,36 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     @BindView(R.id.fragment_liveticker_viewer_count)
     TextView viewerCount;
 
+    @BindView(R.id.fragment_liveticker_like_count)
+    TextView likeCount;
+
+    @BindView(R.id.fragment_liveticker_comment_count)
+    TextView commentCount;
+
+    @BindView(R.id.fragment_liveticker_comment_icon_count)
+    TextView commentIconCount;
+
+    @BindView(R.id.fragment_liveticker_comment_icon_red_circle)
+    FrameLayout redCircle;
+
+    @BindView(R.id.fragment_liveticker_content_container)
+    RelativeLayout contentContainer;
+
+    @BindView(R.id.fragment_liveticker_refresh_button)
+    Button refreshButton;
+
+    @OnClick(R.id.fragment_liveticker_refresh_button)
+    public void refresh() {
+        Intent i = new Intent(getActivity(), LivetickerActivity.class);
+        i.putExtra("livetickerID", livetickerID);
+        startActivity(i);
+        getActivity().finish();
+    }
+
+    /* ------------------------------------------- */
+    /* ------------- Android Methods ------------- */
+    /* ------------------------------------------- */
+
     public static LivetickerFragment newInstance(String livetickerID) {
         LivetickerFragment livetickerFragment = new LivetickerFragment();
         Bundle args = new Bundle();
@@ -178,17 +216,19 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String livetickerID = getArguments().getString("livetickerID");
+        livetickerID = getArguments().getString("livetickerID");
         storage = FirebaseStorage.getInstance();
         livetickerContentReference = ((BaseActivity) getActivity()).getReference().child(Constants.LIVETICKER_CONTENT_PATH).child(livetickerID);
         initializeContentListener();
         livetickerReference = FirebaseDatabase.getInstance().getReference("liveticker/" + livetickerID);
+        savedReferences = new Bundle();
 
         initializeLivetickerListener();
         initializeAuthorListener();
         initializeSubscriptionListener();
         initializeLikedListener();
         initializeEventResultListener();
+        initializeViewerListener();
         setHasOptionsMenu(true);
     }
 
@@ -196,14 +236,86 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     public void onStart() {
         super.onStart();
 
-        livetickerAdapter.clear();
 
-        if (!started) {
-            loading(true);
+        if (!((BaseApplication) getActivity().getApplication()).getInternetConnected()) {
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+            refreshButton.setVisibility(VISIBLE);
+            contentContainer.setVisibility(GONE);
+            return;
         }
 
+        loading(true);
+        loaded = 0;
+        loadingAddingNewEvent(false);
+
+        livetickerAdapter.clear();
+        loadedFirstItem = false;
         livetickerContentReference.addChildEventListener(livetickerContentListener);
         livetickerReference.addValueEventListener(livetickerListener);
+
+        if (livetickerAdapter != null) {
+            livetickerContents.setAdapter(livetickerAdapter = new LivetickerRecyclerViewAdapter(livetickerContents, getContext()));
+        }
+
+        if (savedReferences != null) {
+            final String thumbRef = savedReferences.getString("thumbRef");
+            if (thumbRef != null) {
+                loadingAddingNewEvent(true);
+                this.thumbRef = FirebaseStorage.getInstance().getReferenceFromUrl(thumbRef);
+
+                List<UploadTask> tasks = this.thumbRef.getActiveUploadTasks();
+                if (tasks.size() > 0) {
+                    UploadTask task = tasks.get(0);
+
+                    task.addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(final UploadTask.TaskSnapshot thumbSnapshot) {
+                            LivetickerFragment.this.thumbRef = null;
+                            LivetickerFragment.this.imageRef.putBytes(image).addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
+                                    LivetickerFragment.this.imageRef = null;
+                                    loadingAddingNewEvent(false);
+                                    createImageEvent(fullSnapshot.getDownloadUrl().toString(), thumbSnapshot.getDownloadUrl().toString(), caption);
+                                }
+                            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    loadingAddingNewEvent(false);
+                                    progressBarImageUpload.setProgress(0);
+                                    DialogFragment dialogFragment = ConfirmDialog.newInstance(Constants.CONFIRM_TYPE_IMAGE_UPLOAD, getString(R.string.image_upload_failure));
+                                    dialogFragment.setTargetFragment(LivetickerFragment.this, Constants.CONFIRM_DIALOG_REQUEST);
+                                    dialogFragment.show(getFragmentManager(), "dialog");
+                                }
+                            });
+                            loadingAddingNewEvent(false);
+                        }
+                    });
+                }
+            } else {
+                final String imageRef = savedReferences.getString("imageRef");
+                if (imageRef != null) {
+                    loadingAddingNewEvent(true);
+                    this.imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageRef);
+
+                    List<UploadTask> tasks = this.imageRef.getActiveUploadTasks();
+                    if (tasks.size() > 0) {
+                        UploadTask task = tasks.get(0);
+
+                        task.addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
+                                LivetickerFragment.this.imageRef = null;
+                                loadingAddingNewEvent(false);
+                                createImageEvent(fullSnapshot.getDownloadUrl().toString(), thumbnailUrl, caption);
+                            }
+                        });
+                    }
+                }
+            }
+
+            savedReferences = new Bundle();
+        }
     }
 
     @Override
@@ -230,6 +342,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             eventResultReference.removeEventListener(eventResultListener);
         }
 
+        if (viewerListener != null && viewerRef != null) {
+            viewerRef.removeEventListener(viewerListener);
+        }
+
         if (viewerRef != null) {
             viewerRef.removeValue();
             viewerRef = null;
@@ -241,14 +357,23 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             timer.purge();
         }
 
+        if (thumbRef != null) {
+            savedReferences.putString("thumbRef", thumbRef.toString());
+        }
+
+        if (imageRef != null) {
+            savedReferences.putString("imageRef", imageRef.toString());
+        }
+
         loading(false);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        getActivity().invalidateOptionsMenu();
+    public void onFragmentResumeFromBackstack() {
+        if (owner) {
+            inputLayout.setVisibility(View.VISIBLE);
+            authorBox.setVisibility(View.VISIBLE);
+            oldCommentCount = liveticker.getCommentCount();
+        }
     }
 
     @Nullable
@@ -291,16 +416,16 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             case R.id.subscribe_button:
                 if (user != null && !user.isAnonymous()) {
                     subscribeToAuthor();
+                } else {
+                    DialogFragment registerDialog = RegisterDialog.newInstance();
+                    registerDialog.show(getFragmentManager(), "dialog");
                 }
                 break;
-            case R.id.fragment_liveticker_like_icon:
-                if (liveticker != null && liveticker.getLivetickerID() != null && user != null && !user.isAnonymous()) {
-                    if (liked) {
-                        FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid()).removeValue();
-                    } else {
-                        FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid()).setValue(true);
-                    }
-                }
+            case R.id.fragment_liveticker_like_button:
+                toggleLike(user);
+                break;
+            case R.id.fragment_liveticker_comment_button:
+                openCommentSection();
                 break;
             case R.id.fragment_liveticker_comment_icon:
                 openCommentSection();
@@ -335,6 +460,18 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    private void setupClickListeners() {
+        cameraButton.setOnClickListener(this);
+        sendButton.setOnClickListener(this);
+        subscribeButton.setOnClickListener(this);
+        likeButton.setOnClickListener(this);
+        commentButton.setOnClickListener(this);
+        userName.setOnClickListener(this);
+        profilePicture.setOnClickListener(this);
+        deleteIcon.setOnClickListener(this);
+        editState.setOnClickListener(this);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -363,12 +500,52 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                                 case "state":
                                     toggleState();
                                     break;
+                                case Constants.CONFIRM_TYPE_IMAGE_UPLOAD:
+                                    storeImageToDatabase(null, null);
+                                    break;
                             }
                         }
                         break;
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.menu_liveticker, menu);
+        if (menu != null) {
+            notificationMenuItem = menu.findItem(R.id.liveticker_menu_notifications);
+            if (((LivetickerActivity) getActivity()).currentFragment.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
+                menu.findItem(R.id.liveticker_menu_share).setVisible(false);
+                menu.findItem(R.id.liveticker_menu_info).setVisible(false);
+                notificationMenuItem.setVisible(false);
+            } else {
+                menu.findItem(R.id.liveticker_menu_share).setVisible(true);
+                menu.findItem(R.id.liveticker_menu_info).setVisible(true);
+                notificationMenuItem.setVisible(true);
+            }
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.liveticker_menu_share:
+                DialogFragment dialog = ShareDialog.newInstance("https://firenote.at/liveticker/" + liveticker.getLivetickerID());
+                dialog.show(getFragmentManager(), "dialog");
+                break;
+            case R.id.liveticker_menu_info:
+                DialogFragment dialog2 = InfoDialog.newInstance(liveticker.getDescription());
+                dialog2.show(getFragmentManager(), "dialog");
+                break;
+            case R.id.liveticker_menu_notifications:
+                toggleNotifications();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -384,67 +561,75 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+
+
+    /* ------------------------------------------- */
+    /* -------------- Event Methods -------------- */
+    /* ------------------------------------------- */
+
     /**
      * Store Bitmap to Firebase Storage with unique Name. Then delete local image.
      */
-    private void storeImageToDatabase(Bitmap bitmap, final String caption) {
+    private void storeImageToDatabase(Bitmap bitmap, String caption) {
         loadingAddingNewEvent(true);
 
-        progressBarImageUpload.setVisibility(View.VISIBLE);
-
-        String uniqueId = UUID.randomUUID().toString();
+        if (this.caption == null) {
+            this.caption = caption;
+        }
 
         //Create references to Storage
-        final StorageReference imageRef = storage.getReference().child("livetickerImages/" + liveticker.getAuthorID() + "/" + liveticker.getLivetickerID() + "/" + uniqueId + ".jpg");
-        final StorageReference thumbRef = storage.getReference().child("livetickerImages/" + liveticker.getAuthorID() + "/" + liveticker.getLivetickerID() + "/thumbs/" + uniqueId + "_thumb.jpg");
+        if (imageRef == null || thumbRef == null) {
+            String uniqueId = UUID.randomUUID().toString();
+            imageRef = storage.getReference().child("livetickerImages/" + liveticker.getAuthorID() + "/" + liveticker.getLivetickerID() + "/" + uniqueId + ".jpg");
+            thumbRef = storage.getReference().child("livetickerImages/" + liveticker.getAuthorID() + "/" + liveticker.getLivetickerID() + "/thumbs/" + uniqueId + "_thumb.jpg");
+        }
 
         //Get Full Image
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream);
-        final byte[] data = byteArrayOutputStream.toByteArray();
+        if (bitmap != null) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream);
+            image = byteArrayOutputStream.toByteArray();
+        }
 
         //Generate Thumbnail of Image
-        Bitmap thumbMap = ThumbnailUtils.extractThumbnail(bitmap, 400, 225);
-        ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream();
-        thumbMap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream2);
-        final byte[] thumbnail = byteArrayOutputStream2.toByteArray();
+        if (bitmap != null) {
+            Bitmap thumbMap = ThumbnailUtils.extractThumbnail(bitmap, 400, 225);
+            ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream();
+            thumbMap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream2);
+            thumbnail = byteArrayOutputStream2.toByteArray();
+        }
 
-        progressBarImageUpload.setProgress(10);
-
-        thumbRef.putBytes(thumbnail).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(final UploadTask.TaskSnapshot thumbSnapshot) {
-                progressBarImageUpload.setProgress(30);
-                imageRef.putBytes(data).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        Double d = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                        progressBarImageUpload.setProgress(d.intValue() + 30);
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
-                        loadingAddingNewEvent(false);
-                        createImageEvent(fullSnapshot.getDownloadUrl().toString(), thumbSnapshot.getDownloadUrl().toString(), caption);
-                        progressBarImageUpload.setProgress(0);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        loadingAddingNewEvent(false);
-                        Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_LONG).show();
-                        progressBarImageUpload.setProgress(0);
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                loadingAddingNewEvent(false);
-                Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_LONG).show();
-                progressBarImageUpload.setProgress(0);
-            }
-        });
+        if (thumbnail != null && image != null) {
+            thumbRef.putBytes(thumbnail).addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(final UploadTask.TaskSnapshot thumbSnapshot) {
+                    thumbRef = null;
+                    thumbnailUrl = thumbSnapshot.getDownloadUrl().toString();
+                    imageRef.putBytes(image).addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot fullSnapshot) {
+                            imageRef = null;
+                            loadingAddingNewEvent(false);
+                            createImageEvent(fullSnapshot.getDownloadUrl().toString(), thumbnailUrl, LivetickerFragment.this.caption);
+                        }
+                    }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            loadingAddingNewEvent(false);
+                            Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    loadingAddingNewEvent(false);
+                    Toast.makeText(getContext(), R.string.image_upload_failure, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            loadingAddingNewEvent(false);
+        }
     }
 
     /**
@@ -531,26 +716,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         });
     }
 
-    private void loading(boolean loading) {
-        if (loading) {
-            swipeRefreshLayout.setEnabled(true);
-            swipeRefreshLayout.setRefreshing(true);
-            container.setVisibility(View.GONE);
-        } else {
-            started = true;
-            swipeRefreshLayout.setRefreshing(false);
-            swipeRefreshLayout.setEnabled(false);
-            container.setVisibility(View.VISIBLE);
-            if (owner) {
-                inputLayout.setVisibility(View.VISIBLE);
-                authorBox.setVisibility(View.VISIBLE);
-            } else {
-                inputLayout.setVisibility(View.GONE);
-                authorBox.setVisibility(View.GONE);
-            }
-        }
-    }
-
     private void loadingAddingNewEvent(boolean loading) {
         if (loading) {
             textInputLoading.setVisibility(VISIBLE);
@@ -577,13 +742,20 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         dialogFragment.show(getFragmentManager(), "dialog");
     }
 
+    /* ------------------------------------------- */
+    /* -----------Initialize Listeners ----------- */
+    /* ------------------------------------------- */
+
     private void initializeContentListener() {
         livetickerContentListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot == null || dataSnapshot.getKey().equals("authorID")) {
+                if (dataSnapshot != null) {
+                    if(!loadedFirstItem) {
+                        loadedFirstItem = true;
+                        checkDoneLoading();
+                    }
 
-                } else {
                     livetickerAdapter.addEvent(dataSnapshot.getValue(LivetickerEvent.class));
                 }
             }
@@ -652,7 +824,6 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         };
     }
 
-
     private void initializeAuthorListener() {
         authorListener = new ValueEventListener() {
             @Override
@@ -692,68 +863,34 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             public void onDataChange(DataSnapshot dataSnapshot) {
                 liveticker = dataSnapshot.getValue(Liveticker.class);
                 if (liveticker != null) {
-
                     try {
                         liveticker.setLivetickerID(dataSnapshot.getKey());
                     } catch (LivetickerSetException e) {
                         e.printStackTrace();
                     }
 
-                    if (oldCommentCount == 0) {
-                        oldCommentCount = liveticker.getCommentCount();
-                    }
-
-                    if (oldCommentCount != liveticker.getCommentCount()) {
+                    if (oldCommentCount == 0) oldCommentCount = liveticker.getCommentCount();
+                    if (oldCommentCount != liveticker.getCommentCount())
                         updateCommentIcon(liveticker.getCommentCount() - oldCommentCount);
-                    }
 
-                    //Start subscription listener
-                    if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        checkOwnership();
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                    if (user != null) {
+                        checkOwnership(user);
 
                         if (!owner) {
-                            //First remove current Listener
-                            if (subscriptionReference != null && subscriptionListener != null) {
-                                subscriptionReference.removeEventListener(subscriptionListener);
-                            }
-
-                            //Start new listener
-                            subscriptionReference = FirebaseDatabase.getInstance().getReference("subscriptions/" + liveticker.getAuthorID() + "/" + user.getUid());
-                            subscriptionReference.addValueEventListener(subscriptionListener);
-
-                            if (!addedToRecent) {
-                                addToRecentlyVisited();
-                            }
+                            startSubscriptionListener(user);
+                            addToRecentlyVisited(user);
                         }
 
-                        registerAsViewer();
+                        registerAsViewer(user);
+                        startLikeListener(user);
+                        startNotificationsListener(user);
 
-                        if (likeReference != null && likedListener != null) {
-                            likeReference.removeEventListener(likedListener);
+                        if (!started) {
+                            startAuthorListener();
+                            startViewListener();
                         }
-
-                        likeReference = FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid());
-                        likeReference.addValueEventListener(likedListener);
-                    }
-
-                    if (!started) {
-                        //Start author listener
-                        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("users/" + liveticker.getAuthorID());
-                        dRef.addListenerForSingleValueEvent(authorListener);
-
-                        DatabaseReference dRef2 = FirebaseDatabase.getInstance().getReference("viewerCount/" + liveticker.getLivetickerID());
-                        dRef2.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                viewerCount.setText(Integer.toString(dataSnapshot.getValue(Integer.class)));
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
                     }
 
                     checkDoneLoading();
@@ -770,9 +907,29 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         };
     }
 
-    private void checkOwnership() {
-        if (FirebaseAuth.getInstance().getCurrentUser() != null && liveticker != null) {
-            if (FirebaseAuth.getInstance().getCurrentUser().getUid().equals(liveticker.getAuthorID())) {
+    private void initializeViewerListener() {
+        viewerListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                    viewerCount.setText(Integer.toString(dataSnapshot.getValue(Integer.class)));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
+    /* ------------------------------------------- */
+    /* --------- Listener Helper Methods --------- */
+    /* ------------------------------------------- */
+
+    private void checkOwnership(FirebaseUser user) {
+        if (liveticker != null) {
+            if (user.getUid().equals(liveticker.getAuthorID())) {
                 owner = true;
                 updateViews("both");
             } else {
@@ -780,6 +937,86 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                 updateViews("both");
             }
         }
+    }
+
+    private void startSubscriptionListener(FirebaseUser user) {
+        //First remove current Listener
+        if (subscriptionReference != null && subscriptionListener != null) {
+            subscriptionReference.removeEventListener(subscriptionListener);
+        }
+        //Start new listener
+        subscriptionReference = FirebaseDatabase.getInstance().getReference("subscriptions/" + liveticker.getAuthorID() + "/" + user.getUid());
+        subscriptionReference.addValueEventListener(subscriptionListener);
+    }
+
+    private void addToRecentlyVisited(FirebaseUser user) {
+        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("recentlyVisited/" + user.getUid() + "/" + liveticker.getLivetickerID());
+        dRef.setValue(ServerValue.TIMESTAMP);
+    }
+
+    private void refreshViewer() {
+        final Handler handler = new Handler();
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
+        timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        registerAsViewer(FirebaseAuth.getInstance().getCurrentUser());
+                    }
+                });
+            }
+        };
+
+        timer.schedule(doAsynchronousTask, 300000, 300000);
+    }
+
+    private void startViewListener() {
+        viewerCountRef = FirebaseDatabase.getInstance().getReference("viewerCount/" + liveticker.getLivetickerID());
+        viewerCountRef.addValueEventListener(viewerListener);
+    }
+
+    private void startNotificationsListener(FirebaseUser user) {
+        FirebaseDatabase.getInstance().getReference("notifications/" + liveticker.getLivetickerID() + "/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                notificationsOn = dataSnapshot != null && dataSnapshot.getValue() != null && dataSnapshot.getValue(Boolean.class);
+                checkNotifications();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void startAuthorListener() {
+        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("users/" + liveticker.getAuthorID());
+        dRef.addListenerForSingleValueEvent(authorListener);
+    }
+
+    private void startLikeListener(FirebaseUser user) {
+        if (likeReference != null && likedListener != null) {
+            likeReference.removeEventListener(likedListener);
+        }
+
+        likeReference = FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid());
+        likeReference.addValueEventListener(likedListener);
+    }
+
+    private void registerAsViewer(FirebaseUser user) {
+        if (user != null && viewerRef == null) {
+            viewerRef = FirebaseDatabase.getInstance().getReference("viewer/" + liveticker.getLivetickerID() + "/" + user.getUid());
+            refreshViewer();
+        }
+
+        viewerRef.setValue(ServerValue.TIMESTAMP);
     }
 
     private void updateViews(String type) {
@@ -794,10 +1031,13 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     //description.setContent(liveticker.getDescription());
                 }
 
+                status.setVisibility(View.VISIBLE);
                 if (liveticker.getStatus() != null && !liveticker.getStatus().isEmpty()) {
                     status.setText(liveticker.getStatus());
-                    status.setVisibility(View.VISIBLE);
                 }
+
+                commentCount.setText(Integer.toString(liveticker.getCommentCount()));
+                likeCount.setText(Integer.toString(liveticker.getLikeCount()));
 
                 if (liveticker.getState() != null) {
                     ((LivetickerActivity) getActivity()).updateLivetickerState(liveticker.getState());
@@ -878,111 +1118,49 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
-    private void addToRecentlyVisited() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("recentlyVisited/" + user.getUid() + "/" + liveticker.getLivetickerID());
-        dRef.setValue(ServerValue.TIMESTAMP).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                addedToRecent = true;
-            }
-        });
-    }
-
-    private void refreshViewer() {
-        final Handler handler = new Handler();
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
-        }
-        timer = new Timer();
-        TimerTask doAsynchronousTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        registerAsViewer();
-                    }
-                });
-            }
-        };
-
-        timer.schedule(doAsynchronousTask, 300000, 300000);
-    }
-
-    private void registerAsViewer() {
-        if (viewerRef == null) {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            viewerRef = FirebaseDatabase.getInstance().getReference("viewer/" + liveticker.getLivetickerID() + "/" + user.getUid());
-            refreshViewer();
-        }
-
-        viewerRef.setValue(ServerValue.TIMESTAMP);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-        inflater.inflate(R.menu.menu_liveticker, menu);
-        if (menu != null) {
-            if (((LivetickerActivity) getActivity()).currentFragment.equals(Constants.FRAGMENT_COMMENTS_TAG)) {
-                menu.findItem(R.id.liveticker_menu_comments).setVisible(false);
-                menu.findItem(R.id.liveticker_menu_share).setVisible(false);
-                menu.findItem(R.id.liveticker_menu_info).setVisible(false);
-            } else {
-                menu.findItem(R.id.liveticker_menu_comments).setVisible(true);
-                menu.findItem(R.id.liveticker_menu_share).setVisible(true);
-                menu.findItem(R.id.liveticker_menu_info).setVisible(true);
-            }
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-
-        final MenuItem menuItem = menu.findItem(R.id.liveticker_menu_comments);
-        RelativeLayout rootView = (RelativeLayout) menuItem.getActionView();
-
-        redCircle = (FrameLayout) rootView.findViewById(R.id.comment_icon_red_circle);
-        commentCount = (TextView) rootView.findViewById(R.id.comment_icon_count);
-
-        rootView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onOptionsItemSelected(menuItem);
-            }
-        });
-
-        super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.liveticker_menu_comments:
-                openCommentSection();
-                break;
-            case R.id.liveticker_menu_share:
-                DialogFragment dialog = ShareDialog.newInstance("https://firenote.at/liveticker/" + liveticker.getLivetickerID());
-                dialog.show(getFragmentManager(), "dialog");
-                break;
-            case R.id.liveticker_menu_info:
-                DialogFragment dialog2 = InfoDialog.newInstance(liveticker.getDescription());
-                dialog2.show(getFragmentManager(), "dialog");
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     public void updateCommentIcon(int count) {
         if (count > 0 && count < 10) {
-            commentCount.setText(String.valueOf(count));
+            commentIconCount.setText(String.valueOf(count));
         }
 
         redCircle.setVisibility((count > 0) ? VISIBLE : GONE);
     }
+
+    private void checkDoneLoading() {
+        loaded++;
+
+        if (loaded >= 4) {
+            loading(false);
+            loaded = 0;
+        } else if (owner && loaded >= 3) {
+            loading(false);
+            loaded = 0;
+        }
+    }
+
+    private void loading(boolean loading) {
+        if (loading) {
+            swipeRefreshLayout.setEnabled(true);
+            swipeRefreshLayout.setRefreshing(true);
+            container.setVisibility(View.GONE);
+        } else {
+            started = true;
+            swipeRefreshLayout.setRefreshing(false);
+            swipeRefreshLayout.setEnabled(false);
+            container.setVisibility(View.VISIBLE);
+            if (owner) {
+                inputLayout.setVisibility(View.VISIBLE);
+                authorBox.setVisibility(View.VISIBLE);
+            } else {
+                inputLayout.setVisibility(View.GONE);
+                authorBox.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /* ------------------------------------------- */
+    /* ------------ Liveticker Methods ----------- */
+    /* ------------------------------------------- */
 
     private void deleteLiveticker() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -1010,35 +1188,79 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         });
     }
 
+    private void checkNotifications() {
+        if (notificationsOn) {
+            notificationMenuItem.setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_notifications_active_white_24dp));
+        } else {
+            notificationMenuItem.setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_notifications_none_white_24dp));
+
+        }
+    }
+
+    private void toggleNotifications() {
+
+        notificationsOn = !notificationsOn;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (liveticker != null && liveticker.getLivetickerID() != null && user != null && !user.isAnonymous()) {
+            if (!notificationsOn) {
+                FirebaseDatabase.getInstance().getReference("notifications/" + liveticker.getLivetickerID() + "/" + user.getUid()).removeValue().addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), R.string.connect_failure, Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getContext(), R.string.notifications_deactivated, Toast.LENGTH_SHORT).show();
+                        checkNotifications();
+                    }
+                });
+            } else {
+                FirebaseDatabase.getInstance().getReference("notifications/" + liveticker.getLivetickerID() + "/" + user.getUid()).setValue(true).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), R.string.connect_failure, Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getContext(), R.string.notifications_activated, Toast.LENGTH_SHORT).show();
+                        checkNotifications();
+                    }
+                });
+            }
+        }
+    }
+
+    private void toggleLike(FirebaseUser user) {
+        if (liveticker != null && liveticker.getLivetickerID() != null && user != null && !user.isAnonymous()) {
+            if (liked) {
+                FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid()).removeValue().addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), R.string.connect_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                FirebaseDatabase.getInstance().getReference("liked/" + liveticker.getLivetickerID() + "/" + user.getUid()).setValue(true).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), R.string.connect_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        } else {
+            DialogFragment registerDialog = RegisterDialog.newInstance();
+            registerDialog.show(getFragmentManager(), "dialog");
+        }
+    }
+
     private void openCommentSection() {
         if (liveticker.getLivetickerID() != null) {
             oldCommentCount = liveticker.getCommentCount();
+            updateCommentIcon(0);
             ((LivetickerActivity) getActivity()).replaceFragment(CommentsFragment.newInstance(liveticker.getLivetickerID()), Constants.FRAGMENT_COMMENTS_TAG);
         }
 
-    }
-
-    private void setupClickListeners() {
-        cameraButton.setOnClickListener(this);
-        sendButton.setOnClickListener(this);
-        subscribeButton.setOnClickListener(this);
-        likeIcon.setOnClickListener(this);
-        shareIcon.setOnClickListener(this);
-        userName.setOnClickListener(this);
-        profilePicture.setOnClickListener(this);
-        deleteIcon.setOnClickListener(this);
-        editState.setOnClickListener(this);
-    }
-
-    private void checkDoneLoading() {
-        loaded++;
-
-        if (loaded >= 3) {
-            loading(false);
-            loaded = 0;
-        } else if (owner && loaded >= 2) {
-            loading(false);
-            loaded = 0;
-        }
     }
 }

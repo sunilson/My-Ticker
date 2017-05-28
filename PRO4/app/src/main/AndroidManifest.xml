@@ -6,13 +6,14 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <application
-        android:name="com.sunilson.pro4.BaseApplication"
+        android:name=".BaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
@@ -32,32 +33,7 @@
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.AddLivetickerActivity"
-            android:label="@string/title_activity_add_liveticker"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".activities.BaseActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.sunilson.pro4.activities.BaseActivity" />
-        </activity>
-        <activity
-            android:name=".activities.AuthenticationActivity"
-            android:label="@string/title_activity_authentication"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activities.LivetickerActivity"
-            android:label="@string/title_activity_liveticker"
-            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -72,6 +48,39 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activities.SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.AddLivetickerActivity"
+            android:label="@string/title_activity_add_liveticker"
+            android:parentActivityName=".activities.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sunilson.pro4.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.AuthenticationActivity"
+            android:label="@string/title_activity_authentication"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.LivetickerActivity"
+            android:label="@string/title_activity_liveticker"
+            android:parentActivityName=".activities.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sunilson.pro4.activities.MainActivity" />
+        </activity>
+        <activity
             android:name=".activities.ChannelActivity"
             android:label="@string/title_activity_channel"
             android:screenOrientation="portrait"
@@ -81,6 +90,7 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="firenote.at"
                     android:scheme="https" />

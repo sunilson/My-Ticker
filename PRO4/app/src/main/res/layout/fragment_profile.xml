@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:background="@color/livetickerBackground"
+    android:background="@color/white"
     android:animateLayoutChanges="true"
     android:layout_height="match_parent">
     <LinearLayout
@@ -9,6 +9,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_marginBottom="?actionBarSize"
+        android:background="@color/livetickerBackground"
+        android:visibility="gone"
         android:gravity="center"
         android:id="@+id/fragment_profile_anonymous">
         <TextView
@@ -24,16 +26,81 @@
             android:text="@string/register_button"
             />
     </LinearLayout>
-    <Button
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/fragment_profile_edit_channel"
-        android:text="@string/edit_user_channel"
-        />
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/fragment_profile_view_channel"
-        android:text="@string/view_own_channel"
-        />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/container_padding"
+        >
+        <LinearLayout
+            android:id="@+id/fragment_profile_view_channel"
+            android:layout_width="match_parent"
+            style="@style/SettingsElement">
+            <ImageView
+                android:layout_height="match_parent"
+                android:src="@drawable/eye_icon"
+                style="@style/SettingsElementIcon"
+                />
+            <TextView
+                style="@style/SettingsElementText"
+                android:text="@string/view_own_channel"
+                />
+        </LinearLayout>
+        <View
+            style="@style/SettingsElementDivider"
+            />
+        <LinearLayout
+            android:id="@+id/fragment_profile_edit_channel"
+            android:layout_width="match_parent"
+            style="@style/SettingsElement">
+            <ImageView
+                android:layout_height="match_parent"
+                android:src="@drawable/edit_icon"
+                style="@style/SettingsElementIcon"
+                />
+            <TextView
+                style="@style/SettingsElementText"
+                android:text="@string/edit_user_channel"
+                />
+        </LinearLayout>
+        <View
+            style="@style/SettingsElementDivider"
+            />
+        <LinearLayout
+            android:id="@+id/fragment_profile_view_liveticker"
+            android:layout_width="match_parent"
+            style="@style/SettingsElement">
+            <ImageView
+                android:layout_height="match_parent"
+                android:src="@drawable/list_icon"
+                style="@style/SettingsElementIcon"
+                />
+            <TextView
+                style="@style/SettingsElementText"
+                android:text="@string/view_livetickers"
+                />
+        </LinearLayout>
+        <View
+            style="@style/SettingsElementDivider"
+            />
+        <LinearLayout
+            android:id="@+id/fragment_profile_settings"
+            android:layout_width="match_parent"
+            style="@style/SettingsElement">
+            <ImageView
+                android:layout_height="match_parent"
+                android:src="@drawable/settings_icon"
+                style="@style/SettingsElementIcon"
+                />
+            <TextView
+                style="@style/SettingsElementText"
+                android:text="@string/settings"
+                />
+        </LinearLayout>
+        <View
+            style="@style/SettingsElementDivider"
+            />
+
+    </LinearLayout>
 </LinearLayout>

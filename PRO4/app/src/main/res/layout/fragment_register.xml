@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:background="@color/colorPrimary"
-android:clipToPadding="false"
-android:padding="25dp">
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
+    android:layout_height="match_parent"
     android:background="@drawable/login_background"
-    android:elevation="6dp"
     android:orientation="vertical"
-    android:padding="25dp">
+    android:gravity="center"
+    android:padding="30dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:gravity="center"
         android:text="@string/register"
         android:textColor="@color/primary_text"
@@ -53,7 +45,7 @@ android:padding="25dp">
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:fontFamily="sans-serif"
         android:ems="10"
         android:drawableLeft="@drawable/lock_icon"
@@ -61,24 +53,4 @@ android:padding="25dp">
         android:inputType="textPassword" />
 
     <include layout="@layout/big_submit_button_with_progress" />
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:animateLayoutChanges="true">
-        <Button
-            style="@style/SubmitButtonLarge"
-            android:id="@+id/loginFragment_login"
-            android:layout_width="match_parent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/login"
-            android:textColor="@color/primary_text_dark"
-            android:textSize="20sp" />
-    </RelativeLayout>
 </LinearLayout>
-</RelativeLayout>

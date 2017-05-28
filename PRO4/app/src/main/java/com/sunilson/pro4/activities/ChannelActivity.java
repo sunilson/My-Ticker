@@ -24,7 +24,6 @@ import butterknife.ButterKnife;
 public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
     private String currentFragment;
-    private boolean firstLogin = false;
 
     @BindView(R.id.content_channel)
     FrameLayout frameLayout;

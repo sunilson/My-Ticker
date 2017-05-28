@@ -22,7 +22,7 @@
             android:layout_width="60dp"
             android:layout_height="35dp"
             android:id="@+id/share_dialog_button"
-            style="@style/SubmitButton"
+            style="@style/ShareButton"
             android:layout_gravity="right"
             android:text="Copy"
             />

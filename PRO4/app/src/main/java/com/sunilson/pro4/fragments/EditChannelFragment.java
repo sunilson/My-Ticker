@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -34,7 +35,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.sunilson.pro4.BaseApplication;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.activities.ChannelActivity;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.LivetickerPicktureCropDialog;
 import com.sunilson.pro4.dialogFragments.PickImageDialog;
@@ -47,6 +50,7 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static android.view.View.GONE;
 
@@ -96,8 +100,19 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     @BindView(R.id.fragment_edit_channel_pick_title)
     ImageButton getTitleImage;
 
-    @BindView(R.id.progress_overlay)
-    View progressOverlay;
+    @BindView(R.id.fragment_edit_channel_content_container)
+    ScrollView content_containeer;
+
+    @BindView(R.id.fragment_edit_channel_refresh_button)
+    Button refreshButton;
+
+    @OnClick(R.id.fragment_edit_channel_refresh_button)
+    public void refresh() {
+        Intent i = new Intent(getActivity(), ChannelActivity.class);
+        i.putExtra("type", "editChannel");
+        startActivity(i);
+        getActivity().finish();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,6 +125,14 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onStart() {
         super.onStart();
+
+        if (!((BaseApplication) getActivity().getApplication()).getInternetConnected()) {
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+            refreshButton.setVisibility(View.VISIBLE);
+            content_containeer.setVisibility(GONE);
+            return;
+        }
+
         if (!started) {
             loading(true);
             started = true;
@@ -345,7 +368,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         String uniqueId = UUID.randomUUID().toString();
 
         //Create references to Storage
-        final StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(currentType + "/" + user.getUid() + "/" + currentType + ".jpg");
+        final StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(currentType + "Pictures/" + user.getUid() + "/" + uniqueId + ".jpg");
 
         //Get Full Image
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -428,6 +451,11 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
      * Save Updated Channel to Server Queue for further processing
      */
     private void saveChannel() {
+        if (!((BaseApplication) getActivity().getApplication()).getInternetConnected()) {
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         loading(true);
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
