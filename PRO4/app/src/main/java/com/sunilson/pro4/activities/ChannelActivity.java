@@ -7,13 +7,18 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.ChannelFragment;
 import com.sunilson.pro4.fragments.EditChannelFragment;
+import com.sunilson.pro4.fragments.LivetickerListFragment;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 
 import java.util.List;
@@ -30,6 +35,15 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
     @BindView(R.id.app_bar_layout)
     AppBarLayout appBarLayout;
+
+    @BindView(R.id.channel_bar_spinner)
+    Spinner spinner;
+
+    @BindView(R.id.channel_spinner_layout)
+    RelativeLayout spinnerLayout;
+
+    @BindView(R.id.channel_spinner_title)
+    TextView spinnerTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +75,7 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
                 }
             }
         } else if (type.equals("editChannel")) {
+            setTitle(getString(R.string.edit_channel_title));
             replaceFragment(EditChannelFragment.newInstance(), "edit");
         } else if (type.equals("firstLogin")) {
             replaceFragment(EditChannelFragment.newInstance(), "edit");
@@ -68,6 +83,15 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
             String authorID = i.getStringExtra("authorID");
             if (authorID != null) {
                 replaceFragment(ChannelFragment.newInstance(authorID), "view");
+            } else {
+                finish();
+            }
+        } else if (type.equals("list")) {
+            spinnerLayout.setVisibility(View.VISIBLE);
+            spinnerTitle.setVisibility(View.VISIBLE);
+            String authorID = i.getStringExtra("authorID");
+            if (authorID != null) {
+                replaceFragment(LivetickerListFragment.newInstance(authorID), "view");
             } else {
                 finish();
             }

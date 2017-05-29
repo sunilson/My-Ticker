@@ -16,13 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,9 +54,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @BindView(R.id.feed_bar)
     LinearLayout feedBarLayout;
 
-    @BindView(R.id.feed_bar_spinner)
-    Spinner feedBarSpinner;
-
     @BindView(R.id.main_bar_author_image)
     ImageView authorImage;
 
@@ -67,9 +62,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.main_bar_author_name)
     TextView authorName;
-
-    @BindView(R.id.spinner_layout)
-    RelativeLayout spinnerLayout;
 
     @BindView(R.id.main_liveticker_bar)
     LinearLayout livetickerBar;
@@ -154,11 +146,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         });
 
-
-        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this, R.array.feed_spinner_values, R.layout.spinner_item);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        feedBarSpinner.setAdapter(arrayAdapter);
-
         initializeUserListener();
 
         enterAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_from_bottom);
@@ -223,12 +210,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             menu.findItem(R.id.feed_menu_refresh).setVisible(true);
             searchBarLayout.setVisibility(View.GONE);
             feedBarLayout.setVisibility(View.VISIBLE);
-            spinnerLayout.setVisibility(GONE);
         } else if (viewPager.getCurrentItem() == 1) {
             menu.findItem(R.id.feed_menu_refresh).setVisible(true);
             searchBarLayout.setVisibility(View.GONE);
             feedBarLayout.setVisibility(View.VISIBLE);
-            spinnerLayout.setVisibility(View.VISIBLE);
         } else if (viewPager.getCurrentItem() == 2) {
             menu.findItem(R.id.feed_menu_refresh).setVisible(false);
             searchBarLayout.setVisibility(View.VISIBLE);
@@ -237,7 +222,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             menu.findItem(R.id.feed_menu_refresh).setVisible(false);
             searchBarLayout.setVisibility(View.GONE);
             feedBarLayout.setVisibility(View.VISIBLE);
-            spinnerLayout.setVisibility(GONE);
         }
 
         loginButton = menu.findItem(R.id.main_menu_login);

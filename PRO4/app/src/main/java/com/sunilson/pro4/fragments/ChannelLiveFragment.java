@@ -71,7 +71,7 @@ public class ChannelLiveFragment extends ChannelBaseFragment {
         View view = inflater.inflate(R.layout.fragment_channel_live, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter = new FeedRecyclerViewAdapter(recyclerView, getContext()));
         recyclerView.setNestedScrollingEnabled(false);
 
@@ -102,6 +102,7 @@ public class ChannelLiveFragment extends ChannelBaseFragment {
                     }
                 }
                 adapter.setData(ownLivetickersData);
+                adapter.sortByDate();
                 //channelViewPager.measureCurrentView(getView());
             }
 

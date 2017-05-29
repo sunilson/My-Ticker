@@ -111,6 +111,7 @@ public class ChannelArchiveFragment extends ChannelBaseFragment {
                     }
                 }
                 adapter.setData(ownLivetickersData);
+                adapter.sortByDate();
                 //channelViewPager.measureCurrentView(getView());
             }
 

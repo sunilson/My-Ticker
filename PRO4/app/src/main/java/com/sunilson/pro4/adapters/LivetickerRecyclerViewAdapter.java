@@ -45,7 +45,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
 
     public LivetickerRecyclerViewAdapter(RecyclerView recyclerView, Context ctx) {
         this.ctx = ctx;
-        this.dateFormat = new SimpleDateFormat("dd.MM.YY", Locale.getDefault());
+        this.dateFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
         this.timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getDefault());
         this.liveticker = recyclerView;

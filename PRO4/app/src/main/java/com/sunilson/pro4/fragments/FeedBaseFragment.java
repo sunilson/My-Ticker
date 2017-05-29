@@ -48,6 +48,10 @@ public abstract class FeedBaseFragment extends BaseFragment {
         super.onStart();
 
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+
+        if (currentResultReference != null && resultListener != null) {
+            currentResultReference.addValueEventListener(resultListener);
+        }
     }
 
     @Override

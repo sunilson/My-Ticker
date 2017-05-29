@@ -10,9 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,10 +37,9 @@ import static com.sunilson.pro4.utilities.Constants.FEED_PATH;
  * @author Linus Weiss
  */
 
-public class FeedFragment extends FeedBaseFragment implements AdapterView.OnItemSelectedListener {
+public class FeedFragment extends FeedBaseFragment{
 
     private FeedRecyclerViewAdapter recentlyVisitedAdapter, subscriptionLivetickersAdapter;
-    private Spinner spinner;
 
     @BindView(R.id.feed_fragment_recentlyVisited_layout)
     LinearLayout recentlyVisitedLayout;
@@ -117,9 +114,6 @@ public class FeedFragment extends FeedBaseFragment implements AdapterView.OnItem
                 requestFeed();
             }
         });
-
-        spinner = (Spinner) getActivity().findViewById(R.id.feed_bar_spinner);
-        spinner.setOnItemSelectedListener(this);
 
         return view;
     }
@@ -196,6 +190,7 @@ public class FeedFragment extends FeedBaseFragment implements AdapterView.OnItem
         }
     }
 
+    /*
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         String string = adapterView.getItemAtPosition(i).toString();
@@ -212,10 +207,12 @@ public class FeedFragment extends FeedBaseFragment implements AdapterView.OnItem
         }
     }
 
+
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
+    */
 
     void initializeAuthListener() {
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -223,9 +220,11 @@ public class FeedFragment extends FeedBaseFragment implements AdapterView.OnItem
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+                    loading(false);
                     if (!user.isAnonymous()) {
                         isAnonymous(false);
                         if (!started) {
+                            loading(false);
                             requestFeed();
                             started = true;
                         } else {

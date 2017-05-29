@@ -847,6 +847,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     loadingAddingNewEvent(false);
                     ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(textInput.getWindowToken(), 0);
                     textInput.setText("");
+                } else if (dataSnapshot.getValue() != null && dataSnapshot.child("state") != null && dataSnapshot.child("state").getValue().toString().equals("error")) {
+                    loadingAddingNewEvent(false);
+                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(textInput.getWindowToken(), 0);
+                    Toast.makeText(getContext(), R.string.error_adding_event, Toast.LENGTH_SHORT).show();
                 }
             }
 
