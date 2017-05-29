@@ -57,6 +57,14 @@ public class ProfileFragment extends BaseFragment implements FragmentAuthInterfa
         dialogFragment.show(getFragmentManager(), "dialog");
     }
 
+    @OnClick(R.id.fragment_profile_view_liveticker)
+    public void openLivetickerList() {
+        Intent i = new Intent(getActivity(), ChannelActivity.class);
+        i.putExtra("type", "list");
+        i.putExtra("authorID", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        startActivity(i);
+    }
+
     public static ProfileFragment newInstance() {
         return new ProfileFragment();
     }

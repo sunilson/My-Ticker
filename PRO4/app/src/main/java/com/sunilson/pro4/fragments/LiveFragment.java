@@ -81,8 +81,6 @@ public class LiveFragment extends FeedBaseFragment {
             }
         });
 
-        spinner = (Spinner) getActivity().findViewById(R.id.feed_bar_spinner);
-
         return view;
     }
 
@@ -94,6 +92,7 @@ public class LiveFragment extends FeedBaseFragment {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+                    loading(false);
                     if (!started) {
                         requestFeed();
                         started = true;

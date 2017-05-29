@@ -20,6 +20,7 @@ import com.sunilson.pro4.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -121,6 +122,26 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
         this.data = list;
         Collections.reverse(this.data);
         notifyDataSetChanged();
+    }
+
+    public void add(Liveticker liveticker) {
+        this.data.add(liveticker);
+        int index = this.data.indexOf(liveticker);
+        notifyItemInserted(index);
+    }
+
+    public void sortByDate() {
+        Collections.sort(data, new Comparator<Liveticker>() {
+            @Override
+            public int compare(Liveticker liveticker, Liveticker t1) {
+                if (liveticker.getStateTimestamp() < t1.getStateTimestamp()) {
+                    return 1;
+                } else if (liveticker.getStateTimestamp() > t1.getStateTimestamp()) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
     }
 
     private class FeedClickListener implements View.OnClickListener {

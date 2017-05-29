@@ -61,6 +61,10 @@
     <string name="edit_user_channel">Edit your channel</string>
     <string name="image_title">Image from My Ticker</string>
     <string name="new_liveticker_event">New Event in</string>
+    <string name="new_liveticker_event_started">Liveticker started</string>
+    <string name="new_liveticker_event_started_subtitle">is going live now!</string>
+    <string name="new_liveticker_event_finished">Finished Liveticker</string>
+    <string name="new_liveticker_event_finished_subtitle">has been finished!</string>
     <string name="or">OR</string>
     <string name="notifications_activated">You will now get notifications when new events are added to this liveticker!</string>
     <string name="notifications_deactivated">Notifications deactivated!</string>
@@ -80,8 +84,10 @@
     <string name="feed_title">Feed</string>
     <string name="no_caption">No Caption!</string>
     <string name="nothing_here">Nothing here!</string>
+    <string name="liveticker_list_title">Your Livetickers</string>
     <string name="search_error">Search error! Please try again.</string>
     <string name="error_adding_comment">Error adding comment! Please try again.</string>
+    <string name="error_adding_event">Error adding event! Is the Liveticker Live and do you have an internet connection?</string>
     <string name="search_title">Search</string>
     <string name="add_liveticker_title">Create a new Liveticker</string>
     <string name="add_liveticker_subtitle">Here you can create a new Liveticker. All your subscribers will be noticed once it is created!</string>
@@ -139,12 +145,13 @@
     <string name="email_invalid">Email is invalid!</string>
     <string name="fields_empty">One ore more fields are empty!</string>
     <string name="passwords_must_match">Passwords must match!</string>
+    <string name="edit_channel_title">Edit your channel</string>
     <string name="live_fragment_title">Live</string>
     <string name="feed_fragment_title">Feed</string>
     <string name="search_fragment_title">Search</string>
     <string name="profile_fragment_title">Profile</string>
     <string name="start_search">Enter keyword and press "Done"</string>
-    <string name="state_not_started">Not started yet</string>
+    <string name="state_not_started">Not started</string>
     <string name="state_started">Live</string>
     <string name="no_search_results">No results found</string>
     <string name="state_finished">Finished</string>

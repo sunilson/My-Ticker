@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.sunilson.pro4.BaseApplication;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
@@ -65,7 +66,7 @@ public class SearchFragment extends BaseFragment {
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user != null) {
+        if (user != null && ((BaseApplication)getActivity().getApplication()).getInternetConnected()) {
 
             if (resultReference != null && searchResultListener != null) {
                 resultReference.removeEventListener(searchResultListener);
@@ -86,6 +87,8 @@ public class SearchFragment extends BaseFragment {
                     resultReference.addValueEventListener(searchResultListener);
                 }
             });
+        } else {
+            Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
         }
     }
 

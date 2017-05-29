@@ -25,7 +25,7 @@ import java.util.Locale;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
- * Created by linus_000 on 03.05.2017.
+ * @author Linus Weiss
  */
 
 public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
@@ -37,7 +37,7 @@ public class CommentsRecyclerViewAdapter extends RecyclerView.Adapter {
     public CommentsRecyclerViewAdapter(RecyclerView recyclerView, Context context) {
         this.recyclerView = recyclerView;
         this.ctx = context;
-        this.dateFormat = new SimpleDateFormat("dd.MM.YY", Locale.getDefault());
+        this.dateFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
         this.timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
     }
 

@@ -42,7 +42,7 @@ dependencies {
     compile 'com.flurgle:camerakit:0.9.17'
     compile 'jp.wasabeef:glide-transformations:2.0.2'
     compile 'com.github.chrisbanes:PhotoView:+'
-    //compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:multidex:1.0.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'jp.wasabeef:recyclerview-animators:2.2.6'
 

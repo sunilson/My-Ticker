@@ -61,7 +61,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     if (livetickerID != null && user != null && title != null && contentType != null && !authorID.equals(user.getUid())) {
                         if (contentType.equals(CONTENT_TYPE_STATE)) {
+                            String content = remoteMessage.getData().get("content");
+                            if (content.equals("started")) {
+                                mBuilder = new NotificationCompat.Builder(this)
+                                        .setSmallIcon(R.drawable.icontransparent)
+                                        .setAutoCancel(true)
+                                        .setContentTitle(getString(R.string.new_liveticker_event_started))
+                                        .setContentText(title + " " + getString(R.string.new_liveticker_event_started_subtitle));
+                            } else if (content.equals("finished")) {
+                                mBuilder = new NotificationCompat.Builder(this)
+                                        .setSmallIcon(R.drawable.icontransparent)
+                                        .setAutoCancel(true)
+                                        .setContentTitle(getString(R.string.new_liveticker_event_finished))
+                                        .setContentText(title + " " + getString(R.string.new_liveticker_event_finished_subtitle));
+                            }
 
+                            showNotification(mBuilder, livetickerID);
                         } else if (contentType.equals(CONTENT_TYPE_TEXT)) {
                             String content = remoteMessage.getData().get("content");
 
@@ -86,7 +101,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                     .setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
 
                             showNotification(mBuilder, livetickerID);
-
                         }
                     }
                 }

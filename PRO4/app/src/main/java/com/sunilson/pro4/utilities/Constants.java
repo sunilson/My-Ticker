@@ -16,6 +16,11 @@ public class Constants {
     public static final String LIVETICKER_STARTED_STATE = "started";
     public static final String LIVETICKER_NOT_STARTED_STATE = "not started";
     public static final String LIVETICKER_ID = "livetickerID";
+    public static final String LIVETICKER_SORTING_ALL = "all";
+    public static final String LIVETICKER_SORTING_NOT_LIVE = "not_live";
+    public static final String LIVETICKER_SORTING_LIVE = "live";
+    public static final String LIVETICKER_SORTING_FINISHED = "finished";
+    public static final String SHARED_PREF_KEY_LIVETICKER_SORTING = "livetickerSorting";
     public static final String SHARED_PREF_KEY_NOTIFICATIONS = "notifications";
     public static final String SHARED_PREF_KEY_NOTIFICATIONS_VIBRATION = "vibrations";
     public static final String LOGGING_TAG = "Linus";
