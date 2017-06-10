@@ -228,6 +228,9 @@ public class ChannelFragment extends BaseFragment implements View.OnClickListene
                 if (user != null) {
                     updateViews();
                     checkLoading();
+                } else {
+                    Toast.makeText(getContext(), R.string.user_load_failure, Toast.LENGTH_LONG).show();
+                    getActivity().finish();
                 }
             }
 

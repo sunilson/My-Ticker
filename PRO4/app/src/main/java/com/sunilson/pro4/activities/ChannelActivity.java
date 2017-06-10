@@ -29,6 +29,7 @@ import butterknife.ButterKnife;
 public class ChannelActivity extends BaseActivity implements CanChangeFragment {
 
     private String currentFragment;
+    public boolean firstLogin;
 
     @BindView(R.id.content_channel)
     FrameLayout frameLayout;
@@ -78,6 +79,7 @@ public class ChannelActivity extends BaseActivity implements CanChangeFragment {
             setTitle(getString(R.string.edit_channel_title));
             replaceFragment(EditChannelFragment.newInstance(), "edit");
         } else if (type.equals("firstLogin")) {
+            firstLogin = true;
             replaceFragment(EditChannelFragment.newInstance(), "edit");
         } else if (type.equals("view")) {
             String authorID = i.getStringExtra("authorID");

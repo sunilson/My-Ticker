@@ -2,11 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="100dp">
+    android:layout_height="wrap_content"
+    android:padding="15dp"
+    >
+
     <ImageView
-        android:layout_width="50dp"
-        android:layout_height="match_parent"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:id="@+id/pick_image_dialog_icon"
+        android:tint="@color/colorPrimary"
         />
 
     <TextView
@@ -14,6 +18,10 @@
         android:layout_weight="1"
         android:layout_height="match_parent"
         android:text="yoyoyoyo"
+        android:textColor="@color/primary_text"
+        android:gravity="center_vertical"
+        android:textSize="18sp"
+        android:paddingLeft="15dp"
         android:id="@+id/pick_image_dialog_text"
         />
 

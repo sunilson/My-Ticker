@@ -23,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,7 +36,6 @@ import com.sunilson.pro4.dialogFragments.RegisterDialog;
 import com.sunilson.pro4.fragments.FeedBaseFragment;
 import com.sunilson.pro4.interfaces.FragmentAuthInterface;
 import com.sunilson.pro4.utilities.Constants;
-import com.sunilson.pro4.utilities.Utilities;
 
 import java.util.List;
 
@@ -50,18 +48,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.search_bar_layout)
     RelativeLayout searchBarLayout;
-
-    @BindView(R.id.feed_bar)
-    LinearLayout feedBarLayout;
-
-    @BindView(R.id.main_bar_author_image)
-    ImageView authorImage;
-
-    @BindView(R.id.main_bar_title)
-    TextView title;
-
-    @BindView(R.id.main_bar_author_name)
-    TextView authorName;
 
     @BindView(R.id.main_liveticker_bar)
     LinearLayout livetickerBar;
@@ -84,14 +70,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @BindView(R.id.main_liveticker_bar_button)
     Button livetickerBarButton;
 
+    @BindView(R.id.main_liveticker_bar_state)
+    ImageView livetickerBarState;
+
     @BindView(R.id.main_liveticker_bar_status)
-    ImageView livetickerBarStatus;
+    TextView livetickerBarStatus;
 
     private MenuItem loginButton, logoutButton;
 
     private ViewPager viewPager;
-    private ValueEventListener userListener, livetickerListener;
-    private DatabaseReference currentUserReference, livetickerReference;
     private TabLayout tabLayout;
     private MainActivityFragmentPagerAdapter adapter;
     private Animation enterAnimation, exitAnimation, scaleEnterAnimation, scaleOutAnimation;
@@ -118,6 +105,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         viewPager.setAdapter(adapter = new MainActivityFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this));
         viewPager.setOffscreenPageLimit(3);
         tabLayout.setupWithViewPager(viewPager);
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            switch (i) {
+                case 0:
+                    tabLayout.getTabAt(i).setIcon(R.drawable.ic_whatshot_white_24dp);
+                    break;
+                case 1:
+                    tabLayout.getTabAt(i).setIcon(R.drawable.ic_subscriptions_white_24dp);
+                    break;
+                case 2:
+                    tabLayout.getTabAt(i).setIcon(R.drawable.ic_search_white_24dp);
+                    break;
+                case 3:
+                    tabLayout.getTabAt(i).setIcon(R.drawable.ic_person_white_24dp);
+                    break;
+                default:
+                    tabLayout.getTabAt(i).setIcon(R.drawable.ic_whatshot_white_24dp);
+                    break;
+            }
+
+        }
 
         //Listener to change title on fragment swap
         final ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -145,8 +152,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 onPageChangeListener.onPageSelected(viewPager.getCurrentItem());
             }
         });
-
-        initializeUserListener();
 
         enterAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_from_bottom);
         exitAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_to_bottom);
@@ -194,7 +199,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     if (params.get(1) != null && !params.get(1).isEmpty()) {
                         String id = params.get(1);
                         Intent i = new Intent(this, LivetickerActivity.class);
-                        i.putExtra("livetickerID", id);
+                        i.putExtra("livetickerID", "-" + id);
                         startActivityForResult(i, Constants.LIVETICKER_ACTIVITY_REQUEST);
                     }
                 }
@@ -207,21 +212,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         if (viewPager.getCurrentItem() == 0) {
+            setTitle(getString(R.string.live_fragment_title));
             menu.findItem(R.id.feed_menu_refresh).setVisible(true);
             searchBarLayout.setVisibility(View.GONE);
-            feedBarLayout.setVisibility(View.VISIBLE);
         } else if (viewPager.getCurrentItem() == 1) {
+            setTitle(getString(R.string.feed_fragment_title));
             menu.findItem(R.id.feed_menu_refresh).setVisible(true);
             searchBarLayout.setVisibility(View.GONE);
-            feedBarLayout.setVisibility(View.VISIBLE);
         } else if (viewPager.getCurrentItem() == 2) {
+            setTitle(getString(R.string.search_fragment_title));
             menu.findItem(R.id.feed_menu_refresh).setVisible(false);
             searchBarLayout.setVisibility(View.VISIBLE);
-            feedBarLayout.setVisibility(View.GONE);
         } else if (viewPager.getCurrentItem() == 3) {
+            setTitle(getString(R.string.profile_fragment_title));
             menu.findItem(R.id.feed_menu_refresh).setVisible(false);
             searchBarLayout.setVisibility(View.GONE);
-            feedBarLayout.setVisibility(View.VISIBLE);
         }
 
         loginButton = menu.findItem(R.id.main_menu_login);
@@ -252,31 +257,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (currentUserReference != null) {
-            currentUserReference.removeEventListener(userListener);
-        }
-    }
-
-    @Override
     protected void authChanged(FirebaseUser user) {
         checkLoginStatus(user);
         if (user != null) {
-
-
-            if (currentUserReference != null) {
-                currentUserReference.removeEventListener(userListener);
-            }
-
-            currentUserReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
-            currentUserReference.addValueEventListener(userListener);
 
             SparseArray<Fragment> sparseArray = adapter.getRegisteredFragments();
             for (int i = 0; i < sparseArray.size(); i++) {
@@ -291,19 +274,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
             if (!user.isAnonymous() && user.isEmailVerified()) {
                 //Check for first login
-                final DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("firstLogin/" + user.getUid());
+                DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("firstLogin/" + user.getUid());
                 dRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue() == null) {
-                            dRef.setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Intent i = new Intent(MainActivity.this, ChannelActivity.class);
-                                    i.putExtra("type", "firstLogin");
-                                    startActivity(i);
-                                }
-                            });
+                            Intent i = new Intent(MainActivity.this, ChannelActivity.class);
+                            i.putExtra("type", "firstLogin");
+                            startActivity(i);
                         }
                     }
 
@@ -347,6 +325,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     if (fragment2 != null && !getCurrentUser().isAnonymous()) {
                         ((FeedBaseFragment) fragment2).requestFeed();
                     }
+
+                    Intent i = new Intent(MainActivity.this, LivetickerActivity.class);
+                    i.putExtra("livetickerID", data.getStringExtra("livetickerID"));
+                    startActivity(i);
                 }
                 break;
             case Constants.LIVETICKER_ACTIVITY_REQUEST:
@@ -365,15 +347,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                             }
                         });
 
+                        FirebaseDatabase.getInstance().getReference("liveticker/" + livetickerID + "/status").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (!dataSnapshot.getValue().toString().isEmpty()) {
+                                    livetickerBarStatus.setText(dataSnapshot.getValue().toString());
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+
                         FirebaseDatabase.getInstance().getReference("liveticker/" + livetickerID + "/state").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.getValue().equals(Constants.LIVETICKER_STARTED_STATE)) {
-                                    livetickerBarStatus.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.state_started));
+                                    livetickerBarState.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.state_started));
                                 } else if (dataSnapshot.getValue().equals(Constants.LIVETICKER_NOT_STARTED_STATE)) {
-                                    livetickerBarStatus.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.state_not_started));
+                                    livetickerBarState.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.state_not_started));
                                 } else {
-                                    livetickerBarStatus.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.state_finished));
+                                    livetickerBarState.setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.state_finished));
                                 }
                             }
 
@@ -413,34 +411,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 break;
 
         }
-    }
-
-    private void initializeUserListener() {
-        userListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot != null) {
-                    if (dataSnapshot.child("userName") != null && dataSnapshot.child("profilePicture") != null) {
-                        title.setVisibility(GONE);
-                        authorImage.setVisibility(View.VISIBLE);
-                        authorName.setVisibility(View.VISIBLE);
-                        String profilePicture = dataSnapshot.child("profilePicture").getValue(String.class);
-
-                        if (profilePicture != null && !profilePicture.isEmpty()) {
-                            Utilities.setupRoundImageViewWithPlaceholder(authorImage, MainActivity.this, profilePicture, R.drawable.profile_placeholder);
-                        } else {
-                            Utilities.setupRoundImageViewOnlyPlaceholder(authorImage, MainActivity.this, R.drawable.profile_placeholder);
-                        }
-                        authorName.setText(dataSnapshot.child("userName").getValue(String.class));
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
     }
 
     private void showLivetickerBar(boolean value) {

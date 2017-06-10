@@ -29,8 +29,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sunilson.pro4.BaseApplication;
 import com.sunilson.pro4.R;
-import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
+import com.sunilson.pro4.adapters.SearchRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.baseClasses.User;
 
 import java.util.ArrayList;
 
@@ -45,7 +46,7 @@ public class SearchFragment extends BaseFragment {
 
     private ValueEventListener searchResultListener;
     private DatabaseReference resultReference;
-    private FeedRecyclerViewAdapter adapter;
+    private SearchRecyclerViewAdapter adapter;
     private boolean started;
     private ImageView closeSearch;
     private EditText searchBar;
@@ -106,11 +107,17 @@ public class SearchFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (resultReference != null && searchResultListener != null) {
+            resultReference.addValueEventListener(searchResultListener);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+        loading(false);
 
         if (resultReference != null && searchResultListener != null) {
             resultReference.removeEventListener(searchResultListener);
@@ -136,7 +143,7 @@ public class SearchFragment extends BaseFragment {
         if (!started) {
             started = true;
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(adapter = new FeedRecyclerViewAdapter(recyclerView, getContext()));
+            recyclerView.setAdapter(adapter = new SearchRecyclerViewAdapter(recyclerView, getContext()));
             recyclerView.setNestedScrollingEnabled(false);
 
         }
@@ -191,21 +198,29 @@ public class SearchFragment extends BaseFragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
+                    adapter.clear();
                     if (dataSnapshot.child("state").getValue() != null) {
                         if (dataSnapshot.child("state").getValue().equals("success")) {
-                            if (dataSnapshot.child("searchResults").getChildrenCount() == 0) {
+                            if (dataSnapshot.child("livetickerResults").getChildrenCount() == 0 && dataSnapshot.child("channelResults").getChildrenCount() == 0) {
                                 loading(false);
                                 placeholderText.setText(getString(R.string.no_search_results));
                                 placeholder.setVisibility(View.VISIBLE);
                             } else {
                                 placeholder.setVisibility(View.GONE);
-                                ArrayList<Liveticker> livetickerData = new ArrayList<>();
-                                for (DataSnapshot childSnapshot : dataSnapshot.child("searchResults").getChildren()) {
+                                ArrayList<Object> data = new ArrayList<>();
+
+                                for (DataSnapshot childSnapshot : dataSnapshot.child("livetickerResults").getChildren()) {
                                     Liveticker liveticker = childSnapshot.getValue(Liveticker.class);
-                                    livetickerData.add(liveticker);
+                                    data.add(liveticker);
                                 }
+                                for (DataSnapshot childSnapshot : dataSnapshot.child("channelResults").getChildren()) {
+                                    User user = childSnapshot.getValue(User.class);
+                                    data.add(user);
+                                }
+
                                 loading(false);
-                                adapter.setData(livetickerData);
+                                adapter.setData(data);
+                                adapter.sortByName();
                             }
                         } else if (dataSnapshot.child("state").getValue().equals("error")) {
                             Toast.makeText(getContext(), R.string.search_error, Toast.LENGTH_SHORT).show();

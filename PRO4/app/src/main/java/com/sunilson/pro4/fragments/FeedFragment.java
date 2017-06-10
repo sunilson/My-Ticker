@@ -85,6 +85,16 @@ public class FeedFragment extends FeedBaseFragment{
         path = FEED_PATH;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (currentResultReference != null && resultListener != null && recentlyVisitedAdapter.getItemCount() == 0 && subscriptionLivetickersAdapter.getItemCount() == 0) {
+            loading(true);
+            currentResultReference.addValueEventListener(resultListener);
+        }
+    }
+
     private void clearFeeds() {
         if (recentlyVisitedAdapter != null && subscriptionLivetickersAdapter != null) {
             recentlyVisitedAdapter.clear();
@@ -123,10 +133,11 @@ public class FeedFragment extends FeedBaseFragment{
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("state").getValue() != null) {
-                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
 
-                        //First clear all adapters
-                        clearFeeds();
+                    //First clear all adapters
+                    clearFeeds();
+
+                    if (dataSnapshot.child("state").getValue().toString().equals("success")) {
 
                         ArrayList<Liveticker> recentLivetickersData;
                         ArrayList<Liveticker> subscriptionLivetickersData;
@@ -136,6 +147,9 @@ public class FeedFragment extends FeedBaseFragment{
 
                         recentlyVisitedAdapter.setData(recentLivetickersData);
                         subscriptionLivetickersAdapter.setData(subscriptionLivetickersData);
+
+                        recentlyVisitedAdapter.sortByDate();
+                        subscriptionLivetickersAdapter.sortByDate();
 
                         updateRecyclerviews();
                         loading(false);

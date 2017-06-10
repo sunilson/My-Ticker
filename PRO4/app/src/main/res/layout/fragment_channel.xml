@@ -48,8 +48,8 @@
                     <FrameLayout
                         android:id="@+id/fragment_channel_shadow"
                         android:layout_width="match_parent"
-                        android:layout_height="20dp"
-                        android:layout_marginTop="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="20dp"
                         android:background="@drawable/shadow_drawable_dark"
                         />
                     <LinearLayout
@@ -72,7 +72,6 @@
                                 android:id="@+id/fragment_channel_username"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingBottom="10dp"
                                 android:textColor="@color/primary_text"
                                 android:textSize="22sp" />
 
@@ -81,11 +80,12 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/no_status"
-                                android:paddingBottom="15dp"
+                                android:paddingBottom="20dp"
                                 android:textColor="@color/secondary_text"
                                 android:textSize="14sp" />
 
                              <include layout="@layout/subscribe_button"/>
+
                         </LinearLayout>
 
                         <TextView

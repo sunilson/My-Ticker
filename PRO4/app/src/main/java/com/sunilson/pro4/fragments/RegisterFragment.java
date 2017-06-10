@@ -3,11 +3,14 @@ package com.sunilson.pro4.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Utilities;
+import com.sunilson.pro4.views.SubmitButtonBig;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,6 +46,9 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
 
     @BindView(R.id.submit_button)
     Button registerButton;
+
+    @BindView(R.id.submit_button_view)
+    SubmitButtonBig submitButtonBig;
 
 
     private String registerUsername = "Default Username";
@@ -68,6 +75,24 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_register, container, false);
         unbinder = ButterKnife.bind(this, view);
         registerButton.setOnClickListener(this);
+
+        submitButtonBig.setText(getString(R.string.register), getString(R.string.loading));
+
+        passwordEditText2.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                int result = actionId & EditorInfo.IME_MASK_ACTION;
+                switch(result) {
+                    case EditorInfo.IME_ACTION_DONE:
+                        loading(true);
+                        createUser(emailEditText.getText().toString(), passwordEditText.getText().toString(), passwordEditText2.getText().toString());
+                        break;
+                }
+
+                return true;
+            }
+        });
+
         loading(false);
         return view;
     }
@@ -90,7 +115,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
      * @param password
      * @param password2
      */
-    private void createUser(String email, String password, String password2) {
+    private void createUser(final String email, String password, String password2) {
 
         if (password.isEmpty() || password2.isEmpty() || email.isEmpty()) {
             Toast.makeText(getContext(), R.string.fields_empty, Toast.LENGTH_SHORT).show();
@@ -111,6 +136,8 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                                 Toast.makeText(getContext(), task.getResult().toString(),
                                         Toast.LENGTH_SHORT).show();
                                 loading(false);
+                            } else {
+                                Utilities.storeSuggestionEmail(getContext(), email);
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -163,8 +190,10 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
 
     private void loading(boolean loading) {
         if (loading) {
+            submitButtonBig.loading(true);
             //progressOverlay.setVisibility(View.VISIBLE);
         } else {
+            submitButtonBig.loading(false);
             //progressOverlay.setVisibility(View.GONE);
         }
     }

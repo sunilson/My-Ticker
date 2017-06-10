@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.adapters.FeedRecyclerViewAdapter;
 import com.sunilson.pro4.baseClasses.Liveticker;
+import com.sunilson.pro4.exceptions.LivetickerSetException;
 import com.sunilson.pro4.utilities.Constants;
 
 import butterknife.BindView;
@@ -103,6 +104,11 @@ public class LivetickerListFragment extends BaseFragment implements AdapterView.
                 Liveticker liveticker = dataSnapshot.getValue(Liveticker.class);
 
                 if (liveticker != null) {
+                    try {
+                        liveticker.setLivetickerID(dataSnapshot.getKey());
+                    } catch (LivetickerSetException e) {
+                        e.printStackTrace();
+                    }
                     adapter.add(liveticker);
                     adapter.sortByDate();
                 }

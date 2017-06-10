@@ -25,6 +25,7 @@
         android:ems="10"
         android:drawableLeft="@drawable/email_icon"
         android:hint="@string/register_email_hint"
+        android:imeOptions="actionNext"
         android:inputType="textEmailAddress" />
 
     <EditText
@@ -37,6 +38,7 @@
         android:fontFamily="sans-serif"
         android:drawableLeft="@drawable/lock_icon"
         android:hint="@string/register_password_hint"
+        android:imeOptions="actionNext"
         android:inputType="textPassword" />
 
     <EditText
@@ -50,6 +52,7 @@
         android:ems="10"
         android:drawableLeft="@drawable/lock_icon"
         android:hint="@string/register_password2_hint"
+        android:imeOptions="actionDone"
         android:inputType="textPassword" />
 
     <include layout="@layout/big_submit_button_with_progress" />

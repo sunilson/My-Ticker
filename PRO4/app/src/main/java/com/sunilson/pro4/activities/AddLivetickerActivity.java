@@ -47,6 +47,7 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
     private DatabaseReference mReference, currentResultReference;
     private boolean finished, startNow;
     private String privacy = "public";
+    private String livetickerID;
     private Calendar calendar;
     private ArrayList<DatabaseReference> references = new ArrayList<>();
     private CompoundButton.OnCheckedChangeListener switchListener;
@@ -177,7 +178,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
                     if (dataSnapshot.child("state").getValue() != null) {
                         if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                             finished = true;
-                            setResult(Constants.ADD_LIVETICKER_RESULT_CODE);
+                            Intent i = new Intent();
+                            i.putExtra("livetickerID", dataSnapshot.child("successDetails").getValue().toString());
+                            setResult(Constants.ADD_LIVETICKER_RESULT_CODE, i);
                             finish();
                         } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
                             loading(false);

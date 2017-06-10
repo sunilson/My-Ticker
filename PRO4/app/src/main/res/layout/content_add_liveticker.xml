@@ -37,6 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:imeOptions="actionNext"
             android:drawableLeft="@drawable/title_icon"
             android:hint="Title" />
 
@@ -62,6 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:drawableLeft="@drawable/state_icon"
+            android:imeOptions="actionNext"
             android:hint="Status"
             android:maxLength="140" />
 
@@ -86,6 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:imeOptions="actionDone"
             android:hint="Beschreibung"
             android:maxLength="999" />
 

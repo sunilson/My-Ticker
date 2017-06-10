@@ -10,6 +10,7 @@
         android:id="@+id/liveticker_recyclerView_textElement_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="@color/primary_text"
         android:layout_weight="1"
         android:textSize="18sp" />
 
@@ -21,9 +22,11 @@
         >
         <TextView
             android:id="@+id/liveticker_recyclerView_textElement_time"
-            style="@style/TimeText" />
+        android:textColor="@color/primary_text"
+        style="@style/TimeText" />
         <TextView
             android:id="@+id/liveticker_recyclerView_textElement_date"
+            android:textColor="@color/secondary_text"
             style="@style/DateText" />
     </LinearLayout>
 

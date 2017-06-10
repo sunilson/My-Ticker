@@ -106,7 +106,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             }
         });
 
-        if (getArguments().getString("imageUri") != null) {
+        if (getArguments().getString("imageURI") != null) {
             switchCameraCaption(false);
             //Setting up the given image
             imageURI = Uri.parse(getArguments().getString("imageURI"));
@@ -183,7 +183,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
                         getDialog().dismiss();
                     }
                 }
-                return false;
+                return true;
             }
         });
 

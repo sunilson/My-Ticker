@@ -22,8 +22,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -228,7 +230,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
                         dispatchTakePictureIntent();
                         break;
                     case Constants.PICK_IMAGE_DIALOG_RESULT_GALLERY:
-                        dispatchChooseImageFromGalleryIntent(Constants.REQUEST_IMAGE_GALLERY);
+                        Utilities.dispatchChooseImageFromGalleryIntent(getActivity(), Constants.REQUEST_IMAGE_GALLERY);
                         break;
                 }
                 break;
@@ -315,17 +317,6 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
         DialogFragment dialogFragment = LivetickerPicktureCropDialog.newInstance(null, fixedAspect, x, y);
         dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_CROP_REQUEST_CODE);
         dialogFragment.show(getFragmentManager(), "dialog");
-    }
-
-    /**
-     * Starts intent that let's the user pick an Image file from their system
-     *
-     * @param requestCode Used in ActivityResult to react to the users input
-     */
-    public void dispatchChooseImageFromGalleryIntent(int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -460,9 +451,9 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (!userName.getText().toString().isEmpty()) {
+        if (userName.getText() != null && !userName.getText().toString().isEmpty() && !userName.getText().toString().equals("Anonymous")) {
             tempUser.setUserName(userName.getText().toString());
-        } else  {
+        } else {
             Toast.makeText(getActivity(), R.string.username_empty, Toast.LENGTH_SHORT).show();
             loading(false);
             return;
@@ -476,7 +467,7 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             tempUser.setStatus(status.getText().toString());
         }
 
-        if (tempUser.getTitlePicture().isEmpty() || tempUser.getProfilePicture().isEmpty()) {
+        if (tempUser.getTitlePicture() == null || tempUser.getTitlePicture().isEmpty() || tempUser.getProfilePicture().isEmpty()) {
             Toast.makeText(getActivity(), R.string.profile_pictures_invalid, Toast.LENGTH_LONG).show();
             loading(false);
             return;
@@ -559,8 +550,19 @@ public class EditChannelFragment extends BaseFragment implements View.OnClickLis
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("state").getValue() != null) {
                     if (dataSnapshot.child("state").getValue().toString().equals("success")) {
-                        loading(false);
-                        getActivity().finish();
+                        if (((ChannelActivity) getActivity()).firstLogin) {
+                            DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("firstLogin/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            dRef.setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    loading(false);
+                                    getActivity().finish();
+                                }
+                            });
+                        } else {
+                            loading(false);
+                            getActivity().finish();
+                        }
                     } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
                         loading(false);
                         Toast.makeText(getContext(), dataSnapshot.child("errorDetails").getValue().toString(), Toast.LENGTH_LONG).show();

@@ -31,7 +31,7 @@ public class PickImageDialog extends BaseDialog {
         final ListView listView = (ListView) view.findViewById(R.id.pick_image_dialog_listView);
         simpleDialogAdapter = new SimpleDialogAdapter(getContext(), R.layout.simple_dialog_row);
         listView.setAdapter(simpleDialogAdapter);
-        simpleDialogAdapter.add(getActivity().getString(R.string.camera), R.drawable.ic_camera_black_24dp);
+        simpleDialogAdapter.add(getActivity().getString(R.string.camera), R.drawable.ic_camera_alt_black_24dp);
         simpleDialogAdapter.add(getActivity().getString(R.string.gallery), R.drawable.ic_photo_library_black_24dp);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -65,7 +65,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
 
     private class ViewHolderImage extends RecyclerView.ViewHolder {
 
-        TextView caption, date;
+        TextView caption, date, time;
         ImageView image;
 
         public ViewHolderImage(View itemView) {
@@ -73,6 +73,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
             caption = (TextView) itemView.findViewById(R.id.liveticker_recyclerView_imageElement_caption);
             image = (ImageView)itemView.findViewById(R.id.liveticker_recyclerView_imageElement_image);
             date = (TextView) itemView.findViewById(R.id.liveticker_recyclerView_imageElement_date);
+            time = (TextView) itemView.findViewById(R.id.liveticker_recyclerView_imageElement_time);
         }
     }
 
@@ -109,6 +110,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
 
             //Picasso.with(ctx).load(event.getThumbnail()).placeholder(R.drawable.default_placeholder).into(viewHolderImage.image);
             viewHolderImage.date.setText(dateFormat.format(event.getTimestamp()));
+            viewHolderImage.time.setText(timeFormat.format(event.getTimestamp()));
             if (event.getCaption() != null) {
                 viewHolderImage.caption.setText(event.getCaption());
             }

@@ -42,7 +42,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="firenote.at"
+                    android:host="my-ticker.live"
                     android:scheme="https" />
                 <data android:pathPattern="/liveticker/.*" />
             </intent-filter>
@@ -69,6 +69,7 @@
             android:name=".activities.AuthenticationActivity"
             android:label="@string/title_activity_authentication"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.LivetickerActivity"
@@ -92,7 +93,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="firenote.at"
+                    android:host="my-ticker.live"
                     android:scheme="https" />
                 <data android:pathPattern="/channel/.*" />
             </intent-filter>

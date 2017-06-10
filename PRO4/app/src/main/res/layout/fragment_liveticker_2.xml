@@ -243,6 +243,13 @@
                             </LinearLayout>
                         </LinearLayout>
 
+                        <FrameLayout
+                            android:id="@+id/main_liveticker_bar_shadow"
+                            android:layout_width="match_parent"
+                            android:layout_height="15dp"
+                            android:background="@drawable/shadow_drawable_bottom"
+                            />
+
                         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                             android:id="@+id/fragment_liveticker_state_layout"
                             style="@style/RecyclerViewElement"

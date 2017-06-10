@@ -20,6 +20,8 @@ import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.exceptions.LivetickerSetException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Linus Weiss
@@ -31,6 +33,7 @@ public abstract class FeedBaseFragment extends BaseFragment {
     protected ValueEventListener resultListener;
     protected FirebaseAuth.AuthStateListener authStateListener;
     protected String path;
+    protected String feedExtra;
     protected String currentUser;
     protected boolean started;
 
@@ -48,10 +51,6 @@ public abstract class FeedBaseFragment extends BaseFragment {
         super.onStart();
 
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
-
-        if (currentResultReference != null && resultListener != null) {
-            currentResultReference.addValueEventListener(resultListener);
-        }
     }
 
     @Override
@@ -124,8 +123,13 @@ public abstract class FeedBaseFragment extends BaseFragment {
         //Request Feed from Database
         loading(true);
 
+        Map<String, String> map = new HashMap<>();
+        if (feedExtra != null) {
+            map.put("extra", feedExtra);
+        }
+
         final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/request/" + user.getUid() + path).push();
-        ref.setValue(true).addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
+        ref.setValue((feedExtra == null) ? true : map).addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 //Reassign result listeners

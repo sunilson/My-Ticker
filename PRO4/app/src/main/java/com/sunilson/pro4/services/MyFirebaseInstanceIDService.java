@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -23,8 +22,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         String token = FirebaseInstanceId.getInstance().getToken();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous() && user.isEmailVerified()) {
-            DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("registrationTokens/" + user.getUid()).push();
-            dRef.setValue(token);
+            FirebaseDatabase.getInstance().getReference("registrationTokens/" + user.getUid() + "/" + token).setValue(true);
         }
 
         Log.i(Constants.LOGGING_TAG, token);

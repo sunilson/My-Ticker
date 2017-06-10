@@ -59,7 +59,7 @@
                         style="@style/FeedHeadline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Recently Visited" />
+                        android:text="@string/recently_visited" />
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/feed_fragment_recentlyVisited_recyclerView"
@@ -87,7 +87,7 @@
                         style="@style/FeedHeadline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Subscriptions" />
+                        android:text="@string/subscriptions" />
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/feed_fragment_subscriptionLivetickers_recyclerView"

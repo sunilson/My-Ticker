@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.sunilson.pro4.R;
 import com.sunilson.pro4.fragments.FeedFragment;
 import com.sunilson.pro4.fragments.LiveFragment;
 import com.sunilson.pro4.fragments.ProfileFragment;
@@ -62,15 +61,15 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return context.getString(R.string.live_fragment_title);
+                return "";
             case 1:
-                return context.getString(R.string.feed_fragment_title);
+                return "";
             case 2:
-                return context.getString(R.string.search_fragment_title);
+                return "";
             case 3:
-                return context.getString(R.string.profile_fragment_title);
+                return "";
             default:
-                return context.getString(R.string.feed_fragment_title);
+                return "";
         }
     }
 

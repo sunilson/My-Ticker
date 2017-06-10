@@ -5,6 +5,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,11 +28,13 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
- * Created by linus_000 on 12.04.2017.
+ * @author Linus Weiss
  */
 
 public class Utilities {
@@ -123,4 +127,29 @@ public class Utilities {
             return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
         }
     }
+
+    public static void storeSuggestionEmail(Context ctx, String email) {
+        SharedPreferences sharedPreferences = ctx.getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        Set<String> set = sharedPreferences.getStringSet(Constants.SHARED_PREF_KEY_EMAILS, null);
+        Set<String> newSet = new HashSet<>();
+        if (set != null) {
+            newSet.addAll(set);
+        }
+        newSet.add(email);
+        editor.putStringSet(Constants.SHARED_PREF_KEY_EMAILS, newSet).commit();
+    }
+
+    /**
+     * Starts intent that let's the user pick an Image file from their system
+     *
+     * @param requestCode Used in ActivityResult to react to the users input
+     */
+    public static void dispatchChooseImageFromGalleryIntent(Activity ctx, int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        ctx.startActivityForResult(intent, requestCode);
+    }
+
 }

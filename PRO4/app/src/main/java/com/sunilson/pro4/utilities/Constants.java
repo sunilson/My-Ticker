@@ -11,6 +11,9 @@ public class Constants {
     public static final String CONTENT_TYPE_STATE = "state";
     public static final String CONTENT_TYPE_TEXT = "text";
     public static final String CONTENT_TYPE_IMAGE = "image";
+    public static final String FILTER_LIVE = "live";
+    public static final String FILTER_NOT_LIVE = "nlive";
+    public static final String FILTER_KEY = "filter";
     public static final String FEED_PATH = "/feed/";
     public static final String LIVE_PATH = "/anonFeed/";
     public static final String LIVETICKER_STARTED_STATE = "started";
@@ -50,6 +53,9 @@ public class Constants {
     public static final int PICK_IMAGE_DIALOG_RESULT_GALLERY = 4;
     public static final int PICTURE_DIALOG_REQUEST_CODE = 5;
     public static final int PICTURE_DIALOG_CROP_REQUEST_CODE = 23;
+    public static final int SORT_DIALOG_REQUEST = 70;
+    public static final int SORT_DIALOG_RESULT_LIVE = 71;
+    public static final int SORT_DIALOG_RESULT_NOT_LIVE = 72;
     public static final int CONFIRM_DIALOG_REQUEST = 30;
     public static final int CONFIRM_DIALOG_SUCCESS = 31;
     public static final int PICTURE_DIALOG_RESULT_CODE_SUCCESS = 6;

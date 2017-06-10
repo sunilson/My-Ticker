@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -30,15 +32,14 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.interfaces.CanChangeFragment;
 import com.sunilson.pro4.utilities.Constants;
+import com.sunilson.pro4.utilities.Utilities;
 import com.sunilson.pro4.views.SubmitButtonBig;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -48,7 +49,7 @@ import butterknife.ButterKnife;
  * @author Linus Weiss
  */
 
-public class LoginFragment extends BaseFragment implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener{
+public class LoginFragment extends BaseFragment implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -102,6 +103,21 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener,
 
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
 
+        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                int result = actionId & EditorInfo.IME_MASK_ACTION;
+                switch(result) {
+                    case EditorInfo.IME_ACTION_DONE:
+                        loading(true);
+                        emailLogin(emailEditText.getText().toString(), passwordEditText.getText().toString());
+                        break;
+                }
+
+                return true;
+            }
+        });
+
         Set<String> set = sharedPreferences.getStringSet(Constants.SHARED_PREF_KEY_EMAILS, null);
         if (set != null) {
             Log.i(Constants.LOGGING_TAG, set.toString());
@@ -150,13 +166,13 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener,
                 emailLogin(emailEditText.getText().toString(), passwordEditText.getText().toString());
                 break;
             case R.id.loginFragment_register:
-                ((CanChangeFragment)getActivity()).replaceFragment(RegisterFragment.newInstance(), Constants.FRAGMENT_REGISTER_TAG);
+                ((CanChangeFragment) getActivity()).replaceFragment(RegisterFragment.newInstance(), Constants.FRAGMENT_REGISTER_TAG);
                 break;
             case R.id.loginFragment_google:
                 googleLogin();
                 break;
             case R.id.loginFragment_resetPassword:
-                ((CanChangeFragment)getActivity()).replaceFragment(ResetPasswordFragment.newInstance(), Constants.FRAGMENT_RESET_PASSWORD_TAG);
+                ((CanChangeFragment) getActivity()).replaceFragment(ResetPasswordFragment.newInstance(), Constants.FRAGMENT_RESET_PASSWORD_TAG);
                 break;
         }
     }
@@ -185,16 +201,18 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener,
                 if (user != null) {
                     if (!user.isAnonymous()) {
                         if (user.isEmailVerified()) {
-                            DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("registrationTokens/" + user.getUid()).push();
-                            dRef.setValue(FirebaseInstanceId.getInstance().getToken()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            String token = FirebaseInstanceId.getInstance().getToken();
+                            FirebaseDatabase.getInstance().getReference("registrationTokens/" + user.getUid() + "/" + token).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Logged in - Welcome!", Toast.LENGTH_SHORT).show();
                                     getActivity().finish();
                                 }
                             });
                         } else {
                             Toast.makeText(getContext(), R.string.not_verified_yet, Toast.LENGTH_SHORT).show();
                             mAuth.signOut();
+                            loading(false);
                         }
                     }
                 }
@@ -245,19 +263,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener,
             //passwordLayout.setError("Password can't be empty!");
             loading(false);
         } else {
-
-            SharedPreferences sharedPreferences = getContext().getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-
-            Set<String> set = sharedPreferences.getStringSet(Constants.SHARED_PREF_KEY_EMAILS, null);
-            Set<String> newSet = new HashSet<>();
-            if (set != null) {
-                newSet.addAll(set);
-            }
-            Log.i(Constants.LOGGING_TAG, newSet.toString());
-            newSet.add(email);
-            Log.i(Constants.LOGGING_TAG, newSet.toString());
-            editor.putStringSet(Constants.SHARED_PREF_KEY_EMAILS, newSet).commit();
+            Utilities.storeSuggestionEmail(getContext(), email);
 
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                 @Override

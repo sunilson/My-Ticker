@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/loginBackgroundColor"
@@ -92,6 +92,7 @@
             android:drawableLeft="@drawable/email_icon"
             android:ems="10"
             android:hint="Email"
+            android:imeOptions="actionNext"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -105,6 +106,7 @@
             android:ems="10"
             android:fontFamily="sans-serif"
             android:hint="Password"
+            android:imeOptions="actionDone"
             android:inputType="textPassword" />
 
         <include layout="@layout/login_button" />
@@ -148,4 +150,4 @@
 
 
     </LinearLayout>
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>

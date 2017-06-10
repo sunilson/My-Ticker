@@ -31,5 +31,6 @@
     <color name="status_started">#00ff00</color>
     <color name="status_not_started">#ff0000</color>
     <color name="status_finished">#939393</color>
+    <color name="darken_image">#60000000</color>
     <color name="disabledEdittextOverlay">#B4FFFFFF</color>
 </resources>

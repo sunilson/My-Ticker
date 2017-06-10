@@ -23,9 +23,25 @@ public class InfoDialog extends BaseDialog {
         View view = inflater.inflate(R.layout.info_dialog, null);
         builder.setView(view);
 
-        final TextView shareText = (TextView)view.findViewById(R.id.info_dialog_text);
-        if (!getArguments().getString("text").isEmpty()) {
-            shareText.setText(getArguments().getString("text"));
+        final TextView description = (TextView)view.findViewById(R.id.info_dialog_description);
+        final TextView status = (TextView)view.findViewById(R.id.info_dialog_status);
+        final TextView title = (TextView)view.findViewById(R.id.info_dialog_title);
+        final TextView author = (TextView)view.findViewById(R.id.info_dialog_author);
+
+        if (!getArguments().getString("description").isEmpty()) {
+             description.setText(getArguments().getString("description"));
+        }
+
+        if (!getArguments().getString("status").isEmpty()) {
+             status.setText(getArguments().getString("status"));
+        }
+
+        if (!getArguments().getString("title").isEmpty()) {
+             title.setText(getArguments().getString("title"));
+        }
+
+        if (!getArguments().getString("author").isEmpty()) {
+             author.setText(getString(R.string.created_by) + " " + getArguments().getString("author"));
         }
 
         builder.setPositiveButton(getString(R.string.close), new DialogInterface.OnClickListener() {
@@ -38,10 +54,13 @@ public class InfoDialog extends BaseDialog {
         return builder.create();
     }
 
-    public static InfoDialog newInstance(String text) {
+    public static InfoDialog newInstance(String description, String status, String title, String author) {
         InfoDialog dialog = new InfoDialog();
         Bundle args = new Bundle();
-        args.putString("text", text);
+        args.putString("description", description);
+        args.putString("status", status);
+        args.putString("title", title);
+        args.putString("author", author);
         dialog.setArguments(args);
         return dialog;
     }

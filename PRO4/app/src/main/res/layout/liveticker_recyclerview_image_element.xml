@@ -22,18 +22,27 @@
         <TextView
             android:id="@+id/liveticker_recyclerView_imageElement_caption"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
             android:layout_weight="1"
             android:textColor="@color/white" />
 
-        <TextView
-            android:id="@+id/liveticker_recyclerView_imageElement_date"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingRight="10dp"
-            android:textColor="@color/white"
-            android:textSize="10sp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            >
+            <TextView
+                android:id="@+id/liveticker_recyclerView_imageElement_time"
+                android:textColor="@color/primary_text_dark"
+                style="@style/TimeText" />
+            <TextView
+                android:id="@+id/liveticker_recyclerView_imageElement_date"
+                android:textColor="@color/primary_text_dark"
+                style="@style/DateText" />
+        </LinearLayout>
 
     </LinearLayout>
 </RelativeLayout>

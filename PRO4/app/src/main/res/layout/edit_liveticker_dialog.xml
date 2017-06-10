@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f0f0f0"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/edit_liveticker_dialog_title"
+        style="@style/BasicEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:drawableLeft="@drawable/title_icon"
+        android:imeOptions="actionNext"
+        android:hint="Title" />
+
+    <EditText
+        android:id="@+id/edit_liveticker_dialog_status"
+        style="@style/BasicEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:drawableLeft="@drawable/state_icon"
+        android:imeOptions="actionNext"
+        android:hint="Status"
+        android:maxLength="140" />
+
+    <EditText
+        android:id="@+id/edit_liveticker_dialog_description"
+        style="@style/BigEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:hint="Beschreibung"
+        android:imeOptions="actionDone"
+        android:maxLength="999" />
+
+    <include layout="@layout/big_submit_button_with_progress" />
+</LinearLayout>

@@ -90,10 +90,12 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
 
         if (!liveticker.getStatus().isEmpty()) {
             vh.status.setText(liveticker.getStatus());
+        } else {
+            vh.status.setText(ctx.getString(R.string.no_status));
         }
 
-        if (liveticker.getCommentCount() > 9999) {
-            vh.commentCount.setText("9999+");
+        if (liveticker.getCommentCount() > 999) {
+            vh.commentCount.setText("999+");
         } else {
             vh.commentCount.setText(Integer.toString(liveticker.getCommentCount()));
         }
@@ -101,11 +103,9 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter {
         if (liveticker.getLikeCount() > 9999) {
             vh.likeCount.setText("9999+");
             vh.likeIcon.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.like_icon_liked));
-        } else if (liveticker.getLikeCount() > 0) {
-            vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
-            vh.likeIcon.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.like_icon_liked));
         } else {
             vh.likeCount.setText(Integer.toString(liveticker.getLikeCount()));
+            vh.likeIcon.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.like_icon));
         }
 
         if (liveticker.getProfilePicture() != null) {

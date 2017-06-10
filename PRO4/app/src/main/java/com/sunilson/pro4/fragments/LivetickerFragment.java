@@ -1,10 +1,12 @@
 package com.sunilson.pro4.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -60,8 +62,10 @@ import com.sunilson.pro4.baseClasses.Liveticker;
 import com.sunilson.pro4.baseClasses.LivetickerEvent;
 import com.sunilson.pro4.baseClasses.User;
 import com.sunilson.pro4.dialogFragments.ConfirmDialog;
+import com.sunilson.pro4.dialogFragments.EditLivetickerDialog;
 import com.sunilson.pro4.dialogFragments.InfoDialog;
 import com.sunilson.pro4.dialogFragments.LivetickerPictureCaptionDialog;
+import com.sunilson.pro4.dialogFragments.PickImageDialog;
 import com.sunilson.pro4.dialogFragments.RegisterDialog;
 import com.sunilson.pro4.dialogFragments.ShareDialog;
 import com.sunilson.pro4.exceptions.LivetickerEventSetException;
@@ -87,7 +91,6 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.sunilson.pro4.R.string.loading;
 
 /**
  * @author Linus Weiss
@@ -116,6 +119,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private Timer timer;
     private String caption, thumbnailUrl, livetickerID;
     private Bundle savedReferences;
+    private CountDownTimer countDownTimer;
 
     @BindView(R.id.fragment_liveticker_recyclerView)
     RecyclerView livetickerContents;
@@ -155,6 +159,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
     @BindView(R.id.fragment_liveticker_edit_delete)
     ImageButton deleteIcon;
+
+    @BindView(R.id.fragment_liveticker_edit)
+    ImageButton editIcon;
 
     @BindView(R.id.fragment_liveticker_edit_state)
     ImageButton editState;
@@ -372,8 +379,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         if (owner) {
             inputLayout.setVisibility(View.VISIBLE);
             authorBox.setVisibility(View.VISIBLE);
-            oldCommentCount = liveticker.getCommentCount();
         }
+        oldCommentCount = liveticker.getCommentCount();
+        updateCommentIcon(0);
     }
 
     @Nullable
@@ -408,7 +416,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         switch (view.getId()) {
             case R.id.fragment_liveticker_camera_button:
-                dispatchTakePictureIntent();
+                DialogFragment dialogFragment = PickImageDialog.newInstance();
+                dialogFragment.setTargetFragment(this, Constants.PICK_IMAGE_DIALOG_REQUEST_CODE);
+                dialogFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                //dispatchTakePictureIntent();
                 break;
             case R.id.fragment_liveticker_send_button:
                 createTextEvent();
@@ -427,11 +438,15 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             case R.id.fragment_liveticker_comment_button:
                 openCommentSection();
                 break;
+            case R.id.fragment_liveticker_edit:
+                DialogFragment dialogFragmentEdit = EditLivetickerDialog.newInstance(livetickerID, liveticker.getTitle(), liveticker.getDescription(), liveticker.getStatus());
+                dialogFragmentEdit.show(getFragmentManager(), "dialog");
+                break;
             case R.id.fragment_liveticker_comment_icon:
                 openCommentSection();
                 break;
             case R.id.fragment_liveticker_share_icon:
-                DialogFragment dialog = ShareDialog.newInstance("https://firenote.at/liveticker/" + liveticker.getLivetickerID());
+                DialogFragment dialog = ShareDialog.newInstance("https://my-ticker.live/liveticker/" + liveticker.getLivetickerID().substring(1));
                 dialog.show(getFragmentManager(), "dialog");
                 break;
             case R.id.fragment_liveticker_profile_picture:
@@ -441,9 +456,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                 openChannel(liveticker.getAuthorID());
                 break;
             case R.id.fragment_liveticker_edit_delete:
-                DialogFragment dialogFragment = ConfirmDialog.newInstance("delete", getString(R.string.delete_liveticker_confirm));
-                dialogFragment.setTargetFragment(this, Constants.CONFIRM_DIALOG_REQUEST);
-                dialogFragment.show(getFragmentManager(), "dialog");
+                DialogFragment dialogFragmentImage = ConfirmDialog.newInstance("delete", getString(R.string.delete_liveticker_confirm));
+                dialogFragmentImage.setTargetFragment(this, Constants.CONFIRM_DIALOG_REQUEST);
+                dialogFragmentImage.show(getFragmentManager(), "dialog");
                 break;
             case R.id.fragment_liveticker_edit_state:
                 DialogFragment dialogFragmentState = null;
@@ -469,6 +484,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         userName.setOnClickListener(this);
         profilePicture.setOnClickListener(this);
         deleteIcon.setOnClickListener(this);
+        editIcon.setOnClickListener(this);
         editState.setOnClickListener(this);
     }
 
@@ -486,6 +502,24 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                         break;
                     case Constants.PICTURE_DIALOG_RESULT_CODE_FAILURE:
                         //TODO Error Handling
+                        break;
+                }
+                break;
+            case Constants.REQUEST_IMAGE_GALLERY:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri = data.getData();
+                    DialogFragment dialogFragment = LivetickerPictureCaptionDialog.newInstance(uri);
+                    dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_REQUEST_CODE);
+                    dialogFragment.show(getFragmentManager(), "dialog");
+                }
+                break;
+            case Constants.PICK_IMAGE_DIALOG_REQUEST_CODE:
+                switch (resultCode) {
+                    case Constants.PICK_IMAGE_DIALOG_RESULT_CAMERA:
+                        dispatchTakePictureIntent();
+                        break;
+                    case Constants.PICK_IMAGE_DIALOG_RESULT_GALLERY:
+                        Utilities.dispatchChooseImageFromGalleryIntent(getActivity(), Constants.REQUEST_IMAGE_GALLERY);
                         break;
                 }
                 break;
@@ -534,11 +568,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.liveticker_menu_share:
-                DialogFragment dialog = ShareDialog.newInstance("https://firenote.at/liveticker/" + liveticker.getLivetickerID());
+                DialogFragment dialog = ShareDialog.newInstance("https://my-ticker.live/liveticker/" + liveticker.getLivetickerID().substring(1));
                 dialog.show(getFragmentManager(), "dialog");
                 break;
             case R.id.liveticker_menu_info:
-                DialogFragment dialog2 = InfoDialog.newInstance(liveticker.getDescription());
+                DialogFragment dialog2 = InfoDialog.newInstance(liveticker.getDescription(), liveticker.getStatus(), liveticker.getTitle(), author.getUserName());
                 dialog2.show(getFragmentManager(), "dialog");
                 break;
             case R.id.liveticker_menu_notifications:
@@ -736,6 +770,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+
     private void startCamera(int requestCode) {
         DialogFragment dialogFragment = LivetickerPictureCaptionDialog.newInstance(null);
         dialogFragment.setTargetFragment(this, Constants.PICTURE_DIALOG_REQUEST_CODE);
@@ -751,7 +786,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot != null) {
-                    if(!loadedFirstItem) {
+                    if (!loadedFirstItem) {
                         loadedFirstItem = true;
                         checkDoneLoading();
                     }
@@ -866,7 +901,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 liveticker = dataSnapshot.getValue(Liveticker.class);
-                if (liveticker != null) {
+                if (liveticker != null && liveticker.getAuthorID() != null) {
                     try {
                         liveticker.setLivetickerID(dataSnapshot.getKey());
                     } catch (LivetickerSetException e) {
@@ -1052,28 +1087,31 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                     } else if (liveticker.getState().equals(Constants.LIVETICKER_NOT_STARTED_STATE)) {
                         editState.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_play_circle_filled_white_24dp));
                         stateLayout.setVisibility(View.VISIBLE);
-                        new CountDownTimer(liveticker.getStateTimestamp() - Calendar.getInstance().getTimeInMillis(), 1000) {
-                            @Override
-                            public void onTick(long ms) {
-                                long days = TimeUnit.MILLISECONDS.toDays(ms);
-                                ms -= TimeUnit.DAYS.toMillis(days);
+                        if (countDownTimer == null) {
+                            countDownTimer = new CountDownTimer(liveticker.getStateTimestamp() - Calendar.getInstance().getTimeInMillis(), 1000) {
+                                @Override
+                                public void onTick(long ms) {
+                                    long days = TimeUnit.MILLISECONDS.toDays(ms);
+                                    ms -= TimeUnit.DAYS.toMillis(days);
 
-                                long hours = TimeUnit.MILLISECONDS.toHours(ms);
-                                ms -= TimeUnit.HOURS.toMillis(hours);
+                                    long hours = TimeUnit.MILLISECONDS.toHours(ms);
+                                    ms -= TimeUnit.HOURS.toMillis(hours);
 
-                                long minutes = TimeUnit.MILLISECONDS.toMinutes(ms);
-                                ms -= TimeUnit.MINUTES.toMillis(minutes);
+                                    long minutes = TimeUnit.MILLISECONDS.toMinutes(ms);
+                                    ms -= TimeUnit.MINUTES.toMillis(minutes);
 
-                                long seconds = TimeUnit.MILLISECONDS.toSeconds(ms);
+                                    long seconds = TimeUnit.MILLISECONDS.toSeconds(ms);
 
-                                stateText.setText("Starting in " + days + " days, " + hours + " hours, " + minutes + "minutes, and " + seconds + " seconds!");
-                            }
+                                    stateText.setText("Starting in " + days + " days, " + hours + " hours, " + minutes + "minutes, and " + seconds + " seconds!");
+                                }
 
-                            @Override
-                            public void onFinish() {
-                                stateText.setText("Done");
-                            }
-                        }.start();
+                                @Override
+                                public void onFinish() {
+                                    stateText.setText("Done");
+                                }
+                            };
+                            countDownTimer.start();
+                        }
                     } else {
                         editState.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flag_white_24dp));
                         stateLayout.setVisibility(View.GONE);
@@ -1205,7 +1243,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
 
         notificationsOn = !notificationsOn;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (liveticker != null && liveticker.getLivetickerID() != null && user != null && !user.isAnonymous()) {
+        if (liveticker != null && liveticker.getLivetickerID() != null && user != null) {
             if (!notificationsOn) {
                 FirebaseDatabase.getInstance().getReference("notifications/" + liveticker.getLivetickerID() + "/" + user.getUid()).removeValue().addOnFailureListener(new OnFailureListener() {
                     @Override

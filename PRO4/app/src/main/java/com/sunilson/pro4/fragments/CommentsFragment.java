@@ -173,7 +173,13 @@ public class CommentsFragment extends BaseFragment {
                             ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
                             requestComments();
                         } else if (dataSnapshot.child("state").getValue().toString().equals("error")) {
-                            Toast.makeText(getContext(), R.string.error_adding_comment, Toast.LENGTH_LONG);
+                            loadAddingComment(false);
+                            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
+                            if(dataSnapshot.child("errorDetails") != null && dataSnapshot.child("errorDetails").getValue().equals("spam")) {
+                                Toast.makeText(getContext(), R.string.comment_spam, Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getContext(), R.string.error_adding_comment, Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 }

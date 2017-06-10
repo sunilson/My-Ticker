@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +41,9 @@ public class ChannelArchiveFragment extends ChannelBaseFragment {
 
     @BindView(R.id.fragment_channel_archive_recycler_view)
     RecyclerView recyclerView;
+
+    @BindView(R.id.fragment_channel_archive_placeholder_text)
+    TextView placeholder;
 
     public static ChannelArchiveFragment newInstance(String authorID) {
         Bundle args = new Bundle();
@@ -112,6 +116,10 @@ public class ChannelArchiveFragment extends ChannelBaseFragment {
                 }
                 adapter.setData(ownLivetickersData);
                 adapter.sortByDate();
+
+                if (adapter.getItemCount() != 0) {
+                    placeholder.setVisibility(View.GONE);
+                }
                 //channelViewPager.measureCurrentView(getView());
             }
 

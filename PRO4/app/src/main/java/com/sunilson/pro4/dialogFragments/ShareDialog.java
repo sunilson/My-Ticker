@@ -28,18 +28,21 @@ public class ShareDialog extends BaseDialog {
         builder.setView(view);
 
         final TextView shareText = (TextView)view.findViewById(R.id.share_dialog_text);
-        shareText.setText(getArguments().getString("url"));
+        if (getArguments().getString("url") != null && !getArguments().getString("url").isEmpty()) {
+            final String url = getArguments().getString("url");
+            shareText.setText(url);
 
-        Button button = (Button) view.findViewById(R.id.share_dialog_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("liveticker", shareText.getText().toString());
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(getContext(), R.string.copy_success, Toast.LENGTH_SHORT).show();
-            }
-        });
+            Button button = (Button) view.findViewById(R.id.share_dialog_button);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("liveticker", url);
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(getContext(), R.string.copy_success, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         return builder.create();
     }
