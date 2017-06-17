@@ -17,6 +17,25 @@
         android:layout_gravity="center"
         />
 
+    <ImageView
+        android:id="@+id/crop_rotate_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginLeft="48dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_rotate_left_white_24dp"
+        />
+    <ImageView
+        android:id="@+id/crop_rotate_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="48dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_rotate_right_white_24dp"
+        />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/crop_image_view_done"
         android:layout_width="wrap_content"

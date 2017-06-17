@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -38,15 +37,11 @@ public abstract class ImageBaseDialog extends DialogFragment {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
-        mOrientationListener.enable();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        mOrientationListener.disable();
     }
 
     @NonNull
@@ -58,15 +53,7 @@ public abstract class ImageBaseDialog extends DialogFragment {
         activity = getActivity();
         inflater = getActivity().getLayoutInflater();
 
-        mOrientationListener = new OrientationEventListener(getContext(),
-                SensorManager.SENSOR_DELAY_NORMAL) {
-            @Override
-            public void onOrientationChanged(int orientation) {
-                orientationChange(orientation);
-            }
-        };
         return super.onCreateDialog(savedInstanceState);
     }
 
-    abstract void orientationChange(int orientation);
 }

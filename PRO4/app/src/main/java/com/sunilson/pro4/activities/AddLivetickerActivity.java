@@ -170,12 +170,17 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
         }
     }
 
+    /**
+     * Initialize Listener for "Add Liveticker Queue"
+     */
     private void initializeQueueListener() {
         resultListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!finished) {
+                    //Check what state the Queue event has
                     if (dataSnapshot.child("state").getValue() != null) {
+                        //Liveticker was added successfully
                         if (dataSnapshot.child("state").getValue().toString().equals("success")) {
                             finished = true;
                             Intent i = new Intent();
@@ -217,6 +222,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
         }
     }
 
+    /**
+     * A dialog to pick a date and set the calendar to that date
+     */
     private void showDateDialog() {
         DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -234,6 +242,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
         datePickerDialog.show();
     }
 
+    /**
+     * A dialog to pick a time and set the calendar to that time
+     */
     private void showTimeDialog() {
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
             @Override
@@ -249,6 +260,9 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
 
     }
 
+    /**
+     * Update the Textviews with the current date from the calendar
+     */
     private void updateDateTime() {
         Date date = calendar.getTime();
         SimpleDateFormat formatDate = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
@@ -257,6 +271,12 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
         timeTextView.setText(formatTime.format(date));
     }
 
+    /**
+     * When a switch gets toggled
+     *
+     * @param compoundButton Switch that was toggled
+     * @param b Value of switch
+     */
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         switch (compoundButton.getId()) {
@@ -278,14 +298,5 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
                 }
                 break;
         }
-    }
-
-    private void initializeSwitchListener() {
-        switchListener = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-            }
-        };
     }
 }

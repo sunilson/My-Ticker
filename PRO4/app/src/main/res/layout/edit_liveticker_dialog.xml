@@ -14,6 +14,7 @@
         android:layout_marginTop="20dp"
         android:drawableLeft="@drawable/title_icon"
         android:imeOptions="actionNext"
+        android:maxLength="30"
         android:hint="Title" />
 
     <EditText
@@ -36,7 +37,7 @@
         android:layout_marginBottom="20dp"
         android:hint="Beschreibung"
         android:imeOptions="actionDone"
-        android:maxLength="999" />
+        android:maxLength="9999" />
 
     <include layout="@layout/big_submit_button_with_progress" />
 </LinearLayout>

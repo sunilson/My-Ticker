@@ -3,10 +3,8 @@ package com.sunilson.pro4.dialogFragments;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,12 +20,9 @@ import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
 import com.sunilson.pro4.R;
 import com.sunilson.pro4.utilities.Constants;
-import com.sunilson.pro4.utilities.Utilities;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * @author Linus Weiss
@@ -67,11 +62,24 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
         switchCamera = (ImageView) view.findViewById(R.id.camera_view_switch);
 
         cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
-
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 cameraView.captureImage();
+            }
+        });
+
+        view.findViewById(R.id.crop_rotate_right).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cropImageView.rotateImage(90);
+            }
+        });
+
+        view.findViewById(R.id.crop_rotate_left).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cropImageView.rotateImage(-90);
             }
         });
 
@@ -133,35 +141,12 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
         } else {
             //Setting up the Camera View
             switchCameraCrop(true);
-            cameraView.start();
             cameraView.setCameraListener(new CameraListener() {
                 @Override
                 public void onPictureTaken(byte[] jpeg) {
                     super.onPictureTaken(jpeg);
                     Bitmap result = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
-
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        if (orientation < 315 && orientation > 225) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(-90);
-                            result = Bitmap.createBitmap(result, 0, 0, result.getWidth(), result.getHeight(), matrix, true);
-                        } else if (orientation > 45 && orientation < 135) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(90);
-                            result = Bitmap.createBitmap(result, 0, 0, result.getWidth(), result.getHeight(), matrix, true);
-                        }
-                    }
-
-                    try {
-                        File imageFile = Utilities.createImageFile(getContext());
-                        FileOutputStream out = new FileOutputStream(imageFile);
-                        result.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                        out.close();
-                        cameraURI = Uri.fromFile(imageFile);
-                        cropImageView.setImageUriAsync(cameraURI);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    cropImageView.setImageBitmap(result);
                     switchCameraCrop(false);
                 }
             });
@@ -205,13 +190,10 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
                 File file = new File(cameraURI.getPath());
                 file.delete();
             }
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    cameraViewLayout.setVisibility(View.VISIBLE);
-                    cropImageViewLayout.setVisibility(View.GONE);
-                }
-            });
+            cameraViewLayout.setVisibility(View.VISIBLE);
+            cameraView.stop();
+            cameraView.start();
+            cropImageViewLayout.setVisibility(View.GONE);
         }
     }
 
@@ -251,10 +233,5 @@ public class LivetickerPicktureCropDialog extends ImageBaseDialog {
         args.putBoolean("aspectFixed", aspectFixed);
         dialog.setArguments(args);
         return dialog;
-    }
-
-    @Override
-    void orientationChange(int orientation) {
-        this.orientation = orientation;
     }
 }

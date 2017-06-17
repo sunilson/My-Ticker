@@ -3,10 +3,9 @@ package com.sunilson.pro4.dialogFragments;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,11 +24,10 @@ import com.flurgle.camerakit.CameraKit;
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
 import com.sunilson.pro4.R;
+import com.sunilson.pro4.asyncTasks.RotateImage;
 import com.sunilson.pro4.utilities.Constants;
-import com.sunilson.pro4.utilities.Utilities;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -47,7 +45,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
     private boolean captioning;
     private int flashState = 0;
     private int cameraState = 0;
-    private ImageView flash, switchCamera;
+    private ImageView flash, switchCamera, rotateRight, rotateLeft, imageView;
 
     @NonNull
     @Override
@@ -63,7 +61,10 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         cameraViewLayout = (CoordinatorLayout) view.findViewById(R.id.camera_view_layout);
         FloatingActionButton cameraButton = (FloatingActionButton) view.findViewById(R.id.camera_view_take_picture);
         flash = (ImageView) view.findViewById(R.id.camera_view_flash);
+        rotateRight = (ImageView) view.findViewById(R.id.picture_dialog_rotate_right);
+        rotateLeft = (ImageView) view.findViewById(R.id.picture_dialog_rotate_left);
         switchCamera = (ImageView) view.findViewById(R.id.camera_view_switch);
+        imageView = (ImageView) view.findViewById(R.id.picture_dialog_image);
 
         cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
 
@@ -93,6 +94,22 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             }
         });
 
+        rotateRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RotateImage rotateImage = new RotateImage(true, imageView, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                rotateImage.execute();
+            }
+        });
+
+        rotateLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RotateImage rotateImage = new RotateImage(false, imageView, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                rotateImage.execute();
+            }
+        });
+
         switchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -112,43 +129,18 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             imageURI = Uri.parse(getArguments().getString("imageURI"));
             try {
                 result = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageURI);
-                ImageView imageView = (ImageView) view.findViewById(R.id.picture_dialog_image);
                 imageView.setImageBitmap(result);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
             switchCameraCaption(true);
-            cameraView.start();
             cameraView.setCameraListener(new CameraListener() {
                 @Override
                 public void onPictureTaken(byte[] jpeg) {
                     super.onPictureTaken(jpeg);
                     result = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
-
-                    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-                        if(orientation < 315 && orientation > 225) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(-90);
-                            result = Bitmap.createBitmap(result, 0, 0, result.getWidth(), result.getHeight(), matrix, true);
-                        }else if(orientation > 45 && orientation < 135) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(90);
-                            result = Bitmap.createBitmap(result, 0, 0, result.getWidth(), result.getHeight(), matrix, true);
-                        }
-                    }
-
-                    try {
-                        File imageFile = Utilities.createImageFile(getContext());
-                        FileOutputStream out = new FileOutputStream(imageFile);
-                        result.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                        out.close();
-                        cameraURI = Uri.fromFile(imageFile);
-                        ImageView imageView = (ImageView) view.findViewById(R.id.picture_dialog_image);
-                        imageView.setImageBitmap(result);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    imageView.setImageBitmap(result);
                     switchCameraCaption(false);
                 }
             });
@@ -165,7 +157,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.putExtra("caption", caption.getText().toString());
-                intent.putExtra("image", result);
+                intent.putExtra("image", ((BitmapDrawable) imageView.getDrawable()).getBitmap());
                 getTargetFragment().onActivityResult(getTargetRequestCode(), Constants.PICTURE_DIALOG_RESULT_CODE_SUCCESS, intent);
                 getDialog().dismiss();
             }
@@ -203,6 +195,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         captioning = !camera;
 
         if (!camera) {
+            cameraView.stop();
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -212,6 +205,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             });
         } else {
             cameraViewLayout.setVisibility(View.VISIBLE);
+            cameraView.start();
             captionView.setVisibility(View.GONE);
         }
     }
@@ -224,11 +218,6 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             File file = new File(cameraURI.getPath());
             file.delete();
         }
-    }
-
-    @Override
-    void orientationChange(int orientation) {
-        this.orientation = orientation;
     }
 
     @Override

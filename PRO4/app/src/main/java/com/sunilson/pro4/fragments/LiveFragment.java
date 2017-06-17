@@ -148,7 +148,6 @@ public class LiveFragment extends FeedBaseFragment {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    loading(false);
                     if (!started) {
                         requestFeed();
                         started = true;

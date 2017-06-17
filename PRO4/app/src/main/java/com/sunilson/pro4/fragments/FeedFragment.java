@@ -234,11 +234,9 @@ public class FeedFragment extends FeedBaseFragment{
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    loading(false);
                     if (!user.isAnonymous()) {
                         isAnonymous(false);
                         if (!started) {
-                            loading(false);
                             requestFeed();
                             started = true;
                         } else {

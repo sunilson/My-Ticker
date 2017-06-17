@@ -38,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:imeOptions="actionNext"
+            android:maxLength="30"
             android:drawableLeft="@drawable/title_icon"
             android:hint="Title" />
 
@@ -90,7 +91,7 @@
             android:layout_marginTop="20dp"
             android:imeOptions="actionDone"
             android:hint="Beschreibung"
-            android:maxLength="999" />
+            android:maxLength="9999" />
 
         <LinearLayout
             android:layout_width="match_parent"

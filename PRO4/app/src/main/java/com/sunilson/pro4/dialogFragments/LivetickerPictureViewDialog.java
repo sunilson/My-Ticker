@@ -19,7 +19,7 @@ import com.google.firebase.storage.StorageReference;
 import com.sunilson.pro4.R;
 
 /**
- * Created by linus_000 on 10.04.2017.
+ * @author Linus Weiss
  */
 
 public class LivetickerPictureViewDialog extends ImageBaseDialog {
@@ -85,15 +85,8 @@ public class LivetickerPictureViewDialog extends ImageBaseDialog {
     }
 
     @Override
-    void orientationChange(int orientation) {
-
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
-
-        mOrientationListener.disable();
     }
 
     public static LivetickerPictureViewDialog newInstance(String url, String caption) {
