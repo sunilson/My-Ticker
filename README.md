@@ -45,13 +45,15 @@ Livetickers can be created after a short registration process. They have a title
 
 ### Liveticker Events
 
+There are 2 types of Liveticker events:
+
 #### Text
 
-TODO
+Simple text messages.
 
 #### Images
 
-TODO
+Images from either a gallery or the cammera. Can be captioned and the file size can max. be 5 MB (enforced with Firebase storage security rules)
 
 The interface should be as consistent as possible, so I didn't use the default camera app of the user, which looks and behaves differently on every smartphone. I used the Android Library CameraKit, which works great in most use-cases. More here: <a href="https://github.com/gogopop/CameraKit-Android">CameraKit</a>
 
@@ -78,8 +80,8 @@ request
          |-PushID
             |-values
       |-AddEvent
-      |--AddComment
-      |--etc
+      |-AddComment
+      |-etc
 ```
 
 ```
@@ -89,8 +91,8 @@ result
          |-PushID (Same as Request)
             |-resultValues
       |-AddEvent
-      |--AddComment
-      |--etc
+      |-AddComment
+      |-etc
 ```
 
 #### Database security
