@@ -108,13 +108,13 @@ Here are a few examples of Security rules used to secure the My Ticker database:
         ".write": "auth.uid === 'functions-admin'",
         ".read": "auth.uid === 'functions-admin'",
         "$uid": {
-          "addLiveticker": {
+        "addLiveticker": {
             "$pushID": {
               ".write": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'",
           		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
             }
           },
-    			"editLiveticker": {
+    			 "editLiveticker": {
             "$pushID": {
               ".write": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'",
           		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
@@ -126,7 +126,7 @@ Here are a few examples of Security rules used to secure the My Ticker database:
           		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
             }
           },
-          "addLivetickerEvent": {
+         "addLivetickerEvent": {
             "$pushID": {
               ".write": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'",
           		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
@@ -140,3 +140,38 @@ Here are a few examples of Security rules used to secure the My Ticker database:
         }
       }
 ```
+
+<strong>Result</strong>
+
+```
+"result": {
+        ".write": "auth.uid === 'functions-admin'",
+          ".read": "auth.uid === 'functions-admin'",
+        "$uid": {
+          "addLiveticker": {
+            "$pushID": {
+              ".write": "auth.uid === 'functions-admin'",
+          		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
+            }
+          },
+          "deleteLiveticker": {
+            "$pushID": {
+              ".write": "auth.uid === 'functions-admin'",
+          		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
+            }
+          },
+          "addLivetickerEvent": {
+            "$pushID": {
+              ".write": "auth.uid === 'functions-admin'",
+          		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
+            }
+          },
+          etc....
+          "$other": {
+              ".validate": "auth.uid === 'functions-admin'"
+            }
+        }
+      }
+```
+
+<strong>Others</strong>
