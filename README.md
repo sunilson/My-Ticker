@@ -97,6 +97,8 @@ result
 
 Users should not be allowed to write in the result queue or in the request queue of other users. Also, only authenticated users should be able to add requests. In other paths, most of the time users should only be allowed to read (with some exceptions, like the recently visited path).
 
+The cloud functions with the uid "functions-admin" should be allowed to write and read in most paths (some exceptions).
+
 Here are a few examples of Security rules used to secure the My Ticker database:
 
 <strong>Request</strong>
@@ -118,7 +120,7 @@ Here are a few examples of Security rules used to secure the My Ticker database:
           		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
             }
           },
-          "deleteLiveticker": {
+       "deleteLiveticker": {
             "$pushID": {
               ".write": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'",
           		".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous') || auth.uid === 'functions-admin'"
