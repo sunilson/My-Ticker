@@ -8,6 +8,16 @@ For the web app written in Angular see here: <a href="https://github.com/sunilso
 
 For the server side cloud functions see here: <a href="https://github.com/sunilson/My-Ticker-Cloud-Functions">https://github.com/sunilson/My-Ticker-Cloud-Functions</a>
 
+Table of Contents
+=================
+
+  * [Dockerfile.vim](#dockerfilevim)
+  * [Screenshot](#screenshot)
+  * [Installation](#installation)
+        * [OR using Pathogen:](#or-using-pathogen)
+        * [OR using Vundle:](#or-using-vundle)
+  * [License](#license)
+
 ## Authentication
 
 The authentication is being handled with Firebase. Every new user is logged in anonymously and can already watch, like, share, search and comment Livetickers. 
