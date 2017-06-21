@@ -153,25 +153,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         });
 
+        //Set up animations for bottom toolbar
         enterAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_from_bottom);
         exitAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out_to_bottom);
-        exitAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
         scaleEnterAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.scale_in);
         scaleOutAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.scale_out);
+
+        //Initialize click listeners
         closeLivetickerBar.setOnClickListener(this);
         fab.setOnClickListener(this);
         fab2.setOnClickListener(this);
@@ -184,6 +172,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         checkIntent(intent);
     }
 
+    /**
+     * Check how activity was started
+     *
+     * @param intent the starting intent
+     */
     private void checkIntent(Intent intent) {
         //If started from notification
         if (intent.getStringExtra("type") != null && intent.getStringExtra("type").equals(Constants.INTENT_TYPE_NOTIFICATION)) {
@@ -261,6 +254,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         checkLoginStatus(user);
         if (user != null) {
 
+            //Get all fragments in Viewpager and notify them about the auth change
             SparseArray<Fragment> sparseArray = adapter.getRegisteredFragments();
             for (int i = 0; i < sparseArray.size(); i++) {
                 int key = sparseArray.keyAt(i);
@@ -272,6 +266,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 }
             }
 
+            //If user is registered, check if it is the first login
             if (!user.isAnonymous() && user.isEmailVerified()) {
                 //Check for first login
                 DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("firstLogin/" + user.getUid());
@@ -279,6 +274,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue() == null) {
+                            //First login, start Edit Channel Fragment
                             Intent i = new Intent(MainActivity.this, ChannelActivity.class);
                             i.putExtra("type", "firstLogin");
                             startActivity(i);
@@ -294,6 +290,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Change layout depending on current login status
+     *
+     * @param user current user
+     */
     private void checkLoginStatus(FirebaseUser user) {
         if (user != null) {
             if (user.isAnonymous()) {
