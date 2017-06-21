@@ -11,8 +11,8 @@ For the server side cloud functions see here: <a href="https://github.com/sunils
 Table of Contents
 =================
 
-  * [Dockerfile.vim](#dockerfilevim)
-  * [Screenshot](#screenshot)
+  * [Authentication](#authentication)
+  * [Livetickers](#livetickers)
   * [Installation](#installation)
         * [OR using Pathogen:](#or-using-pathogen)
         * [OR using Vundle:](#or-using-vundle)
