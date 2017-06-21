@@ -12,7 +12,7 @@ For the server side cloud functions see here: <a href="https://github.com/sunils
 
 The authentication is being handled with Firebase. Every new user is logged in anonymously and can already watch, like, share, search and comment Livetickers. 
 
-To create a channel, subscribe to other channels and creae Livetickers the user needs to register with his email or a Google account.
+To create a channel, subscribe to other channels and create Livetickers the user needs to register with his email or a Google account.
 
 ## Livetickers
 
@@ -26,9 +26,17 @@ A liveticker can easily be shared and embedded. Users without an Android phone c
 
 Livetickers can be created after a short registration process. They have a title, a status, a state and a description. They can be started immediately or after a certain amount of time (5 days max). At the end, the Liveticker can be set to a finished state. The different states are displayed via a color (red - not started, green - live, grey - finished).
 
-### Camera functionality
+### Liveticker Events
+
+#### Text
 
 TODO
+
+#### Images
+
+TODO
+
+The interface should be as consistent as possible, so I didn't use the default camera app of the user, which looks and behaves differently on every smartphone. I used the Android Library CameraKit, which works great in most use-cases. More here: <a href="https://github.com/gogopop/CameraKit-Android>CameraKit</a>
 
 ## Cloud functions
 
