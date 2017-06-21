@@ -175,3 +175,68 @@ Here are a few examples of Security rules used to secure the My Ticker database:
 ```
 
 <strong>Others</strong>
+
+```
+....
+"users": {
+        ".write": "auth.uid === 'functions-admin'",
+        ".read": "auth != null",
+        ".indexOn": "userName",
+        "$uid": {
+          "userName": {
+          	".validate": "
+        		!root.child('usernames').child(newData.val()).exists() ||
+        		root.child('usernames').child(newData.val()).val() == $uid"
+        	}
+        }
+      },
+      "usernames": {
+        ".read": "auth.uid === 'functions-admin'",
+        "$username": {
+          ".write": "(auth.uid === 'functions-admin' && !data.exists()) || (auth.uid === 'functions-admin' && data.val() === newData.val())",
+        }
+      },
+      "lastComment": {
+          ".write": "auth.uid === 'functions-admin'",
+          ".read": "auth.uid === 'functions-admin'"
+      },
+      "comments": {
+        ".write": "auth.uid === 'functions-admin'",
+        ".read": "auth != null",
+        "$livetickerID": {
+          ".indexOn": "timestamp"
+        }
+      },
+      "notifications": {
+        "$livetickerID": {
+          ".write": "auth.uid === 'functions-admin'",
+            ".read": "auth.uid === 'functions-admin'",
+          "$uid": {
+            ".write": "$uid === auth.uid",
+          	".read": "$uid === auth.uid",
+          	".validate": "newData.isBoolean()"
+          }
+        }
+      },
+      "contents": {
+        ".write": "auth.uid === 'functions-admin'",
+        ".read": "auth != null"
+      },
+      "firstLogin": {
+        "$uid": {
+          ".write": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous')  || auth.uid === 'functions-admin'",
+          ".read": "($uid === auth.uid && auth.token.email_verified === true && auth.provider !== 'anonymous')  || auth.uid === 'functions-admin'",
+          ".validate": "newData.isBoolean()"
+        }
+      },
+      "liked": {
+        "$livetickerID": {
+          "$uid": {
+            ".write": "$uid === auth.uid || auth.uid === 'functions-admin'",
+          	".read": "$uid === auth.uid || auth.uid === 'functions-admin'",
+          	".validate": "newData.isBoolean()"
+          }
+        }
+      },
+      .....
+```
