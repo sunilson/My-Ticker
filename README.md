@@ -14,8 +14,11 @@ Table of Contents
   * [Authentication](#authentication)
   * [Livetickers](#livetickers)
   * [Installation](#installation)
-     * [OR using Sharing Livetickers:](#sharing-livetickers)
-     * [OR usingCreating a Liveticker:](#creating-a-liveticker)
+     * [Sharing Livetickers](#sharing-livetickers)
+     * [Creating a Liveticker](#creating-a-liveticker)
+     * [Liveticker events](#liveticker-events)
+        * [Text](#text)
+        * [Image](#image)
   * [Cloud functions](#cloud-functions)
 
 ## Authentication
