@@ -36,7 +36,7 @@ TODO
 
 TODO
 
-The interface should be as consistent as possible, so I didn't use the default camera app of the user, which looks and behaves differently on every smartphone. I used the Android Library CameraKit, which works great in most use-cases. More here: <a href="https://github.com/gogopop/CameraKit-Android>CameraKit</a>
+The interface should be as consistent as possible, so I didn't use the default camera app of the user, which looks and behaves differently on every smartphone. I used the Android Library CameraKit, which works great in most use-cases. More here: <a href="https://github.com/gogopop/CameraKit-Android">CameraKit</a>
 
 ## Cloud functions
 
