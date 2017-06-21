@@ -23,7 +23,7 @@ Table of Contents
      * [Notifications](#notifications)
      * [Search](#search)
      * [Queue System](#queue-system)
-        * [Database Security](#databse-security)
+        * [Database Security](#database-security)
 
 ## Authentication
 
@@ -69,7 +69,29 @@ The search function has been developed with Algolia search. The index is updated
 
 ### Queue System
 
-TODO
+To create a queue 2 different paths in the database were used: <strong>Request</strong> and <strong>Result</strong>. The user writes their data in the Request path and the cloud functions write their result in the result path. The paths look like this:
+
+```
+request
+   |-UserID
+      |-AddLiveticker
+         |-PushID
+            |-values
+      |-AddEvent
+      |--AddComment
+      |--etc
+```
+
+```
+result
+   |-UserID
+      |-AddLiveticker
+         |-PushID (Same as Request)
+            |-resultValues
+      |-AddEvent
+      |--AddComment
+      |--etc
+```
 
 #### Database security
 
