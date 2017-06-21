@@ -18,8 +18,12 @@ Table of Contents
      * [Creating a Liveticker](#creating-a-liveticker)
      * [Liveticker events](#liveticker-events)
         * [Text](#text)
-        * [Image](#image)
+        * [Image](#images)
   * [Cloud functions](#cloud-functions)
+     * [Notifications](#notifications)
+     * [Search](#search)
+     * [Queue System](#queue-system)
+        * [Database Security](#databse-security)
 
 ## Authentication
 
@@ -63,6 +67,10 @@ With Firebase it was also possible to create so called Push Notifications. When 
 
 The search function has been developed with Algolia search. The index is updated in real time when a liveticker or a user has been created. The search itself is done via a cloud function.
 
-### Database security
+### Queue System
+
+TODO
+
+#### Database security
 
 TODO
