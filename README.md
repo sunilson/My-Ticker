@@ -16,7 +16,6 @@ Table of Contents
   * [Installation](#installation)
         * [OR using Sharing Livetickers:](#sharing-livetickers)
         * [OR usingCreating a Liveticker:](#creating-a-liveticker)
-    * [Installation](#installation)
         * [OR using Pathogen:](#or-using-pathogen)
         * [OR using Vundle:](#or-using-vundle)
   * [Cloud functions](#cloud-functions)
