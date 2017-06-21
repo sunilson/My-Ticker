@@ -19,6 +19,7 @@ Table of Contents
      * [Liveticker events](#liveticker-events)
         * [Text](#text)
         * [Image](#images)
+  * [Channels](#channels)
   * [Cloud functions](#cloud-functions)
      * [Notifications](#notifications)
      * [Search](#search)
@@ -57,6 +58,10 @@ Images from either a gallery or the cammera. Can be captioned and the file size 
 
 The interface should be as consistent as possible, so I didn't use the default camera app of the user, which looks and behaves differently on every smartphone. I used the Android Library CameraKit, which works great in most use-cases. More here: <a href="https://github.com/gogopop/CameraKit-Android">CameraKit</a>
 
+## Channels
+
+Every user has a channel with a profile and a title picture. There viewers can see all livetickers of the user and more info about the user.
+
 ## Cloud functions
 
 Every user input is handled via the Firebase cloud functions, which are functions that run in a Node.js enviroment. They operate independent of each other and can be triggered via HTTPS or a database event. I use a Queue system with the realtime database to trigger the functions and for example create a new liveticker (user posts new liveticker data to queue in database, function sanitizes/validates the input, creates the liveticker if everything is in order and posts a success or error result in the database).
@@ -94,6 +99,8 @@ result
       |-AddComment
       |-etc
 ```
+
+Queue functions are triggered everytime something in the request branch is changed.
 
 #### Database security
 
