@@ -14,9 +14,9 @@ Table of Contents
   * [Authentication](#authentication)
   * [Livetickers](#livetickers)
   * [Installation](#installation)
-        * [OR using Pathogen:](#or-using-pathogen)
-        * [OR using Vundle:](#or-using-vundle)
-  * [License](#license)
+        * [Sharing Livetickers](#sharing-livetickers)
+        * [Creating a Liveticker](#creating-a-liveticker)
+  * [Cloud functions](#cloud-functions)
 
 ## Authentication
 
