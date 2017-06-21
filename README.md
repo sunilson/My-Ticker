@@ -14,7 +14,7 @@ Table of Contents
   * [Authentication](#authentication)
   * [Livetickers](#livetickers)
   * [Installation](#installation)
-   * [OR using Sharing Livetickers:](#sharing-livetickers)
+     * [OR using Sharing Livetickers:](#sharing-livetickers)
    * [OR usingCreating a Liveticker:](#creating-a-liveticker)
    * [OR using Pathogen:](#or-using-pathogen)
    * [OR using Vundle:](#or-using-vundle)
