@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,7 +20,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.sunilson.pro4.R;
-import com.sunilson.pro4.utilities.Constants;
 
 import java.util.List;
 
@@ -40,6 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Replace icon in toolbar in the task manager when Android version is Lollipop or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icontransparent);
             ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(getString(R.string.app_name), icon, ContextCompat.getColor(this, R.color.colorPrimary));
@@ -48,22 +47,23 @@ public abstract class BaseActivity extends AppCompatActivity{
 
 
         mAuth = FirebaseAuth.getInstance();
-
         mReference = FirebaseDatabase.getInstance().getReference();
 
         //Listener for handling Firebase authentication
         initializeAuthListener();
     }
 
+    /**
+     * Sign in anonymously when user is not signed in
+     */
     protected void signInAnonymously() {
         if (mAuth.getCurrentUser() == null) {
             mAuth.signInAnonymously()
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            Log.d(Constants.LOGGING_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+                            //Check if login failed
                             if (!task.isSuccessful()) {
-                                Log.w(Constants.LOGGING_TAG, "signInAnonymously", task.getException());
                                 Toast.makeText(BaseActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
                             }
@@ -86,11 +86,15 @@ public abstract class BaseActivity extends AppCompatActivity{
         mAuth.addAuthStateListener(mAuthListener);
     }
 
+    /**
+     * Initialize the Listener that listens for auth changes
+     */
     private void initializeAuthListener() {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 user = firebaseAuth.getCurrentUser();
+                //Notify if a user is logged in
                 if (user != null) {
                     authChanged(user);
                     if (!user.isAnonymous()) {
@@ -101,6 +105,7 @@ public abstract class BaseActivity extends AppCompatActivity{
                         }
                     }
                 } else {
+                    //If user is not signed in, sign in anonymously
                     signInAnonymously();
                 }
             }
@@ -111,9 +116,18 @@ public abstract class BaseActivity extends AppCompatActivity{
         return mReference;
     }
 
+    /**
+     * Listen for results from Activites/Fragments
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        //Notify all currently active fragments that a result has been returned
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
@@ -124,9 +138,17 @@ public abstract class BaseActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * Listen for results of permissions dialog
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //Notify all currently active fragments that a permission result has been returned
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
@@ -141,5 +163,10 @@ public abstract class BaseActivity extends AppCompatActivity{
         return user;
     }
 
+    /**
+     * Method is called when auth of user changes
+     *
+     * @param user The new user object
+     */
     abstract protected void authChanged(FirebaseUser user);
 }

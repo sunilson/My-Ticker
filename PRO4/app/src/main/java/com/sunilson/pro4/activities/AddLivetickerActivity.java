@@ -202,6 +202,11 @@ public class AddLivetickerActivity extends BaseActivity implements View.OnClickL
         };
     }
 
+    /**
+     * Change visual loading state
+     *
+     * @param loading
+     */
     private void loading(boolean loading) {
         if (loading) {
             submitButtonBig.loading(true);
