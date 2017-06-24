@@ -1,8 +1,8 @@
 # My Ticker - A free liveticker app
 
-<italic>My Ticker is a free liveticker app for Android phones and browsers.</italic>
+<italic>My Ticker is a liveticker app for Android phones and browsers.</italic>
 
-The app is written in Java. Due to time and monetary restraints, it has not been released, but the prototype is fully working.
+The app is written in Java. Due to time and monetary restraints, it has not been completely finished and released, but the prototype is mostly working.
 
 For the web app written in Angular see here: <a href="https://github.com/sunilson/My-Ticker-Angular-App">https://github.com/sunilson/My-Ticker-Angular-App</a>
 
