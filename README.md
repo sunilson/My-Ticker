@@ -32,6 +32,10 @@ The authentication is being handled with Firebase. Every new user is logged in a
 
 To create a channel, subscribe to other channels and create Livetickers the user needs to register with his email or a Google account.
 
+<strong>Login screen:</strong>
+
+<img src="http://i.imgur.com/zXM6zNm.png" width="200">
+
 ## Livetickers
 
 Livetickers are the core of the app. They are organised like a chat application (with reverse order). The author can post text messages or images with a caption. The viewers get the new events in realtime, due to the realtime database of Firebase.
