@@ -85,6 +85,8 @@ The interface should be as consistent as possible, so I didn't use the default c
 
 Every user has a channel with a profile and a title picture. There viewers can see all livetickers of the user and more info about the user.
 
+<img src="https://media.giphy.com/media/3oKIPgld68kxeJH3wY/giphy.gif" width="200">
+
 ## Cloud functions
 
 Every user input is handled via the Firebase cloud functions, which are functions that run in a Node.js enviroment. They operate independent of each other and can be triggered via HTTPS or a database event. I use a Queue system with the realtime database to trigger the functions and for example create a new liveticker (user posts new liveticker data to queue in database, function sanitizes/validates the input, creates the liveticker if everything is in order and posts a success or error result in the database).
