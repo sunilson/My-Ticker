@@ -65,6 +65,8 @@ A liveticker can easily be shared and embedded. Users without an Android phone c
 
 Livetickers can be created after a short registration process. They have a title, a status, a state and a description. They can be started immediately or after a certain amount of time (5 days max). At the end, the Liveticker can be set to a finished state. The different states are displayed via a color (red - not started, green - live, grey - finished).
 
+<img src="https://media.giphy.com/media/3oKIPjDq1zp65Iw1oc/giphy.gif" width="200">
+
 ### Liveticker Events
 
 There are 2 types of Liveticker events:
