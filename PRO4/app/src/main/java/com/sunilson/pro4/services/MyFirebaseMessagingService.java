@@ -1,5 +1,6 @@
 package com.sunilson.pro4.services;
 
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Random;
 
 import static com.sunilson.pro4.utilities.Constants.CONTENT_TYPE_IMAGE;
@@ -139,6 +141,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             int m = random.nextInt(9999 - 1000) + 1000;
             mNotificationManager.notify(m, mBuilder.build());
         }
+    }
+
+    private boolean applicationInForeground() {
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> services = activityManager.getRunningAppProcesses();
+        boolean isActivityFound = false;
+
+        if (services.get(0).processName
+                .equalsIgnoreCase(getPackageName())) {
+            isActivityFound = true;
+        }
+
+        return isActivityFound;
     }
 
     private Bitmap getBitmapFromURL(String strURL) {

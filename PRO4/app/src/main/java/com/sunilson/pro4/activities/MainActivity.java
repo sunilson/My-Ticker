@@ -316,6 +316,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
+            //Noch buggy derzeit
             case Constants.ADD_LIVETICKER_REQUEST_CODE:
                 if (resultCode == Constants.ADD_LIVETICKER_RESULT_CODE) {
                     Fragment fragment1 = adapter.getRegisteredFragment(0);

@@ -13,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -165,6 +164,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
 
         Dialog dialog = builder.create();
 
+        /*
         dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
@@ -178,6 +178,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
                 return true;
             }
         });
+        */
 
         return dialog;
     }

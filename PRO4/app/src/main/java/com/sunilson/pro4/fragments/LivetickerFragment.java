@@ -1171,7 +1171,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     private void checkDoneLoading() {
         loaded++;
 
-        if (loaded >= 4) {
+        if (loaded >= 3) {
             loading(false);
             loaded = 0;
         } else if (owner && loaded >= 3) {
