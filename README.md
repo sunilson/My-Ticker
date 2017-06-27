@@ -2,7 +2,7 @@
 
 <italic>My Ticker is a liveticker app for Android phones and browsers.</italic>
 
-The app is written in Java. Due to time and monetary restraints, it has not been completely finished and released, but the prototype is mostly working.
+The app is written in Java. Due to time restraints, it has not been completely finished and released, but the prototype is mostly working.
 
 For the web app written in Angular see here: <a href="https://github.com/sunilson/My-Ticker-Angular-App">https://github.com/sunilson/My-Ticker-Angular-App</a>
 
@@ -28,7 +28,7 @@ Table of Contents
 
 ## Authentication
 
-The authentication is being handled with Firebase. Every new user is logged in anonymously and can already watch, like, share, search and comment Livetickers. 
+The authentication is being handled with Firebase. Every new user is logged in anonymously and can watch, like, share, search and comment Livetickers. 
 
 To create a channel, subscribe to other channels and create Livetickers the user needs to register with his email or a Google account.
 
@@ -40,9 +40,26 @@ To create a channel, subscribe to other channels and create Livetickers the user
 
 Livetickers are the core of the app. They are organised like a chat application (with reverse order). The author can post text messages or images with a caption. The viewers get the new events in realtime, due to the realtime database of Firebase.
 
+<strong>Liveticker Interface:</strong>
+
+<img src="http://i.imgur.com/dDOqEoH.png" width="200">
+
+<strong>Liveticker Interface for Author:</strong>
+
+<img src="http://i.imgur.com/R7zKY8Z.png" width="200">
+
 ### Sharing Livetickers
 
 A liveticker can easily be shared and embedded. Users without an Android phone can open any liveticker in the Web App via the sharing link!
+
+<strong>Sharing on Android app:</strong>
+
+<img src="http://i.imgur.com/PTTWJab.png" width="200">
+
+<strong>Sharing on Web App:</strong>
+
+<img src="http://i.imgur.com/JJ7sXCM.png" width="200">
+
 
 ### Creating a Liveticker
 
