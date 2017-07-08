@@ -95,9 +95,13 @@ Every user input is handled via the Firebase cloud functions, which are function
 
 With Firebase it was also possible to create so called Push Notifications. When a channel creates a new Liveticker, all subscribed users will get a notifications. Also if you activate notifications for a Liveticker, you will get a notification when a new event has been added. This works in the native app and in the Angular web app.
 
+<img src="https://media.giphy.com/media/l4FGCKcczXNp8TpG8/giphy.gif" width="200">
+
 ### Search
 
 The search function has been developed with Algolia search. The index is updated in real time when a liveticker or a user has been created. The search itself is done via a cloud function.
+
+<img src="http://i.imgur.com/HHhFSl9.gif" width="200">
 
 ### Queue System
 
