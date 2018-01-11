@@ -36,6 +36,7 @@ public class ShareDialog extends BaseDialog {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //Add Link to clipboard of phone
                     ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData clip = ClipData.newPlainText("liveticker", url);
                     clipboard.setPrimaryClip(clip);

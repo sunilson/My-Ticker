@@ -18,6 +18,7 @@ public class RotateImage extends AsyncTask<Void, Void, Bitmap> {
     private WeakReference<Boolean> right;
 
     public RotateImage(Boolean right, ImageView imageView, Bitmap bitmap) {
+        //Use weak references to protect against memory overload
         this.imageView = new WeakReference<>(imageView);
         this.bitmap = new WeakReference<>(bitmap);
         this.right = new WeakReference<>(right);
@@ -25,6 +26,7 @@ public class RotateImage extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Void... voids) {
+        //Rotate the given bitmap with a rotation matrix
         Matrix matrix = new Matrix();
         if(right.get()) {
             matrix.postRotate(90);
@@ -41,6 +43,7 @@ public class RotateImage extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
+        //Update the imageview with the rotated bitmap after task is done
         imageView.get().setImageBitmap(bitmap);
     }
 }

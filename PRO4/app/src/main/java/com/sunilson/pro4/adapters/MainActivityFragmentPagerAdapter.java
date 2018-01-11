@@ -18,6 +18,7 @@ import com.sunilson.pro4.fragments.SearchFragment;
 
 public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
 
+    //All fragments in this adapter
     SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
     private Context context;
@@ -44,6 +45,13 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
         }
     }
 
+    /**
+     * When fragment is instantiated, add it to the fragments array
+     *
+     * @param container
+     * @param position
+     * @return
+     */
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment fragment = (Fragment) super.instantiateItem(container, position);
@@ -57,6 +65,12 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
         super.destroyItem(container, position, object);
     }
 
+    /**
+     * Title is set dynamically, so no need to set it in the adapter
+     *
+     * @param position
+     * @return
+     */
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
@@ -78,10 +92,21 @@ public class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter {
         return PAGE_COUNT;
     }
 
+    /**
+     * Get a fragment from the adapter at a certain position
+     *
+     * @param position
+     * @return Fragment
+     */
     public Fragment getRegisteredFragment(int position) {
         return registeredFragments.get(position);
     }
 
+    /**
+     * Get all registered fragments from the adapter
+     *
+     * @return Array with Fragments
+     */
     public SparseArray<Fragment> getRegisteredFragments() {
         return registeredFragments;
     }

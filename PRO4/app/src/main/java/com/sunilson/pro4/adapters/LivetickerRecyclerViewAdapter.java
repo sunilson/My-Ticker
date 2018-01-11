@@ -95,6 +95,7 @@ public class LivetickerRecyclerViewAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         LivetickerEvent event = data.get(position);
 
+        //Get the correct viewholder depending on the content type
         if(event.getType().equals(CONTENT_TYPE_TEXT)) {
             ViewHolderText viewHolderText = (ViewHolderText) holder;
             viewHolderText.content.setText(event.getContent());

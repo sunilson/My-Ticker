@@ -315,7 +315,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        //Where does the request come from
         switch (requestCode) {
+            //Liveticker has been added, open liveticker
             //Noch buggy derzeit
             case Constants.ADD_LIVETICKER_REQUEST_CODE:
                 if (resultCode == Constants.ADD_LIVETICKER_RESULT_CODE) {
@@ -333,9 +335,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     startActivity(i);
                 }
                 break;
+            //Liveticker has been closed, show notification bar
             case Constants.LIVETICKER_ACTIVITY_REQUEST:
                 if (resultCode == RESULT_OK) {
                     livetickerID = data.getStringExtra("livetickerID");
+                    //If liveticker id exists, get all required data from liveticker
                     if (livetickerID != null) {
                         FirebaseDatabase.getInstance().getReference("liveticker/" + livetickerID + "/title").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -389,11 +393,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Executed when a view is clicked that implements onclicklistener
+     *
+     * @param view clicked view
+     */
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
             case R.id.fab2:
+                //Open the "add liveticker" activity or show "register dialog"
                 if (!getCurrentUser().isAnonymous() && getCurrentUser().isEmailVerified()) {
                     startActivityForResult(new Intent(MainActivity.this, AddLivetickerActivity.class), Constants.ADD_LIVETICKER_REQUEST_CODE);
                 } else {
@@ -402,6 +412,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 }
                 break;
             case R.id.main_liveticker_bar_button:
+                //Go to liveticker
                 if (livetickerID != null) {
                     Intent i = new Intent(this, LivetickerActivity.class);
                     i.putExtra("livetickerID", livetickerID);
@@ -415,6 +426,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Hide or show the liveticker bar on the bottom when liveticker has been closed
+     *
+     * @param value show or hide
+     */
     private void showLivetickerBar(boolean value) {
         if (value) {
             livetickerBar.startAnimation(enterAnimation);

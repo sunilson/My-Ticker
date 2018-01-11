@@ -26,6 +26,7 @@ public class SettingsDialog extends BaseDialog {
 
         super.onCreateDialog(savedInstanceState);
 
+        //Load shared preferences editor
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
 

@@ -28,15 +28,18 @@ public class PickImageDialog extends BaseDialog {
         View view = inflater.inflate(R.layout.pick_image_dialog, null);
         builder.setView(view);
 
+        //Setup the listview
         final ListView listView = (ListView) view.findViewById(R.id.pick_image_dialog_listView);
         simpleDialogAdapter = new SimpleDialogAdapter(getContext(), R.layout.simple_dialog_row);
         listView.setAdapter(simpleDialogAdapter);
         simpleDialogAdapter.add(getActivity().getString(R.string.camera), R.drawable.ic_camera_alt_black_24dp);
         simpleDialogAdapter.add(getActivity().getString(R.string.gallery), R.drawable.ic_photo_library_black_24dp);
 
+        //Click listener
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //Return intent based on item that has been clicked
                 String string = simpleDialogAdapter.getStringAtPosition(i);
                 Intent intent = new Intent();
                 if (string.equals(getString(R.string.camera))) {
