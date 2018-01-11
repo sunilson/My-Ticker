@@ -1,0 +1,33 @@
+<div [ngSwitch]='status'>
+  <div class="row" *ngSwitchCase="'loading'">
+    <div class="col-md-6 col-md-offset-3">
+      <app-loading></app-loading>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-md-offset-3 commentContainer" *ngSwitchCase="'finished'">
+    <app-liveticker-comment *ngFor="let comment of livetickerComments " [livetickerComment]=comment></app-liveticker-comment>
+  </div>
+
+  <div *ngSwitchCase="'empty'">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3 empty">
+        No comments yet...
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="input container">
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3 commentInputContainer">
+      <input type="text" maxlength="140" placeholder="Enter comment..." [value]="commentValue" #comment class="commentInput" />
+      <div class="inputButton" (click)="sendComment(comment.value)" *ngIf="addingComment == false">
+        <i class=" material-icons menuItem">send</i>
+      </div>
+      <div class="inputButton inputButtonDisabled" *ngIf="addingComment == true">
+        <i class=" material-icons menuItem">send</i>
+      </div>
+    </div>
+  </div>
+</div>

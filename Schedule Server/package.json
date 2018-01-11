@@ -1,0 +1,28 @@
+{
+  "name": "pro4-server",
+  "version": "1.0.0",
+  "description": "Node.js Server used for a Liveticker app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sunilson/PRO4-Server.git"
+  },
+  "author": "Linus Weiss",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sunilson/PRO4-Server/issues"
+  },
+  "homepage": "https://github.com/sunilson/PRO4-Server#readme",
+  "dependencies": {
+    "algoliasearch": "^3.22.1",
+    "express": "^4.15.2",
+    "firebase": "^3.7.1",
+    "firebase-admin": "^4.1.3",
+    "firebase-queue": "^1.6.1",
+    "node-schedule": "^1.2.1",
+    "validator": "^7.0.0"
+  }
+}

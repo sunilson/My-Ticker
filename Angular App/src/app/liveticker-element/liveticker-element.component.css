@@ -1,0 +1,106 @@
+
+.livetickerElementTextContainer {
+    margin-bottom: 15px;
+}
+
+.livetickerElement {
+    background: white;
+    color: rgba(0, 0, 0, 0.86);
+    border-color: rgba(202, 202, 202, 0.79);
+    border-style: solid;
+    border-bottom-width: 2px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 0px;
+    word-wrap: break-word;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    min-height: 70px;
+    border-radius:5px;
+    display: flex;
+    align-items: center;
+}
+
+.wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.imageCaption {
+    color: white;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.livetickerElementImage {
+    padding: 5px !important;
+}
+
+.elementImage {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.livetickerElement p {
+    margin-bottom: 0px;
+}
+
+.dateBox {
+    padding: 0;
+    text-align: center;
+}
+
+.time{
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 14px;
+    height:50%;
+}
+
+.date {
+    color: rgba(0, 0, 0, 0.54);
+    font-size:12px;
+    height:50%;
+}
+
+.imageCaption .time {
+    color: white;
+}
+
+.imageCaption .date {
+    color: white;
+}
+
+.livetickerElementTime {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.content {
+    padding-left: 0;
+}
+
+@media only screen and (max-width: 768px) {
+    .livetickerElement {
+        font-size: 16px;
+        min-height: 60px;
+    }
+
+    .time {
+        font-size: 12px;
+    }
+
+    .date {
+        font-size: 10px;
+    }
+}

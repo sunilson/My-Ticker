@@ -1,0 +1,92 @@
+.row{
+    display: flex;
+    align-items: center;
+}
+
+.commentProfilePicture {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+}
+
+.commentContainer{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background: white;
+    color: rgba(0, 0, 0, 0.86);
+    border-color: rgba(202, 202, 202, 0.79);
+    border-style: solid;
+    border-bottom-width: 2px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 0px;
+    word-wrap: break-word;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 20px;
+    min-height: 75px;
+    border-radius:5px;
+    display: flex;
+    align-items: center;
+}
+
+.dateContainer{
+    padding: 0;
+    text-align: center;
+}
+
+.contentContainer {
+    padding: 0;
+    padding-right: 15px;
+}
+
+.userName {
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 16px;
+    padding: 0;
+}
+
+.content {
+    color: rgba(0, 0, 0, 0.54);
+    font-size:14px;
+    padding: 0;
+}
+
+.time{
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 14px;
+    padding: 0;
+}
+
+.date {
+    color: rgba(0, 0, 0, 0.54);
+    font-size:12px;
+    padding: 0;
+}
+
+@media only screen and (max-width: 768px) {
+
+    .commentProfilePictureContainer {
+        display: none;
+    }
+
+    .commentProfilePicture {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+}
+
+    .time {
+        font-size: 12px;
+    }
+
+    .date {
+        font-size: 10px;
+    }
+
+    .content {
+        font-size: 12px
+    }
+}

@@ -1,0 +1,101 @@
+.header {
+    height: 60px;
+    background: #37474F;
+    display: flex;
+    align-items: center;
+    color: white;
+    -webkit-box-shadow: 0px 10px 15px -6px rgba(0,0,0,0.49);
+-moz-box-shadow: 0px 10px 15px -6px rgba(0,0,0,0.49);
+box-shadow: 0px 10px 15px -6px rgba(0,0,0,0.49);
+border-radius: 0;
+}
+
+.navigation {
+    padding: 0;
+}
+
+.stateCircle {
+    width: 15px;
+    min-width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    margin-right:15px;
+    background: red;
+}
+
+.started {
+    background: #00ff00 !important;
+}
+
+.back {
+    color:white;
+    display: flex;
+    align-items: center;
+}
+
+.finished {
+    background: grey !important;
+}
+
+.titleContainer {
+    width: 100%;
+}
+
+.titleContainerComments {
+    width: 100%;
+        display: flex;
+    align-items: center;
+}
+
+.title {
+    font-size: 20px;
+    height: 50%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 300px;
+}
+
+.titleComments{
+    padding-left: 18px;
+}
+
+.status {
+    height: 50%;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 300px;
+}
+
+.menuItems {
+    margin: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap
+}
+
+.menuItem {
+    margin-left: 20px;
+}
+
+@media only screen and (max-width: 768px) {
+    .stateCircle {
+        width: 15px;
+        min-width: 15px;
+        height: 15px;
+        border-radius: 15px;
+        margin-right:15px;
+        background: red;
+    }
+
+    .title {
+        max-width: 150px;
+    }
+
+    .status {
+        max-width: 150px;
+    }
+}

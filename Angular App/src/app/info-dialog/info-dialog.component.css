@@ -1,0 +1,10 @@
+.headline {
+    font-size: 18px;
+    margin-bottom: 0;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.content {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+}

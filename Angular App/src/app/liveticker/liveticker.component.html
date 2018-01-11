@@ -1,0 +1,53 @@
+<!-- <h1 class="livetickerTitle">{{(liveticker)?.title}}</h1> -->
+
+<div id="livetickerContainer" [ngSwitch]='status'>
+
+  <div *ngSwitchCase="'loading'">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <app-loading></app-loading>
+      </div>
+    </div>
+  </div>
+
+  <div *ngSwitchCase="'finished'">
+    <div class="userSection">
+      <div class="row">
+        <!-- <div class="col-md-6 col-md-offset-3 authorBox"  [style.background-image]="'url(' + author?.titlePicture + ')'"> -->
+        <div class="col-md-6 col-md-offset-3 authorBox">
+          <div>
+            <img src="assets/img/profile_placeholder.jpg" [lazyLoad]="author?.profilePicture" class="profilePicture" />
+            <span class="authorUsername">{{author?.userName}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3 socialBox">
+          <div [class.liked]="liked" class="col-xl-4 col-md-4 col-sm-4 col-xs-4 socialBoxItem clickable" (click)="like()"><i class="material-icons">&#xe87d;</i><span class="socialBoxItemCount">{{liveticker?.likeCount}}</span></div>
+          <a [routerLink]='["./comments"]'>
+            <div class="col-xl-4 col-md-4 col-sm-4 col-xs-4 socialBoxItem clickable"><i class="material-icons ">message</i><span class="socialBoxItemCount">{{liveticker?.commentCount}}</span>
+            </div>
+          </a>
+          <div class="col-xl-4 col-md-4 col-sm-4 col-xs-4 socialBoxItem"><i class="material-icons">&#xe417;</i><span class="socialBoxItemCount">{{viewerCount}}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row livetickerSection ">
+      <div class="col-md-6 col-md-offset-3 ">
+        <ul class="livetickerContentList ">
+          <app-liveticker-element *ngFor="let element of livetickerElements " [livetickerElement]=element></app-liveticker-element>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngSwitchCase=" 'error' ">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3 error">
+        Error loading Liveticker...
+      </div>
+    </div>
+  </div>
+</div>

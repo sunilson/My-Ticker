@@ -1,0 +1,30 @@
+<!-- <div class="row">
+  <div class="col-md-6 col-md-offset-3 header">
+    <span class="title">{{title}}</span>
+  </div>
+</div>
+-->
+
+<div class="navbar-fixed-top container navigation">
+  <nav class="navbar navbar-inverse col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-sm-offset-0 col-xs-12 col-xs-offset-0 header">
+    <div class="stateCircle {{state}}" *ngIf="currentRoute == 'liveticker'">
+    </div>
+    <div class="titleContainer" *ngIf="currentRoute == 'liveticker'">
+      <div class="title">{{title}}</div>
+      <div class="status">{{status}}</div>
+    </div>
+    <div class="titleContainerComments" *ngIf="currentRoute == 'comments'">
+      <a (click)="location.back()"><i class="material-icons clickable back">arrow_back</i></a>
+      <div class="title titleComments">Comments</div>
+    </div>
+    <p class="menuItems" *ngIf="currentRoute == 'comments'">
+      <i class="material-icons clickable menuItem" (click)="refresh()">refresh</i>
+    </p>
+    <p class="menuItems" *ngIf="currentRoute == 'liveticker'">
+      <i class="material-icons clickable menuItem" (click)="toggleNotifications()" *ngIf="notificationState">&#xe7f7;</i>
+      <i class="material-icons clickable menuItem" (click)="toggleNotifications()" *ngIf="!notificationState">&#xe7f5;</i>
+      <i class="material-icons clickable menuItem" (click)="share()">share</i>
+      <i class="material-icons clickable menuItem" (click)="info()">info</i>
+    </p>
+  </nav>
+</div>

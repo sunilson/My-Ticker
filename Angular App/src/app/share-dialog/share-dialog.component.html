@@ -1,0 +1,18 @@
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-body">
+      <div class="shareTitle">Share URL:</div>
+      <div class="code">
+        <a href="https://my-ticker.live/liveticker/{{message}}">https://my-ticker.live/liveticker/{{message}}</a>
+      </div>
+
+      <div class="shareTitle">Embed Code:</div>
+      <div class="code">
+        &lt;iframe width="400" height="400" frameBorder="0" seamless src="https://my-ticker.live/liveticker/{{message}}"&gt;&lt;/iframe&gt;
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" (click)="close()">Close</button>
+    </div>
+  </div>
+</div>

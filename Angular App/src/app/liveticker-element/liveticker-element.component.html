@@ -1,0 +1,35 @@
+<div class="row livetickerElementTextContainer" *ngIf="livetickerElement.type === 'text' || livetickerElement.type ==='state'">
+  <div class="col-md-12 livetickerElement">
+    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 content">{{livetickerElement.content}}</div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 dateBox">
+      <div class="time">
+        {{getTime()}}
+      </div>
+      <div class="date">
+        {{getDate()}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row livetickerElementTextContainer" *ngIf="livetickerElement.type === 'image'">
+  <a [href]="livetickerElement?.content" target="_blank">
+    <div class="col-md-12 livetickerElementImage livetickerElement">
+      <div class="wrapper">
+        <!--<a [routerLink]='["./image/blabla"]'> -->
+        <img src="/assets/img/thumbnail_placeholder.jpg" [lazyLoad]="livetickerElement?.thumbnail" class="elementImage" />
+        <div class="imageCaption">
+          <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">caption</div>
+          <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 dateBox">
+            <div class="time">
+              {{getTime()}}
+            </div>
+            <div class="date">
+              {{getDate()}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </a>
+</div>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>MTD280 Example</title>
+
+</head>
+
+<body>
+
+<script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCQK_GYYmiGPOMnO6R_J7D71NAPkj-C5Ec",
+    authDomain: "pro4-84e1f.firebaseapp.com",
+    databaseURL: "https://pro4-84e1f.firebaseio.com",
+    storageBucket: "pro4-84e1f.appspot.com",
+    messagingSenderId: "1059975207216"
+  };
+  firebase.initializeApp(config);
+
+  var ref = firebase.database().ref('queue/recentlyVisitedQueue/specs');
+
+  ref.child("recentlyVisitedSpec").set({
+      "in_progress_state": "in_progress",
+      "error_state": "error",
+      "timeout": 300000, // 5 minutes
+      "retries": 0
+  });
+  /*
+
+  ref.child("pushEventSpec").set({
+      "in_progress_state": "in_progress",
+      "error_state": "error",
+      "timeout": 300000, // 5 minutes
+      "retries": 0, // don't retry
+      "finished_state": "success",
+      "start_state": "eventAdded"
+  });
+
+/*
+
+  var ref = firebase.database().ref('queue/livetickerQueue/tasks');
+  ref.push({
+    'title': 'Halloo',
+    'description': 'Lorem ipsum dolor sit amet!',
+    'start': 'optional',
+    'end': 'optional',
+    'authorID': 'bla',
+    'privacy': 'private',
+    'allowed': ["weisslinus@gmail.com", "sarah@gmx.at"]
+  }).then((snap) => {
+      var key = snap.key;
+  });
+  */
+/*
+  var ref = firebase.database().ref('recentlyVisited/EN4KzAhopnVBRgCVZilK6eiDJai1/-Kg9cmt51RKnMEUdrPLl');
+  ref.set("-Kg9cmt51RKnMEUdrPLl");
+  */
+</script>
+</body>
+</html>
