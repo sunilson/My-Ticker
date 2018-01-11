@@ -24,6 +24,7 @@ public class RegisterDialog extends BaseDialog {
         //Set "Confirm" button
         builder.setPositiveButton(R.string.register_button, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                //Go to authentication activity when "register" is clicked
                 getDialog().dismiss();
                 Intent i = new Intent(getContext(), AuthenticationActivity.class);
                 startActivity(i);

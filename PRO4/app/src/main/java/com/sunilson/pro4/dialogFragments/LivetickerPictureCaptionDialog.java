@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -74,9 +75,11 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
             }
         });
 
+        //What happens when flash icon is clicked
         flash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Switch through the different flash settings
                 if (flashState == 0) {
                     cameraView.setFlash(CameraKit.Constants.FLASH_AUTO);
                     flash.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_flash_auto_white_24dp));
@@ -164,7 +167,6 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
 
         Dialog dialog = builder.create();
 
-        /*
         dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
@@ -175,10 +177,9 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
                         getDialog().dismiss();
                     }
                 }
-                return true;
+                return false;
             }
         });
-        */
 
         return dialog;
     }
@@ -191,10 +192,13 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
         cameraView.stop();
     }
 
+    /**
+     * Toggle between caption and camera mode
+     *
+     * @param camera show camera or not
+     */
     private void switchCameraCaption(boolean camera) {
-
         captioning = !camera;
-
         if (!camera) {
             cameraView.stop();
             getActivity().runOnUiThread(new Runnable() {
@@ -215,6 +219,7 @@ public class LivetickerPictureCaptionDialog extends ImageBaseDialog {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
 
+        //If a file has been created, delete it
         if (cameraURI != null) {
             File file = new File(cameraURI.getPath());
             file.delete();

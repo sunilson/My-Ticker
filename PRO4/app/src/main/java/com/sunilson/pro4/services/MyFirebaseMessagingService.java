@@ -1,6 +1,5 @@
 package com.sunilson.pro4.services;
 
-import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 import java.util.Random;
 
 import static com.sunilson.pro4.utilities.Constants.CONTENT_TYPE_IMAGE;
@@ -43,25 +41,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.i(Constants.LOGGING_TAG, remoteMessage.toString());
 
+        //Get shared preferences
         sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_TAG, Context.MODE_PRIVATE);
         Boolean notifications = sharedPreferences.getBoolean(Constants.SHARED_PREF_KEY_NOTIFICATIONS, true);
 
+        //If notification contains any data and notifications are activated
         if (remoteMessage.getData().size() > 0 && notifications) {
             String author, type, authorID;
 
             type = remoteMessage.getData().get("type");
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+            //Build notification depending on the content of the notification
             if (type != null) {
                 final String livetickerID = remoteMessage.getData().get("livetickerID");
                 authorID = remoteMessage.getData().get("authorID");
                 final String title = remoteMessage.getData().get("title");
 
+                //New Event in a liveticker
                 if (type.equals("livetickerEventAdded")) {
-
                     String contentType = remoteMessage.getData().get("contentType");
-
                     if (livetickerID != null && user != null && title != null && contentType != null && !authorID.equals(user.getUid())) {
+                        //Check what type the content of the event has
                         if (contentType.equals(CONTENT_TYPE_STATE)) {
                             String content = remoteMessage.getData().get("content");
                             if (content.equals("started")) {
@@ -93,6 +94,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             String thumbnail = remoteMessage.getData().get("thumbnail");
                             final String caption = remoteMessage.getData().get("caption");
 
+                            //Get thumbnail bitmap
                             Bitmap bitmap = getBitmapFromURL(thumbnail);
 
                             mBuilder = new NotificationCompat.Builder(MyFirebaseMessagingService.this)
@@ -107,6 +109,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     }
                 }
 
+                //New Liveticker has been added
                 if (type.equals("livetickerAdded")) {
                     author = remoteMessage.getData().get("author");
 
@@ -124,38 +127,41 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    /**
+     * Finish building the notification and show it to the user
+     *
+     * @param mBuilder Initialized Notification Builder
+     * @param livetickerID ID of liveticker of the notification
+     */
     private void showNotification(NotificationCompat.Builder mBuilder, String livetickerID) {
         if (mBuilder != null) {
             if (sharedPreferences.getBoolean(Constants.SHARED_PREF_KEY_NOTIFICATIONS_VIBRATION, true)) {
                 mBuilder.setVibrate(new long[]{0, 500, 200, 500});
             }
 
+            //Intent that is used to navigate to the liveticker after notification is clicked
             Intent resultIntent = new Intent(this, MainActivity.class);
             resultIntent.putExtra("livetickerID", livetickerID);
             resultIntent.putExtra("type", Constants.INTENT_TYPE_NOTIFICATION);
             resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             mBuilder.setContentIntent(resultPendingIntent);
+
+            //Show notification
             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Random random = new Random();
+            //Give notification a random id so it doesn't stack with other notifications
             int m = random.nextInt(9999 - 1000) + 1000;
             mNotificationManager.notify(m, mBuilder.build());
         }
     }
 
-    private boolean applicationInForeground() {
-        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> services = activityManager.getRunningAppProcesses();
-        boolean isActivityFound = false;
-
-        if (services.get(0).processName
-                .equalsIgnoreCase(getPackageName())) {
-            isActivityFound = true;
-        }
-
-        return isActivityFound;
-    }
-
+    /**
+     * Get a bitmap from a given image URL
+     *
+     * @param strURL URL of image
+     * @return Generated bitmap from downloaded image
+     */
     private Bitmap getBitmapFromURL(String strURL) {
         try {
             URL url = new URL(strURL);

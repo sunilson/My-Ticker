@@ -900,20 +900,25 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         livetickerListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //Retrieve the changed Liveticker
                 liveticker = dataSnapshot.getValue(Liveticker.class);
+                //Check if Liveticker exists and is valid
                 if (liveticker != null && liveticker.getAuthorID() != null) {
                     try {
+                        //Merge with key of data
                         liveticker.setLivetickerID(dataSnapshot.getKey());
                     } catch (LivetickerSetException e) {
                         e.printStackTrace();
                     }
 
+                    //Check if comment count has changed since the last update
                     if (oldCommentCount == 0) oldCommentCount = liveticker.getCommentCount();
                     if (oldCommentCount != liveticker.getCommentCount())
                         updateCommentIcon(liveticker.getCommentCount() - oldCommentCount);
 
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+                    //If we are logged in start all required listeners for the rest of the data
                     if (user != null) {
                         checkOwnership(user);
 
@@ -932,8 +937,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
                         }
                     }
 
+                    //Check if all of the data has been loaded already
                     checkDoneLoading();
                 } else {
+                    //Close Activity if liveticker is invalid
                     Toast.makeText(getContext(), R.string.liveticker_load_failure, Toast.LENGTH_LONG).show();
                     getActivity().finish();
                 }
@@ -950,6 +957,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         viewerListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //If the viewer count of the liveticker changes, update it
                 if (dataSnapshot != null && dataSnapshot.getValue() != null) {
                     viewerCount.setText(Integer.toString(dataSnapshot.getValue(Integer.class)));
                 }
@@ -966,6 +974,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     /* --------- Listener Helper Methods --------- */
     /* ------------------------------------------- */
 
+    /**
+     * Checks if given user is the author of the liveticker
+     *
+     * @param user A Firebase User Object
+     */
     private void checkOwnership(FirebaseUser user) {
         if (liveticker != null) {
             if (user.getUid().equals(liveticker.getAuthorID())) {
@@ -978,6 +991,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Start listening for the subscription status
+     *
+     * @param user Firebase User to check for
+     */
     private void startSubscriptionListener(FirebaseUser user) {
         //First remove current Listener
         if (subscriptionReference != null && subscriptionListener != null) {
@@ -988,11 +1006,19 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         subscriptionReference.addValueEventListener(subscriptionListener);
     }
 
+    /**
+     * Add this liveticker to given users recently visited list
+     *
+     * @param user Firebase User to add the liveticker to
+     */
     private void addToRecentlyVisited(FirebaseUser user) {
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("recentlyVisited/" + user.getUid() + "/" + liveticker.getLivetickerID());
         dRef.setValue(ServerValue.TIMESTAMP);
     }
 
+    /**
+     * Start time interval in which the user is registered again as a viewer (gets deleted from server after 10 minutes inactivity)
+     */
     private void refreshViewer() {
         final Handler handler = new Handler();
         if (timer != null) {
@@ -1015,11 +1041,19 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         timer.schedule(doAsynchronousTask, 300000, 300000);
     }
 
+    /**
+     * Listen to viewer count changes
+     */
     private void startViewListener() {
         viewerCountRef = FirebaseDatabase.getInstance().getReference("viewerCount/" + liveticker.getLivetickerID());
         viewerCountRef.addValueEventListener(viewerListener);
     }
 
+    /**
+     * Start listening for the notification status of given user
+     *
+     * @param user Firebase User
+     */
     private void startNotificationsListener(FirebaseUser user) {
         FirebaseDatabase.getInstance().getReference("notifications/" + liveticker.getLivetickerID() + "/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -1035,11 +1069,19 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         });
     }
 
+    /**
+     * Get author details
+     */
     private void startAuthorListener() {
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("users/" + liveticker.getAuthorID());
         dRef.addListenerForSingleValueEvent(authorListener);
     }
 
+    /**
+     * Check if user has liked the liveticker
+     *
+     * @param user Firebase User
+     */
     private void startLikeListener(FirebaseUser user) {
         if (likeReference != null && likedListener != null) {
             likeReference.removeEventListener(likedListener);
@@ -1049,6 +1091,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         likeReference.addValueEventListener(likedListener);
     }
 
+    /**
+     * Register a user in viewer path of liveticker
+     *
+     * @param user Firebase user
+     */
     private void registerAsViewer(FirebaseUser user) {
         if (user != null && viewerRef == null) {
             viewerRef = FirebaseDatabase.getInstance().getReference("viewer/" + liveticker.getLivetickerID() + "/" + user.getUid());
@@ -1058,8 +1105,14 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         viewerRef.setValue(ServerValue.TIMESTAMP);
     }
 
+    /**
+     * Update all the views in the Fragment when data changes
+     *
+     * @param type What has changed?
+     */
     private void updateViews(String type) {
 
+        //If liveticker data or both have changed
         if (type.equals("liveticker") || type.equals("both")) {
             if (liveticker != null) {
 
@@ -1121,6 +1174,7 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
             }
         }
 
+        //If author or both have changed
         if (type.equals("author") || type.equals("both")) {
             if (author != null) {
                 if (author.getUserName() != null) {
@@ -1136,10 +1190,15 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Subscribe to the author of the liveticker
+     */
     public void subscribeToAuthor() {
+        //Check if we are logged in and liveticker is valid
         if (FirebaseAuth.getInstance().getCurrentUser() != null && liveticker != null) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             subscribeButtonView.loading(true);
+            //Check if already subscribed
             if (!subscribed) {
                 DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("subscribedTo/" + user.getUid() + "/" + liveticker.getAuthorID());
                 dRef.setValue(true).addOnFailureListener(new OnFailureListener() {
@@ -1160,6 +1219,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Show notification on new comments
+     *
+     * @param count new comment count
+     */
     public void updateCommentIcon(int count) {
         if (count > 0 && count < 10) {
             commentIconCount.setText(String.valueOf(count));
@@ -1168,6 +1232,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         redCircle.setVisibility((count > 0) ? VISIBLE : GONE);
     }
 
+    /**
+     * Check if all listeners are done loading their data
+     */
     private void checkDoneLoading() {
         loaded++;
 
@@ -1180,6 +1247,11 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Display loading animation or content
+     *
+     * @param loading Loading finished or not
+     */
     private void loading(boolean loading) {
         if (loading) {
             swipeRefreshLayout.setEnabled(true);
@@ -1204,6 +1276,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
     /* ------------ Liveticker Methods ----------- */
     /* ------------------------------------------- */
 
+    /**
+     * Delete this liveticker
+     */
     private void deleteLiveticker() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/deleteLiveticker/").push();
@@ -1217,6 +1292,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         });
     }
 
+    /**
+     * Change state of this liveticker to the next one
+     */
     private void toggleState() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference dRef = FirebaseDatabase.getInstance().getReference("request/" + user.getUid() + "/toggleState/").push();
@@ -1230,6 +1308,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         });
     }
 
+    /**
+     * Set the correct notification icon
+     */
     private void checkNotifications() {
         if (notificationsOn) {
             notificationMenuItem.setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_notifications_active_white_24dp));
@@ -1239,8 +1320,10 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Activate or deactivate notifications for this liveticker for the currently logged in user
+     */
     private void toggleNotifications() {
-
         notificationsOn = !notificationsOn;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (liveticker != null && liveticker.getLivetickerID() != null && user != null) {
@@ -1274,6 +1357,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Like or dislike notifications for this liveticker for the given user
+     */
     private void toggleLike(FirebaseUser user) {
         if (liveticker != null && liveticker.getLivetickerID() != null && user != null && !user.isAnonymous()) {
             if (liked) {
@@ -1297,6 +1383,9 @@ public class LivetickerFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Show comment section fragment and remove comment notifications
+     */
     private void openCommentSection() {
         if (liveticker.getLivetickerID() != null) {
             oldCommentCount = liveticker.getCommentCount();
