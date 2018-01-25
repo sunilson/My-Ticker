@@ -4,10 +4,6 @@
 
 The app is written in Java. Due to time restraints, it has not been completely finished and released, but the prototype is mostly working.
 
-For the web app written in Angular see here: <a href="https://github.com/sunilson/My-Ticker-Angular-App">https://github.com/sunilson/My-Ticker-Angular-App</a>
-
-For the server side cloud functions see here: <a href="https://github.com/sunilson/My-Ticker-Cloud-Functions">https://github.com/sunilson/My-Ticker-Cloud-Functions</a>
-
 Table of Contents
 =================
 
